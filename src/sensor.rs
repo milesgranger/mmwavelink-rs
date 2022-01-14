@@ -348,3 +348,11 @@ impl FrameConfig {
         })
     }
 }
+
+#[test]
+fn test_frame_config_size() {
+    assert_eq!(
+        core::mem::size_of::<FrameConfig>(),
+        core::mem::size_of::<ffi::rlFrameCfg>()
+    );
+}
