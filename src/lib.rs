@@ -1,3 +1,7 @@
+#![no_std]
+
+pub mod sensor;
+
 #[cfg(test)]
 mod tests {
     #[test]

@@ -1,10 +1,4 @@
 #![no_std]
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-}
+#![allow(non_snake_case, non_upper_case_globals, non_camel_case_types)]
+pub mod ffi;
+pub use ffi::*;
