@@ -142,70 +142,177 @@ pub fn rf_set_device_cfg(device_map: u8, data: &mut ffi::rlRfDevCfg_t) -> i32 {
     unsafe { ffi::rlRfSetDeviceCfg(device_map, data as *mut _) }
 }
 
-/*
 ///Configure GP ADC data parameters
-pub fn set_gp_adc_config (u8 device_map, rlGpAdcCfg_t &mut data: )
-/// Enable/Disable phase shift configurations per chirp in each of the TXs.
-pub fn rf_set_phase_shift_config (u8 device_map, rlUInt16_t cnt, rlRfPhaseShiftCfg_t &mut data: )
-/// Enable/Disable PA loopback for all enabled profiles.
-pub fn rf_set_p_a_loopback_config (u8 device_map, rlRfPALoopbackCfg_t &mut data: )
-/// Enable/Disable Phase shift loopback for all enabled profiles.
-pub fn rf_set_p_s_loopback_config (u8 device_map, rlRfPSLoopbackCfg_t &mut data: )
-/// Enable/Disable RF IF loopback for all enabled profiles. This is used for debug to check if both TX and RX chains are working correctly.
-pub fn rf_set_i_f_loopback_config (u8 device_map, rlRfIFLoopbackCfg_t &mut data: )
-/// Set Programmable Filter coefficient RAM.
-pub fn rf_set_prog_filt_coeff_ram (u8 device_map, rlRfProgFiltCoeff_t &mut data: )
-/// Set Programmable Filter configuration.
-pub fn rf_set_prog_filt_config (u8 device_map, rlRfProgFiltConf_t &mut data: )
-/// Sets misc feature such as per chirp phase shifter.
-pub fn rf_set_misc_config (u8 device_map, rlRfMiscConf_t &mut data: )
-/// Set Calibration monitoring time unit.
-pub fn rf_set_cal_mon_time_unit_config (u8 device_map, rlRfCalMonTimeUntConf_t &mut data: )
-/// Set Calibration monitoring Frequency Limit.
-pub fn rf_set_cal_mon_freq_limit_config (u8 device_map, rlRfCalMonFreqLimitConf_t &mut data: )
-/// Set RF Init Calibration Mask bits and report type.
-pub fn rf_init_calib_config (u8 device_map, rlRfInitCalConf_t &mut data: )
-/// Set RF one time & periodic calibration of various RF/analog aspects and trigger.
-pub fn rf_run_time_calib_config (u8 device_map, rlRunTimeCalibConf_t &mut data: )
-/// Overwrite RX gain temperature Lookup Table(LUT) in Radar SS.
-pub fn rx_gain_temp_lut_set (u8 device_map, rlRxGainTempLutData_t &mut data: )
-/// Overwrites TX gain temperature based Lookup table (LUT)
-pub fn tx_gain_temp_lut_set (u8 device_map, rlTxGainTempLutData_t &mut data: )
-/// Sets the limits for RF frequency transmission for each TX and also TX power limits.
-pub fn rf_tx_freq_pwr_limit_config (u8 device_map, rlRfTxFreqPwrLimitMonConf_t &mut data: )
-/// This API is used to introduce loopback chirps within the functional frames.
-pub fn set_loop_bck_burst_cfg (u8 device_map, rlLoopbackBurst_t &mut data: )
-/// Injects chirp configuration to be programmed dynamically.
-pub fn set_dyn_chirp_cfg (u8 device_map, rlUInt16_t segCnt, rlDynChirpCfg_t **data)
-/// Triggers copy of chirp config from SW to HW RAM.
-pub fn set_dyn_chirp_en (u8 device_map, rlDynChirpEnCfg_t &mut data: )
-/// Injects per-chirp phase shifter configuration to be applied dynamically.
-pub fn set_dyn_per_chirp_ph_shifter_cfg (u8 device_map, rlUInt16_t segCnt, rlDynPerChirpPhShftCfg_t **data)
-/// Read calibration data from the device.
-pub fn rf_calib_data_store (u8 device_map, rlCalibrationData_t &mut data: )
-/// Injects calibration data to the device.
-pub fn rf_calib_data_restore (u8 device_map, rlCalibrationData_t &mut data: )
-/// Sets different Rx gain/phase offset.
-pub fn rf_inter_rx_gain_phase_config (u8 device_map, rlInterRxGainPhConf_t &mut data: )
-/// Get radarSS bootup status.
-pub fn get_rf_bootup_status (u8 device_map, rlRfBootStatusCfg_t &mut data: )
-/// Sets Inter-chip turn on and turn off times or various RF blocks.
-pub fn set_inter_chirp_blk_ct (u8 device_map, rlInterChirpBlkCtrlCfg_t &mut data: )
-/// Triggers the next sub-frame in software triggered sub-frame mode.
-pub fn set_sub_frame_start (u8 device_map, rlSubFrameStartCfg_t &mut data: )
-/// Read calibration data from the device.
-pub fn rf_ph_shift_calib_data_store (u8 device_map, rlPhShiftCalibrationData_t &mut data: )
-/// Injects phase shifter calibration data to the device.
-pub fn rf_ph_shift_calib_data_restore (u8 device_map, rlPhShiftCalibrationData_t &mut data: )
-/// Get device die ID status.
-pub fn get_rf_die_id (u8 device_map, rlRfDieIdCfg_t &mut data: )
-/// Get RadarSS ESM fault status.
-pub fn rf_get_esm_fault (u8 device_map, rlBssEsmFault_t &mut data: )
-/// Get RadarSS CPU fault status.
-pub fn rf_get_cpu_fault (u8 device_map, rlCpuFault_t &mut data: )
-/// Control bandwidth of the APLL and Synthesizer.
-pub fn rf_apll_synth_bw_ctl_config (u8 device_map, rlRfApllSynthBwControl_t &mut data: )
-/// Sets the power save mode Configuration.
-pub fn set_power_save_mode_config (u8 device_map, rlPowerSaveModeCfg_t &mut data: )
+pub fn set_gp_adc_config(device_map: u8, data: &mut ffi::rlGpAdcCfg) -> i32 {
+    unsafe { ffi::rlSetGpAdcConfig(device_map, data as *mut _) }
+}
 
- */
+/// Enable/Disable phase shift configurations per chirp in each of the TXs.
+pub fn rf_set_phase_shift_config(
+    device_map: u8,
+    cnt: u16,
+    data: &mut ffi::rlRfPhaseShiftCfg,
+) -> i32 {
+    unsafe { ffi::rlRfSetPhaseShiftConfig(device_map, cnt, data as *mut _) }
+}
+
+/// Enable/Disable PA loopback for all enabled profiles.
+pub fn rf_set_p_a_loopback_config(device_map: u8, data: &mut ffi::rlRfPALoopbackCfg) -> i32 {
+    unsafe { ffi::rlRfSetPALoopbackConfig(device_map, data as *mut _) }
+}
+
+/// Enable/Disable Phase shift loopback for all enabled profiles.
+pub fn rf_set_p_s_loopback_config(device_map: u8, data: &mut ffi::rlRfPSLoopbackCfg) -> i32 {
+    unsafe { ffi::rlRfSetPSLoopbackConfig(device_map, data as *mut _) }
+}
+
+/// Enable/Disable RF IF loopback for all enabled profiles. This is used for debug to check if both TX and RX chains are working correctly.
+pub fn rf_set_i_f_loopback_config(device_map: u8, data: &mut ffi::rlRfIFLoopbackCfg) -> i32 {
+    unsafe { ffi::rlRfSetIFLoopbackConfig(device_map, data as *mut _) }
+}
+
+/// Set Programmable Filter coefficient RAM.
+pub fn rf_set_prog_filt_coeff_ram(device_map: u8, data: &mut ffi::rlRfProgFiltCoeff) -> i32 {
+    unsafe { ffi::rlRfSetProgFiltCoeffRam(device_map, data as *mut _) }
+}
+
+/// Set Programmable Filter configuration.
+pub fn rf_set_prog_filt_config(device_map: u8, data: &mut ffi::rlRfProgFiltConf) -> i32 {
+    unsafe { ffi::rlRfSetProgFiltConfig(device_map, data as *mut _) }
+}
+
+/// Sets misc feature such as per chirp phase shifter.
+pub fn rf_set_misc_config(device_map: u8, data: &mut ffi::rlRfMiscConf) -> i32 {
+    unsafe { ffi::rlRfSetMiscConfig(device_map, data as *mut _) }
+}
+
+/// Set Calibration monitoring time unit.
+pub fn rf_set_cal_mon_time_unit_config(
+    device_map: u8,
+    data: &mut ffi::rlRfCalMonTimeUntConf,
+) -> i32 {
+    unsafe { ffi::rlRfSetCalMonTimeUnitConfig(device_map, data as *mut _) }
+}
+
+/// Set Calibration monitoring Frequency Limit.
+pub fn rf_set_cal_mon_freq_limit_config(
+    device_map: u8,
+    data: &mut ffi::rlRfCalMonFreqLimitConf,
+) -> i32 {
+    unsafe { ffi::rlRfSetCalMonFreqLimitConfig(device_map, data as *mut _) }
+}
+
+/// Set RF Init Calibration Mask bits and report type.
+pub fn rf_init_calib_config(device_map: u8, data: &mut ffi::rlRfInitCalConf) -> i32 {
+    unsafe { ffi::rlRfInitCalibConfig(device_map, data as *mut _) }
+}
+
+/// Set RF one time & periodic calibration of various RF/analog aspects and trigger.
+pub fn rf_run_time_calib_config(device_map: u8, data: &mut ffi::rlRunTimeCalibConf) -> i32 {
+    unsafe { ffi::rlRfRunTimeCalibConfig(device_map, data as *mut _) }
+}
+
+/// Overwrite RX gain temperature Lookup Table(LUT) in Radar SS.
+pub fn rx_gain_temp_lut_set(device_map: u8, data: &mut ffi::rlRxGainTempLutData) -> i32 {
+    unsafe { ffi::rlRxGainTempLutSet(device_map, data as *mut _) }
+}
+
+/// Overwrites TX gain temperature based Lookup table (LUT)
+pub fn tx_gain_temp_lut_set(device_map: u8, data: &mut ffi::rlTxGainTempLutData) -> i32 {
+    unsafe { ffi::rlTxGainTempLutSet(device_map, data as *mut _) }
+}
+
+/// Sets the limits for RF frequency transmission for each TX and also TX power limits.
+pub fn rf_tx_freq_pwr_limit_config(
+    device_map: u8,
+    data: &mut ffi::rlRfTxFreqPwrLimitMonConf,
+) -> i32 {
+    unsafe { ffi::rlRfTxFreqPwrLimitConfig(device_map, data as *mut _) }
+}
+
+/// This API is used to introduce loopback chirps within the functional frames.
+pub fn set_loop_bck_burst_cfg(device_map: u8, data: &mut ffi::rlLoopbackBurst) -> i32 {
+    unsafe { ffi::rlSetLoopBckBurstCfg(device_map, data as *mut _) }
+}
+
+/// Injects chirp configuration to be programmed dynamically.
+pub fn set_dyn_chirp_cfg(device_map: u8, seg_cnt: u16, data: &mut ffi::rlDynChirpCfg) -> i32 {
+    let mut ptr = data as *mut _;
+    unsafe { ffi::rlSetDynChirpCfg(device_map, seg_cnt, &mut ptr as *mut _) }
+}
+
+/// Triggers copy of chirp config from SW to HW RAM.
+pub fn set_dyn_chirp_en(device_map: u8, data: &mut ffi::rlDynChirpEnCfg) -> i32 {
+    unsafe { ffi::rlSetDynChirpEn(device_map, data as *mut _) }
+}
+
+/// Injects per-chirp phase shifter configuration to be applied dynamically.
+pub fn set_dyn_per_chirp_ph_shifter_cfg(
+    device_map: u8,
+    seg_cnt: u16,
+    data: &mut ffi::rlDynPerChirpPhShftCfg,
+) -> i32 {
+    let mut ptr = data as *mut _;
+    unsafe { ffi::rlSetDynPerChirpPhShifterCfg(device_map, seg_cnt, &mut ptr as *mut _) }
+}
+
+/// Read calibration data from the device.
+pub fn rf_calib_data_store(device_map: u8, data: &mut ffi::rlCalibrationData) -> i32 {
+    unsafe { ffi::rlRfCalibDataStore(device_map, data as *mut _) }
+}
+
+/// Injects calibration data to the device.
+pub fn rf_calib_data_restore(device_map: u8, data: &mut ffi::rlCalibrationData) -> i32 {
+    unsafe { ffi::rlRfCalibDataRestore(device_map, data as *mut _) }
+}
+
+/// Sets different Rx gain/phase offset.
+pub fn rf_inter_rx_gain_phase_config(device_map: u8, data: &mut ffi::rlInterRxGainPhConf) -> i32 {
+    unsafe { ffi::rlRfInterRxGainPhaseConfig(device_map, data as *mut _) }
+}
+/// Get radarSS bootup status.
+pub fn get_rf_bootup_status(device_map: u8, data: &mut ffi::rlRfBootStatusCfg) -> i32 {
+    unsafe { ffi::rlGetRfBootupStatus(device_map, data as *mut _) }
+}
+/// Sets Inter-chip turn on and turn off times or various RF blocks.
+pub fn set_inter_chirp_blk_ct(device_map: u8, data: &mut ffi::rlInterChirpBlkCtrlCfg) -> i32 {
+    unsafe { ffi::rlSetInterChirpBlkCtrl(device_map, data as *mut _) }
+}
+/// Triggers the next sub-frame in software triggered sub-frame mode.
+pub fn set_sub_frame_start(device_map: u8, data: &mut ffi::rlSubFrameStartCfg) -> i32 {
+    unsafe { ffi::rlSetSubFrameStart(device_map, data as *mut _) }
+}
+/// Read calibration data from the device.
+pub fn rf_ph_shift_calib_data_store(
+    device_map: u8,
+    data: &mut ffi::rlPhShiftCalibrationData,
+) -> i32 {
+    unsafe { ffi::rlRfPhShiftCalibDataStore(device_map, data as *mut _) }
+}
+/// Injects phase shifter calibration data to the device.
+pub fn rf_ph_shift_calib_data_restore(
+    device_map: u8,
+    data: &mut ffi::rlPhShiftCalibrationData,
+) -> i32 {
+    unsafe { ffi::rlRfPhShiftCalibDataRestore(device_map, data as *mut _) }
+}
+/// Get device die ID status.
+pub fn get_rf_die_id(device_map: u8, data: &mut ffi::rlRfDieIdCfg) -> i32 {
+    unsafe { ffi::rlGetRfDieId(device_map, data as *mut _) }
+}
+/// Get RadarSS ESM fault status.
+pub fn rf_get_esm_fault(device_map: u8, data: &mut ffi::rlBssEsmFault) -> i32 {
+    unsafe { ffi::rlRfGetEsmFault(device_map, data as *mut _) }
+}
+/// Get RadarSS CPU fault status.
+pub fn rf_get_cpu_fault(device_map: u8, data: &mut ffi::rlCpuFault) -> i32 {
+    unsafe { ffi::rlRfGetCpuFault(device_map, data as *mut _) }
+}
+/// Control bandwidth of the APLL and Synthesizer.
+pub fn rf_apll_synth_bw_ctl_config(device_map: u8, data: &mut ffi::rlRfApllSynthBwControl) -> i32 {
+    unsafe { ffi::rlRfApllSynthBwCtlConfig(device_map, data as *mut _) }
+}
+/// Sets the power save mode Configuration.
+pub fn set_power_save_mode_config(device_map: u8, data: &mut ffi::rlPowerSaveModeCfg) -> i32 {
+    unsafe { ffi::rlSetPowerSaveModeConfig(device_map, data as *mut _) }
+}
