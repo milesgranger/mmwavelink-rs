@@ -57,13 +57,13 @@ pub fn set_multi_chirp_config(device_map: u8, cnt: u16, data: &mut ffi::rlChirpC
 }
 
 /// Gets Frame Configuration.
-pub fn get_frame_config(device_map: u8, data: &mut ffi::rlFrameCfg) -> i32 {
-    unsafe { ffi::rlGetFrameConfig(device_map, data as *mut _) }
+pub fn get_frame_config(device_map: u8, data: &mut FrameConfig) -> i32 {
+    unsafe { ffi::rlGetFrameConfig(device_map, &mut data.0 as *mut _) }
 }
 
 /// Sets Frame Configuration.
-pub fn set_frame_config(device_map: u8, data: &mut ffi::rlFrameCfg) -> i32 {
-    unsafe { ffi::rlSetFrameConfig(device_map, data as *mut _) }
+pub fn set_frame_config(device_map: u8, data: &mut FrameConfig) -> i32 {
+    unsafe { ffi::rlSetFrameConfig(device_map, &mut data.0 as *mut _) }
 }
 
 /// Triggers Transmission of Frames.
@@ -315,4 +315,36 @@ pub fn rf_apll_synth_bw_ctl_config(device_map: u8, data: &mut ffi::rlRfApllSynth
 /// Sets the power save mode Configuration.
 pub fn set_power_save_mode_config(device_map: u8, data: &mut ffi::rlPowerSaveModeCfg) -> i32 {
     unsafe { ffi::rlSetPowerSaveModeConfig(device_map, data as *mut _) }
+}
+
+/// API over `mmwavelink::ffi::rlFrameCfg`
+#[repr(transparent)]
+pub struct FrameConfig(ffi::rlFrameCfg);
+
+impl FrameConfig {
+    pub fn new(
+        chirp_start_idx: u16,
+        chirp_end_idx: u16,
+        n_loops: u16,
+        n_frames: u16,
+        n_adc_samples: u16,
+        frame_periodicity: u32,
+        trigger_select: u16,
+        n_dummy_chirps_at_end: u8,
+        frame_trigger_delay: u32,
+    ) -> Self {
+        Self(ffi::rlFrameCfg {
+            reserved0: 0,
+            chirpStartIdx: chirp_start_idx,
+            chirpEndIdx: chirp_end_idx,
+            numLoops: n_loops,
+            numFrames: n_frames,
+            numAdcSamples: n_adc_samples,
+            framePeriodicity: frame_periodicity,
+            triggerSelect: trigger_select,
+            reserved1: 0,
+            numDummyChirpsAtEnd: n_dummy_chirps_at_end,
+            frameTriggerDelay: frame_trigger_delay,
+        })
+    }
 }
