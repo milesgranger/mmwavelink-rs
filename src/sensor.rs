@@ -57,13 +57,13 @@ pub fn set_multi_chirp_config(device_map: u8, cnt: u16, data: &mut ffi::rlChirpC
 }
 
 /// Gets Frame Configuration.
-pub fn get_frame_config(device_map: u8, data: &mut ffi::rlFrameCfg) -> i32 {
-    unsafe { ffi::rlGetFrameConfig(device_map, data as *mut _) }
+pub fn get_frame_config(device_map: u8, data: &mut FrameConfig) -> i32 {
+    unsafe { ffi::rlGetFrameConfig(device_map, &mut data.0 as *mut _) }
 }
 
 /// Sets Frame Configuration.
-pub fn set_frame_config(device_map: u8, data: &mut ffi::rlFrameCfg) -> i32 {
-    unsafe { ffi::rlSetFrameConfig(device_map, data as *mut _) }
+pub fn set_frame_config(device_map: u8, data: &mut FrameConfig) -> i32 {
+    unsafe { ffi::rlSetFrameConfig(device_map, &mut data.0 as *mut _) }
 }
 
 /// Triggers Transmission of Frames.
@@ -77,13 +77,13 @@ pub fn sensor_stop(device_map: u8) -> i32 {
 }
 
 /// Gets Advance Frame Configuration.
-pub fn get_adv_frame_config(device_map: u8, data: &mut ffi::rlAdvFrameCfg) -> i32 {
-    unsafe { ffi::rlGetAdvFrameConfig(device_map, data as *mut _) }
+pub fn get_adv_frame_config(device_map: u8, data: &mut AdvanceFrameConfig) -> i32 {
+    unsafe { ffi::rlGetAdvFrameConfig(device_map, &mut data.0 as *mut _) }
 }
 
 /// Sets Advance Frame Configuration.
-pub fn set_adv_frame_config(device_map: u8, data: &mut ffi::rlAdvFrameCfg) -> i32 {
-    unsafe { ffi::rlSetAdvFrameConfig(device_map, data as *mut _) }
+pub fn set_adv_frame_config(device_map: u8, data: &mut AdvanceFrameConfig) -> i32 {
+    unsafe { ffi::rlSetAdvFrameConfig(device_map, &mut data.0 as *mut _) }
 }
 
 /// Sets Continous mode Configuration.
@@ -313,6 +313,152 @@ pub fn rf_apll_synth_bw_ctl_config(device_map: u8, data: &mut ffi::rlRfApllSynth
     unsafe { ffi::rlRfApllSynthBwCtlConfig(device_map, data as *mut _) }
 }
 /// Sets the power save mode Configuration.
-pub fn set_power_save_mode_config(device_map: u8, data: &mut ffi::rlPowerSaveModeCfg) -> i32 {
-    unsafe { ffi::rlSetPowerSaveModeConfig(device_map, data as *mut _) }
+pub fn set_power_save_mode_config(device_map: u8, data: &mut PowerSaveModeConfig) -> i32 {
+    unsafe { ffi::rlSetPowerSaveModeConfig(device_map, &mut data.0 as *mut _) }
+}
+
+/// API over `mmwavelink::ffi::rlCpuFault`
+#[derive(Debug, Clone, Copy, Default)]
+#[repr(transparent)]
+pub struct CpuFault(ffi::rlCpuFault);
+
+impl CpuFault {
+    pub fn new(
+        fault_type: u8,
+        line_num: u16,
+        fault_lr: u32,
+        fault_prev_lr: u32,
+        fault_spsr: u32,
+        fault_sp: u32,
+        fault_addr: u32,
+        fault_err_status: u16,
+        fault_err_src: u8,
+        fault_axi_err_type: u8,
+        fault_acc_type: u8,
+        fault_recovery_type: u8,
+    ) -> Self {
+        Self(ffi::rlCpuFault {
+            faultType: fault_type,
+            reserved0: 0,
+            lineNum: line_num,
+            faultLR: fault_lr,
+            faultPrevLR: fault_prev_lr,
+            faultSpsr: fault_spsr,
+            faultSp: fault_sp,
+            faultAddr: fault_addr,
+            faultErrStatus: fault_err_status,
+            faultErrSrc: fault_err_src,
+            faultAxiErrType: fault_axi_err_type,
+            faultAccType: fault_acc_type,
+            faultRecovType: fault_recovery_type,
+            reserved1: 0,
+        })
+    }
+}
+
+/// API over `mmwavelink::ffi::rlPowerSaveModeCfg`
+#[repr(transparent)]
+pub struct PowerSaveModeConfig(ffi::rlPowerSaveModeCfg);
+
+impl PowerSaveModeConfig {
+    pub fn new(low_power_state_transition_cmd: u16) -> Self {
+        Self(ffi::rlPowerSaveModeCfg {
+            lowPwrStateTransCmd: low_power_state_transition_cmd,
+            reserved0: 0,
+            reserved: [0, 0, 0, 0],
+        })
+    }
+}
+
+/// API over `mmwavelink::ffi::rlFrameCfg`
+#[repr(transparent)]
+pub struct FrameConfig(ffi::rlFrameCfg);
+
+impl FrameConfig {
+    pub fn new(
+        chirp_start_idx: u16,
+        chirp_end_idx: u16,
+        n_loops: u16,
+        n_frames: u16,
+        n_adc_samples: u16,
+        frame_periodicity: u32,
+        trigger_select: u16,
+        n_dummy_chirps_at_end: u8,
+        frame_trigger_delay: u32,
+    ) -> Self {
+        Self(ffi::rlFrameCfg {
+            reserved0: 0,
+            chirpStartIdx: chirp_start_idx,
+            chirpEndIdx: chirp_end_idx,
+            numLoops: n_loops,
+            numFrames: n_frames,
+            numAdcSamples: n_adc_samples,
+            framePeriodicity: frame_periodicity,
+            triggerSelect: trigger_select,
+            reserved1: 0,
+            numDummyChirpsAtEnd: n_dummy_chirps_at_end,
+            frameTriggerDelay: frame_trigger_delay,
+        })
+    }
+}
+
+/// API over `mmwavelink::ffi::rlAdvFrameCfg
+#[repr(transparent)]
+pub struct AdvanceFrameConfig(ffi::rlAdvFrameCfg);
+
+impl AdvanceFrameConfig {
+    pub fn new(
+        frame_sequence: AdvanceFrameSequenceConfig,
+        frame_data: AdvanceFrameDataConfig,
+    ) -> Self {
+        Self(ffi::rlAdvFrameCfg {
+            frameSeq: frame_sequence.0,
+            frameData: frame_data.0,
+        })
+    }
+}
+
+/// API over `mmwavelink::ffi::rlAdvFrameSeqCfg`
+#[repr(transparent)]
+pub struct AdvanceFrameSequenceConfig(ffi::rlAdvFrameSeqCfg);
+
+impl AdvanceFrameSequenceConfig {
+    pub fn new(
+        n_sub_frames: u8,
+        force_profile: u8,
+        loop_back_config: u8,
+        sub_frame_trigger: u8,
+        sub_frame_config: [ffi::rlSubFrameCfg; 4usize],
+        n_frames: u16,
+        trigger_select: u16,
+        frame_trigger_delay: u32,
+    ) -> Self {
+        Self(ffi::rlAdvFrameSeqCfg {
+            numOfSubFrames: n_sub_frames,
+            forceProfile: force_profile,
+            loopBackCfg: loop_back_config,
+            subFrameTrigger: sub_frame_trigger,
+            subFrameCfg: sub_frame_config,
+            numFrames: n_frames,
+            triggerSelect: trigger_select,
+            frameTrigDelay: frame_trigger_delay,
+            reserved0: 0,
+            reserved1: 0,
+        })
+    }
+}
+
+/// API over `ffi::rlAdvFrameDataCfg`
+#[repr(transparent)]
+pub struct AdvanceFrameDataConfig(ffi::rlAdvFrameDataCfg);
+
+impl AdvanceFrameDataConfig {
+    pub fn new(n_sub_frames: u8, sub_frame_data_config: [ffi::rlSubFrameDataCfg; 4usize]) -> Self {
+        Self(ffi::rlAdvFrameDataCfg {
+            numSubFrames: n_sub_frames,
+            reserved0: 0,
+            reserved1: 0,
+            subframeDataCfg: sub_frame_data_config,
+        })
+    }
 }

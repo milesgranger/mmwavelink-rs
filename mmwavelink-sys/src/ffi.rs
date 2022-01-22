@@ -892,7 +892,7 @@ pub type __off_t = cty::c_long;
 pub type __off64_t = cty::c_long;
 pub type __pid_t = cty::c_int;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct __fsid_t {
     pub __val: [cty::c_int; 2usize],
 }
@@ -968,7 +968,7 @@ pub type size_t = cty::c_ulong;
 pub type wchar_t = cty::c_int;
 #[repr(C)]
 #[repr(align(16))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct max_align_t {
     pub __clang_max_align_nonce1: cty::c_longlong,
     pub __bindgen_padding_0: u64,
@@ -1161,6 +1161,11 @@ fn bindgen_test_layout___locale_struct() {
             stringify!(__names)
         )
     );
+}
+impl Default for __locale_struct {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
 }
 pub type __locale_t = *mut __locale_struct;
 pub type locale_t = __locale_t;
@@ -1367,7 +1372,7 @@ pub type RL_P_EVENT_HANDLER =
 #[doc = " \\brief"]
 #[doc = " Communication interface(SPI, MailBox, UART etc) callback functions"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlComIfCbs {
     #[doc = " @fn rlComIfHdl_t (*rlComIfOpen)(rlUInt8_t deviceIndex, rlUInt32_t flags)"]
     #[doc = ""]
@@ -1474,7 +1479,7 @@ pub type rlComIfCbs_t = rlComIfCbs;
 #[doc = " \\brief"]
 #[doc = " OS mutex callback functions"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlOsiMutexCbs {
     #[doc = " @fn rlInt32_t (*rlOsiMutexCreate)(rlOsiMutexHdl_t* mutexHdl, rlInt8_t* name)"]
     #[doc = ""]
@@ -1591,7 +1596,7 @@ pub type rlOsiMutexCbs_t = rlOsiMutexCbs;
 #[doc = " \\brief"]
 #[doc = " OS semaphore callback functions"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlOsiSemCbs {
     #[doc = " @fn rlInt32_t (*rlOsiSemCreate)(rlOsiSemHdl_t* semHdl, rlInt8_t* name)"]
     #[doc = ""]
@@ -1695,7 +1700,7 @@ pub type rlOsiSemCbs_t = rlOsiSemCbs;
 #[doc = " \\brief"]
 #[doc = " OS message queue/Spawn callback functions"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlOsiMsgQCbs {
     #[doc = " @fn rlInt32_t (*rlOsiSpawn)(RL_P_OSI_SPAWN_ENTRY pEntry, void* pValue, rlUInt32_t flags)"]
     #[doc = ""]
@@ -1746,7 +1751,7 @@ pub type rlOsiMsgQCbs_t = rlOsiMsgQCbs;
 #[doc = " \\brief"]
 #[doc = " OS services callback functions"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlOsiCbs {
     #[doc = " \\brief"]
     #[doc = " Mutex callback functions."]
@@ -1805,7 +1810,7 @@ pub type rlOsiCbs_t = rlOsiCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink Asynchronous event callback function"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlEventCbs {
     #[doc = " @fn void (*rlAsyncEvent)(rlUInt8_t devIndex, rlUInt16_t sbId, rlUInt16_t sbLen,"]
     #[doc = "                            rlUInt8_t *payload)"]
@@ -1855,7 +1860,7 @@ pub type rlEventCbs_t = rlEventCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink Timer callback functions"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTimerCbs {
     pub rlDelay: ::core::option::Option<unsafe extern "C" fn(delay: rlUInt32_t) -> rlInt32_t>,
 }
@@ -1886,7 +1891,7 @@ pub type rlTimerCbs_t = rlTimerCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink callback functions for Command parser"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlCmdParserCbs {
     pub rlCmdParser: ::core::option::Option<
         unsafe extern "C" fn(rxMsgClass: rlUInt8_t, inVal: rlInt32_t) -> rlInt32_t,
@@ -1934,7 +1939,7 @@ pub type rlCmdParserCbs_t = rlCmdParserCbs;
 #[doc = " or Async-event shall be multiple of 4 bytes to enable reliable retry recovery"]
 #[doc = " mechanism in case of any checksum failure in a message."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlCrcCbs {
     #[doc = " @fn rlInt32_t (*rlComputeCRC)(rlUInt8_t* data, rlUInt32_t dataLen, rlUInt8_t crcType,"]
     #[doc = "                  rlUInt8_t* crc)"]
@@ -1985,7 +1990,7 @@ pub type rlCrcCbs_t = rlCrcCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink Device Control, Interrupt callback functions"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDeviceCtrlCbs {
     #[doc = " @fn rlInt32_t (*rlDeviceEnable)(rlUInt8_t deviceIndex)"]
     #[doc = ""]
@@ -2178,7 +2183,7 @@ pub type rlPrintFptr =
 #[doc = " \\brief"]
 #[doc = " mmWaveLink debug callback structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDbgCb {
     #[doc = " @fn rlInt32_t (*rlPrint)(const rlInt8_t* format, ...)"]
     #[doc = ""]
@@ -2231,7 +2236,7 @@ pub type rlDbgCb_t = rlDbgCb;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink client callback structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlClientCbs {
     #[doc = " @brief  Comunication Interface Callback"]
     pub comIfCb: rlComIfCbs_t,
@@ -2405,7 +2410,7 @@ pub type rlClientCbs_t = rlClientCbs;
 #[doc = "         In case of boot over SPI then functional APIs shall be sent to radar device only after"]
 #[doc = "         receiving AWR_AE_MSS_BOOTERRORSTATUS_SB Async-event."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlInitComplete {
     #[doc = " @brief  masterSS powerup time, 1LSB = 5ns"]
     pub powerUpTime: rlUInt32_t,
@@ -2579,7 +2584,7 @@ pub type rlInitComplete_t = rlInitComplete;
 #[doc = " mmWaveLink RF Start Complete data structure for event RL_DEV_AE_RFPOWERUPDONE_SB"]
 #[doc = " @note : Bootup digital monitoring status are not applicable for QM devices"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlStartComplete {
     #[doc = " @brief  radarSS Boot Status, 1 - PASS, 0 - FAIL  \\n"]
     #[doc = "Bit Status Information                   \\n"]
@@ -2679,7 +2684,7 @@ pub type rlStartComplete_t = rlStartComplete;
 #[doc = "         This fatal error must be handled in Host in AWR1243 device (MSS or DSS in xWR1642,"]
 #[doc = "         xWR1843 and xWR6843 devices)"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMssEsmFault {
     #[doc = " @brief  Bits Definition (0 -- No Error , 1 -- ESM Error)"]
     #[doc = "0  NERROR in sync \\n"]
@@ -2814,7 +2819,7 @@ pub type rlMssEsmFault_t = rlMssEsmFault;
 #[doc = " @note : The functional APIs shall be sent to radar device only after receiving"]
 #[doc = "         RL_DEV_AE_MSS_BOOTERRSTATUS_SB Async-event after boot over SPI (Flash is not connected)."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMssBootErrStatus {
     #[doc = " @brief  masterSS powerup time, 1LSB = 5ns"]
     pub powerUpTime: rlUInt32_t,
@@ -2996,7 +3001,7 @@ pub type rlMssBootErrStatus_t = rlMssBootErrStatus;
 #[doc = " Structure to hold the test status report of the latent fault tests data strucutre"]
 #[doc = " for event RL_DEV_AE_MSS_LATENTFLT_TEST_REPORT_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMssLatentFaultReport {
     #[doc = " @brief  1 - PASS, 0 - FAIL \\n"]
     #[doc = "Bits   Definition \\n"]
@@ -3099,7 +3104,7 @@ pub type rlMssLatentFaultReport_t = rlMssLatentFaultReport;
 #[doc = " Structure to hold data strucutre for test status of the periodic tests"]
 #[doc = " for event RL_DEV_AE_MSS_PERIODIC_TEST_STATUS_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMssPeriodicTestStatus {
     #[doc = " @brief  1 - PASS, 0 - FAIL \\n"]
     #[doc = "Bits Definition \\n"]
@@ -3152,7 +3157,7 @@ pub type rlMssPeriodicTestStatus_t = rlMssPeriodicTestStatus;
 #[doc = " Structure to hold data strucutre for RF-error status send by MSS"]
 #[doc = " for event RL_DEV_AE_MSS_RF_ERROR_STATUS_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMssRfErrStatus {
     #[doc = " @brief  Value    Definition \\n"]
     #[doc = "0     No fault \\n"]
@@ -3207,7 +3212,7 @@ pub type rlMssRfErrStatus_t = rlMssRfErrStatus;
 #[doc = "         connected to ESM Group 1 lines, these shuld be treated as fatal errors on the Host ."]
 #[doc = "         (MSS or DSS in xWR1642, xWR1843 and xWR6843 devices)"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlBssEsmFault {
     #[doc = " @brief  Bits Definition   (0 -- No Error , 1 -- ESM Error)"]
     #[doc = "0   Ramp gen sub block error \\n"]
@@ -3310,7 +3315,7 @@ pub type rlBssEsmFault_t = rlBssEsmFault;
 #[doc = "  re-started. This Async Event is generated with SB-ID RL_DEV_AE_MSS_VMON_ERROR_STATUS_SB."]
 #[doc = "  @note : This API Async Event is not supported."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlVmonErrStatus {
     #[doc = " @brief  Value  Definition          \\n"]
     #[doc = "          0     NO FAULT            \\n"]
@@ -3445,11 +3450,16 @@ fn bindgen_test_layout_rlRcvAdcData() {
         )
     );
 }
+impl Default for rlRcvAdcData {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlRcvAdcData_t = rlRcvAdcData;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink RF Init Complete data structure for event RL_RF_AE_INITCALIBSTATUS_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfInitComplete {
     #[doc = " @brief  RF Calibration Status, bit value: 1 - SUCCESS, 0 - FAILURE \\n"]
     #[doc = "Bit Calibration \\n"]
@@ -3563,7 +3573,7 @@ pub type rlRfInitComplete_t = rlRfInitComplete;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink RF Run time calibration report for event RL_RF_AE_RUN_TIME_CALIB_REPORT_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfRunTimeCalibReport {
     #[doc = " @brief  1 = calibration is passed, 0 = calibration is failed or not enabled/performed at \\n"]
     #[doc = "least once. \\n"]
@@ -3692,7 +3702,7 @@ pub type rlRfRunTimeCalibReport_t = rlRfRunTimeCalibReport;
 #[doc = " \\brief"]
 #[doc = " API APLL closed loop cal Status Get Sub block structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfApllCalDone {
     pub apllClCalStatus: rlUInt16_t,
     #[doc = " @brief  Tolerance"]
@@ -3778,7 +3788,7 @@ pub type rlRfApllCalDone_t = rlRfApllCalDone;
 #[doc = "         (AEs or Responses), the host shall service all the AEs before start of the next FTTI"]
 #[doc = "         epoch to avoid RadarSS Queue full CPU fault fatal error."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlCpuFault {
     #[doc = " @brief  0x0    RF Processor Undefined Instruction Abort \\n"]
     #[doc = "0x1    RF Processor Instruction pre-fetch Abort \\n"]
@@ -3992,7 +4002,7 @@ pub type rlCpuFault_t = rlCpuFault;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink firmware version structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlFwVersionParam {
     #[doc = " @brief  HW variant number"]
     pub hwVarient: rlUInt8_t,
@@ -4208,7 +4218,7 @@ pub type rlFwVersionParam_t = rlFwVersionParam;
 #[doc = " \\brief"]
 #[doc = " mmwavelink software version structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlSwVersionParam {
     #[doc = " @brief  SW version major number"]
     pub major: rlUInt8_t,
@@ -4324,7 +4334,7 @@ pub type rlSwVersionParam_t = rlSwVersionParam;
 #[doc = " \\brief"]
 #[doc = " mmwavelink version structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlVersion {
     #[doc = " @brief  Master Sub System version"]
     pub master: rlFwVersionParam_t,
@@ -4380,7 +4390,7 @@ pub type rlVersion_t = rlVersion;
 #[doc = " \\brief"]
 #[doc = " GPADC measurement data for sensors"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlGpAdcData {
     #[doc = " @brief  Min value of GP ADC data"]
     pub min: rlUInt16_t,
@@ -4436,7 +4446,7 @@ pub type rlGpAdcData_t = rlGpAdcData;
 #[doc = " \\brief"]
 #[doc = " Sensors GPADC measurement data for event RL_RF_AE_GPADC_MEAS_DATA_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRecvdGpAdcData {
     #[doc = " @brief  collected all GP ADC data"]
     pub sensor: [rlGpAdcData_t; 6usize],
@@ -4492,7 +4502,7 @@ pub type rlRecvdGpAdcData_t = rlRecvdGpAdcData;
 #[doc = " \\brief"]
 #[doc = " Analog fault strucure for event RL_RF_AE_ANALOG_FAULT_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlAnalogFaultReportData {
     #[doc = " @brief  Indicates the analog fault type"]
     #[doc = "         Value   Definition"]
@@ -4593,7 +4603,7 @@ pub type rlAnalogFaultReportData_t = rlAnalogFaultReportData;
 #[doc = " Calibration monitoring timing error data for event RL_RF_AE_MON_TIMING_FAIL_REPORT_SB"]
 #[doc = " @note : In QM devices (non safety), Periodic Digital and Analog Monitoring are not supported."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlCalMonTimingErrorReportData {
     #[doc = " @brief  [b0] 1 = Total monitoring time does not fit in one CALIB_MON_TIME_UNIT when one \\n"]
     #[doc = "time calibration is enabled, \\n"]
@@ -4650,7 +4660,7 @@ pub type rlCalMonTimingErrorReportData_t = rlCalMonTimingErrorReportData;
 #[doc = " \\brief"]
 #[doc = " Latent fault digital monitoring status data for event RL_RF_AE_DIG_LATENTFAULT_REPORT_AE_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDigLatentFaultReportData {
     #[doc = " @brief  1 - PASS, 0 - FAIL \\n"]
     #[doc = "Bit     Definition \\n"]
@@ -4715,7 +4725,7 @@ pub type rlDigLatentFaultReportData_t = rlDigLatentFaultReportData;
 #[doc = " The report header includes common information across all enabled monitors"]
 #[doc = " like current FTTI number and current temperature. event: RL_RF_AE_MON_REPORT_HEADER_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonReportHdrData {
     #[doc = " @brief  FTTI free running counter value, incremented every CAL_MON_TIME_UNIT"]
     pub fttiCount: rlUInt32_t,
@@ -4785,7 +4795,7 @@ pub type rlMonReportHdrData_t = rlMonReportHdrData;
 #[doc = " This async event is sent periodically to indicate the status of periodic"]
 #[doc = " digital monitoring tests.Event: RL_RF_AE_MON_DIG_PERIODIC_REPORT_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDigPeriodicReportData {
     #[doc = " @brief  1 - PASS, 0 - FAIL \\n"]
     #[doc = "Bit    Monitoring type \\n"]
@@ -4845,7 +4855,7 @@ pub type rlDigPeriodicReportData_t = rlDigPeriodicReportData;
 #[doc = " The xWR device sends this to host at the programmed periodicity or when failure occurs,"]
 #[doc = " as programmed by the configuration API SB. Event:RL_RF_AE_MON_TEMPERATURE_REPORT_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonTempReportData {
     #[doc = " @brief  Status flags indicating pass fail results corresponding to \\n"]
     #[doc = "various threshold checks under this monitor. \\n"]
@@ -4956,7 +4966,7 @@ pub type rlMonTempReportData_t = rlMonTempReportData;
 #[doc = " programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
 #[doc = " Event: RL_RF_AE_MON_RX_GAIN_PHASE_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonRxGainPhRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding \\n"]
     #[doc = "to various threshold checks under this monitor. \\n"]
@@ -5226,7 +5236,7 @@ pub type rlMonRxGainPhRep_t = rlMonRxGainPhRep;
 #[doc = " this to host at the programmed periodicity or when failure occurs,"]
 #[doc = " as programmed by the configuration API SB. Event: RL_RF_AE_MON_RX_NOISE_FIG_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonRxNoiseFigRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding to various threshold \\n"]
     #[doc = "checks under this monitor. \\n"]
@@ -5388,7 +5398,7 @@ pub type rlMonRxNoiseFigRep_t = rlMonRxNoiseFigRep;
 #[doc = " at the programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
 #[doc = " Event: RL_RF_AE_MON_RX_IF_STAGE_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonRxIfStageRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding to various threshold \\n"]
     #[doc = "checks under this monitor. \\n"]
@@ -5622,7 +5632,7 @@ pub type rlMonRxIfStageRep_t = rlMonRxIfStageRep;
 #[doc = " configuration API SB. Same structure is application for Tx0/Tx1/Tx2 power report."]
 #[doc = " Event: RL_RF_AE_MON_TXn_POWER_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonTxPowRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding \\n"]
     #[doc = "to various threshold checks under this monitor. \\n"]
@@ -5759,7 +5769,7 @@ pub type rlMonTxPowRep_t = rlMonTxPowRep;
 #[doc = " Same strucuture is applicable for Tx0/Tx1/Tx2 ball break report."]
 #[doc = " Event: RL_RF_AE_MON_TXn_BALLBREAK_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonTxBallBreakRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding \\n"]
     #[doc = "to various threshold checks under this monitor. \\n"]
@@ -5866,7 +5876,7 @@ pub type rlMonTxBallBreakRep_t = rlMonTxBallBreakRep;
 #[doc = " at the programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
 #[doc = " Event: RL_RF_AE_MON_TX_GAIN_MISMATCH_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonTxGainPhaMisRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding \\n"]
     #[doc = "to various threshold checks under this monitor. \\n"]
@@ -6038,7 +6048,7 @@ pub type rlMonTxGainPhaMisRep_t = rlMonTxGainPhaMisRep;
 #[doc = " Tx0/Tx1/Tx2 BPM report data."]
 #[doc = " Event: RL_RF_AE_MON_TXn_BPM_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonTxBpmRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding \\n"]
     #[doc = "to various threshold checks under this monitor. \\n"]
@@ -6196,7 +6206,7 @@ pub type rlMonTxBpmRep_t = rlMonTxBpmRep;
 #[doc = " programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
 #[doc = " Event: RL_RF_AE_MON_SYNTHESIZER_FREQ_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonSynthFreqRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding to various threshold \\n"]
     #[doc = "checks under this monitor. \\n"]
@@ -6356,7 +6366,7 @@ pub type rlMonSynthFreqRep_t = rlMonSynthFreqRep;
 #[doc = " periodicity or when failure occurs, as programmed by the configuration API SB."]
 #[doc = " Event: RL_RF_AE_MON_EXT_ANALOG_SIG_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonExtAnaSigRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding \\n"]
     #[doc = "to various threshold checks under this monitor. \\n"]
@@ -6459,7 +6469,7 @@ pub type rlMonExtAnaSigRep_t = rlMonExtAnaSigRep;
 #[doc = " periodicity or when failure occurs, as programmed by the configuration API SB. Same structure"]
 #[doc = " is applicable for Tx0/Tx1/Tx2 monitoring report. Event: RL_RF_AE_MON_TXn_INT_ANA_SIG_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonTxIntAnaSigRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding to various threshold \\n"]
     #[doc = "checks under this monitor. \\n"]
@@ -6587,7 +6597,7 @@ pub type rlMonTxIntAnaSigRep_t = rlMonTxIntAnaSigRep;
 #[doc = " periodicity or when failure occurs, as programmed by the configuration API SB."]
 #[doc = " Event: RL_RF_AE_MON_RX_INT_ANALOG_SIG_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonRxIntAnaSigRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding to various threshold \\n"]
     #[doc = "checks under this monitor. \\n"]
@@ -6699,7 +6709,7 @@ pub type rlMonRxIntAnaSigRep_t = rlMonRxIntAnaSigRep;
 #[doc = " periodicity or when failure occurs, as programmed by the configuration API SB."]
 #[doc = " Event: RL_RF_AE_MON_PMCLKLO_INT_ANA_SIG_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonPmclkloIntAnaSigRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding to various threshold \\n"]
     #[doc = "checks under this monitor. \\n"]
@@ -6821,7 +6831,7 @@ pub type rlMonPmclkloIntAnaSigRep_t = rlMonPmclkloIntAnaSigRep;
 #[doc = " by the configuration API."]
 #[doc = " SB. Event: RL_RF_AE_MON_GPADC_INT_ANA_SIG_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonGpadcIntAnaSigRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding to various threshold \\n"]
     #[doc = "checks under this monitor. \\n"]
@@ -6940,7 +6950,7 @@ pub type rlMonGpadcIntAnaSigRep_t = rlMonGpadcIntAnaSigRep;
 #[doc = " programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
 #[doc = " Event: RL_RF_AE_MON_PLL_CONTROL_VOLT_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonPllConVoltRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding to various threshold \\n"]
     #[doc = "checks under this monitor. \\n"]
@@ -7055,7 +7065,7 @@ pub type rlMonPllConVoltRep_t = rlMonPllConVoltRep;
 #[doc = " when failure occurs, as programmed by the configuration API SB."]
 #[doc = " Event: RL_RF_AE_MON_DCC_CLK_FREQ_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonDccClkFreqRep {
     #[doc = " @brief  Status flags indicating pass fail results corresponding to various threshold \\n"]
     #[doc = "checks under this monitor. \\n"]
@@ -7159,7 +7169,7 @@ pub type rlMonDccClkFreqRep_t = rlMonDccClkFreqRep;
 #[doc = " programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
 #[doc = " Event: RL_RF_AE_MON_RX_MIXER_IN_PWR_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonRxMixrInPwrRep {
     #[doc = " @brief Status flags indicating pass fail results corresponding \\n"]
     #[doc = "to various threshold checks under this monitor. \\n"]
@@ -7302,7 +7312,7 @@ pub type rlMonRxMixrInPwrRep_t = rlMonRxMixrInPwrRep;
 #[doc = " This is a new feature addition in xWR6843 device only."]
 #[doc = " Event: RL_RF_AE_MON_SYNTH_FREQ_NONLIVE_REPORT"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonSynthFreqNonLiveRep {
     #[doc = " @brief Status flags indicating pass fail results corresponding \\n"]
     #[doc = "to various threshold checks under this monitor. \\n"]
@@ -7599,7 +7609,7 @@ pub type rlMonSynthFreqNonLiveRep_t = rlMonSynthFreqNonLiveRep;
 #[doc = "          for RL_MMWL_AE_MISMATCH_REPORT Event and RL_RET_CODE_RADAR_OSIF_ERROR for"]
 #[doc = "          RL_MMWL_AE_INTERNALERR_REPORT Event"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMmwlErrorStatus {
     pub errorVal: rlInt32_t,
 }
@@ -7633,7 +7643,7 @@ pub type rlSysNRespType_t = rlUInt16_t;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink API Error Sub block structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlErrorResp {
     #[doc = "@ brief  16 bits error type"]
     pub errorType: rlSysNRespType_t,
@@ -7677,7 +7687,7 @@ pub type rlErrorResp_t = rlErrorResp;
 #[doc = " \\brief"]
 #[doc = " RHCP SYNC Pattern Structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlSyncPattern {
     pub sync1: rlUInt16_t,
     pub sync2: rlUInt16_t,
@@ -7718,7 +7728,7 @@ fn bindgen_test_layout_rlSyncPattern() {
 pub type rlSyncPattern_t = rlSyncPattern;
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlOpcode {
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize], u16>,
 }
@@ -7795,7 +7805,7 @@ impl rlOpcode {
 pub type rlOpcode_t = rlOpcode;
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlHdrFlags {
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize], u8>,
 }
@@ -7921,7 +7931,7 @@ pub type rlHdrFlags_t = rlHdrFlags;
 #[doc = " \\brief"]
 #[doc = " RHCP protocol header structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlProtHeader {
     #[doc = " @brief  rlUInt16_t, rlApiActionType,rlApiGetSetType"]
     pub opcode: rlOpcode_t,
@@ -8057,6 +8067,11 @@ fn bindgen_test_layout_rlRhcpMsg() {
         )
     );
 }
+impl Default for rlRhcpMsg {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlRhcpMsg_t = rlRhcpMsg;
 #[doc = " \\brief"]
 #[doc = " File Dowload data structure"]
@@ -8101,11 +8116,16 @@ fn bindgen_test_layout_rlFileData() {
         )
     );
 }
+impl Default for rlFileData {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlFileData_t = rlFileData;
 #[doc = " \\brief"]
 #[doc = " mmwave radar device MCU Clock output"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMcuClkCfg {
     #[doc = " @brief  This field controls the enable - disable of the MCU clock. \\n"]
     #[doc = "Value    Description \\n"]
@@ -8188,7 +8208,7 @@ pub type rlMcuClkCfg_t = rlMcuClkCfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar device PMIC Clock output"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlPmicClkCfg {
     #[doc = " @brief  This field controls the enable - disable of the PMIC clock. \\n"]
     #[doc = "Value  Description \\n"]
@@ -8352,7 +8372,7 @@ pub type rlPmicClkCfg_t = rlPmicClkCfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar device latent fault test"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rllatentFault {
     #[doc = " @brief  Bits    Definition \\n"]
     #[doc = "0       RESERVED \\n"]
@@ -8475,7 +8495,7 @@ pub type rllatentFault_t = rllatentFault;
 #[doc = " \\brief"]
 #[doc = " mmwave radar periodicity test config"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlperiodicTest {
     #[doc = " @brief  1 LSB = 1 ms Periodicity at which tests need to be run \\n"]
     #[doc = "Minimum value is 40 ms \\n"]
@@ -8566,7 +8586,7 @@ pub type rlperiodicTest_t = rlperiodicTest;
 #[doc = " \\brief"]
 #[doc = " mmwave radar test pattern config"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rltestPattern {
     #[doc = " @brief  This field controls the enable-disable of the generation of the test pattern. \\n"]
     #[doc = "Value   Description \\n"]
@@ -8801,7 +8821,7 @@ pub type rltestPattern_t = rltestPattern;
 #[doc = " \\brief"]
 #[doc = " mmwave radar data format config"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDevDataFmtCfg {
     #[doc = " @brief  RX Channel Bitmap \\n"]
     #[doc = "b0 RX0 Channel Enable \\n"]
@@ -8912,7 +8932,7 @@ pub type rlDevDataFmtCfg_t = rlDevDataFmtCfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar data path config."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDevDataPathCfg {
     #[doc = " @brief  Data Path Interface, \\n"]
     #[doc = "0x0  CSI2 interface selected \\n"]
@@ -9070,7 +9090,7 @@ pub type rlDevDataPathCfg_t = rlDevDataPathCfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar data path lane enable"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDevLaneEnable {
     #[doc = " @brief  Lane Enable Bitmap  \\n"]
     #[doc = "b0 Lane 0 Enable  \\n"]
@@ -9127,7 +9147,7 @@ pub type rlDevLaneEnable_t = rlDevLaneEnable;
 #[doc = " \\brief"]
 #[doc = " DataPath clock configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDevDataPathClkCfg {
     #[doc = " @brief  Clock COnfiguration \\n"]
     #[doc = "0 -SDR Clock \\n"]
@@ -9192,7 +9212,7 @@ pub type rlDevDataPathClkCfg_t = rlDevDataPathClkCfg;
 #[doc = " \\brief"]
 #[doc = " LVDS Lane configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDevLvdsLaneCfg {
     #[doc = " @brief  Lane format \\n"]
     #[doc = "0x0000 Format map 0 (Rx0,Rx1,...) \\n"]
@@ -9263,7 +9283,7 @@ pub type rlDevLvdsLaneCfg_t = rlDevLvdsLaneCfg;
 #[doc = " \\brief"]
 #[doc = " Continous streaming mode configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDevContStreamingModeCfg {
     #[doc = " @brief  Enable - 1, Disable - 0"]
     pub contStreamModeEn: rlUInt16_t,
@@ -9312,7 +9332,7 @@ pub type rlDevContStreamingModeCfg_t = rlDevContStreamingModeCfg;
 #[doc = " \\brief"]
 #[doc = " CSI2 configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDevCsi2Cfg {
     #[doc = " @brief  b2:0 - DATA_LANE0_POS \\n"]
     #[doc = "Valid values (Should be a unique position if lane 0 is enabled, ignored if \\n"]
@@ -9395,7 +9415,7 @@ pub type rlDevCsi2Cfg_t = rlDevCsi2Cfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar high speed clock configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDevHsiClk {
     #[doc = " @brief  High Speed Interface Clock configurations. Below table indicates possible values"]
     #[doc = "for different data rate supported \\n"]
@@ -9497,11 +9517,16 @@ fn bindgen_test_layout_rlDevHsiCfg() {
         )
     );
 }
+impl Default for rlDevHsiCfg {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlDevHsiCfg_t = rlDevHsiCfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar device config"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDevConfig {
     #[doc = " @brief  Set CRC type of Async Event message from MSS to Host \\n"]
     #[doc = "0 - 16 Bit CRC \\n"]
@@ -9776,7 +9801,7 @@ extern "C" {
 #[doc = " \\brief"]
 #[doc = " Rx/Tx Channel Configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlChanCfg {
     #[doc = " @ brief  RX Channel Bitmap \\n"]
     #[doc = "b0 RX0 Channel Enable \\n"]
@@ -9896,7 +9921,7 @@ fn bindgen_test_layout_rlChanCfg() {
 pub type rlChanCfg_t = rlChanCfg;
 #[repr(C)]
 #[repr(align(4))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlAdcBitFormat {
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 4usize], u16>,
 }
@@ -10006,7 +10031,7 @@ pub type rlAdcBitFormat_t = rlAdcBitFormat;
 #[doc = " \\brief"]
 #[doc = " ADC format and payload justification Configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlAdcOutCfg {
     #[doc = " @brief  ADC Data format"]
     pub fmt: rlAdcBitFormat_t,
@@ -10061,7 +10086,7 @@ fn bindgen_test_layout_rlAdcOutCfg() {
 pub type rlAdcOutCfg_t = rlAdcOutCfg;
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlBpmModeCfg {
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize], u16>,
 }
@@ -10138,7 +10163,7 @@ impl rlBpmModeCfg {
 pub type rlBpmModeCfg_t = rlBpmModeCfg;
 #[repr(C)]
 #[repr(align(2))]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlBpmKCounterSel {
     pub _bitfield_1: __BindgenBitfieldUnit<[u8; 2usize], u16>,
 }
@@ -10216,7 +10241,7 @@ pub type rlBpmKCounterSel_t = rlBpmKCounterSel;
 #[doc = " \\brief"]
 #[doc = " Binary phase modulation common configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlBpmCommonCfg {
     #[doc = " @brief  BPM Mode configuration"]
     pub mode: rlBpmModeCfg_t,
@@ -10308,7 +10333,7 @@ pub type rlBpmCommonCfg_t = rlBpmCommonCfg;
 #[doc = " \\brief"]
 #[doc = " Binary phase modulation common configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlBpmChirpCfg {
     #[doc = " @brief  Chirp Start Index, Valid Range 0 -511"]
     pub chirpStartIdx: rlUInt16_t,
@@ -10388,7 +10413,7 @@ pub type rlBpmChirpCfg_t = rlBpmChirpCfg;
 #[doc = " \\brief"]
 #[doc = " Low Power mode configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlLowPowerModeCfg {
     #[doc = " @brief  Reserved for future"]
     pub reserved: rlUInt16_t,
@@ -10434,7 +10459,7 @@ pub type rlLowPowerModeCfg_t = rlLowPowerModeCfg;
 #[doc = " \\brief"]
 #[doc = " Power saving mode configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlPowerSaveModeCfg {
     #[doc = " @brief  Low power state transition commands are defined as below \\n"]
     #[doc = "Mode       Definition \\n"]
@@ -10517,7 +10542,7 @@ pub type rlPowerSaveModeCfg_t = rlPowerSaveModeCfg;
 #[doc = " to be programmed in chirp configuration \\ref rlChirpCfg_t"]
 #[doc = " \\note Maximum of 4 profiles can be configured."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlProfileCfg {
     #[doc = " @brief  Profile index (0-3)"]
     pub profileId: rlUInt16_t,
@@ -10920,7 +10945,7 @@ pub type rlProfileCfg_t = rlProfileCfg;
 #[doc = " @note : One can define upto 512 unique chirps.These chirps need to be included in"]
 #[doc = "         frame configuration structure \\ref rlFrameCfg_t to create FMCW frame"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlChirpCfg {
     #[doc = " @brief  Chirp start index (0-511)"]
     pub chirpStartIdx: rlUInt16_t,
@@ -11074,7 +11099,7 @@ pub type rlChirpCfg_t = rlChirpCfg;
 #[doc = " \\brief"]
 #[doc = " Chirp start, end Index parameters for rlGetChirpConfig"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlWordParam {
     pub halfWordOne: rlUInt16_t,
     pub halfWordTwo: rlUInt16_t,
@@ -11116,7 +11141,7 @@ pub type rlWordParam_t = rlWordParam;
 #[doc = " \\brief"]
 #[doc = " Frame config API parameters"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlFrameCfg {
     #[doc = " @brief  Reserved for Future use"]
     pub reserved0: rlUInt16_t,
@@ -11309,7 +11334,7 @@ pub type rlFrameCfg_t = rlFrameCfg;
 #[doc = " \\brief"]
 #[doc = " Advance Frame config API Subframe configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlSubFrameCfg {
     #[doc = " @brief  Force profile index. This is applicable only if FORCE_SINGLE_PROFILE is set to 1"]
     pub forceProfileIdx: rlUInt16_t,
@@ -11502,7 +11527,7 @@ pub type rlSubFrameCfg_t = rlSubFrameCfg;
 #[doc = " \\brief"]
 #[doc = " Advance Frame Sequence config API parameters rlAdvFrameCfg, 148 bytes"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlAdvFrameSeqCfg {
     #[doc = " @brief  Number of sub frames enabled in this frame Valid range: 1 to 4"]
     pub numOfSubFrames: rlUInt8_t,
@@ -11685,7 +11710,7 @@ pub type rlAdvFrameSeqCfg_t = rlAdvFrameSeqCfg;
 #[doc = " \\brief"]
 #[doc = " Frame config API parameters"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlFrameApplyCfg {
     #[doc = " @brief  Number of Chirps per Frame"]
     pub numChirps: rlUInt32_t,
@@ -11745,7 +11770,7 @@ pub type rlFrameApplyCfg_t = rlFrameApplyCfg;
 #[doc = " \\brief"]
 #[doc = " Sub Frame data config API parameters"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlSubFrameDataCfg {
     #[doc = " @brief  Number of Chirps in Sub-Frame = numOfChirps * numLoops * numOfBurst * burstLoop"]
     pub totalChirps: rlUInt32_t,
@@ -11841,7 +11866,7 @@ pub type rlSubFrameDataCfg_t = rlSubFrameDataCfg;
 #[doc = " This structure is only applicable when mmWaveLink instance is running on"]
 #[doc = " External Host and connected to AWR1243 device."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlAdvFrameDataCfg {
     #[doc = " @brief  Number of Sub Frames, Valid Range (1 - 4)"]
     pub numSubFrames: rlUInt8_t,
@@ -11911,7 +11936,7 @@ pub type rlAdvFrameDataCfg_t = rlAdvFrameDataCfg;
 #[doc = " \\brief"]
 #[doc = " Advance Frame Sequence config API parameters rlAdvFrameCfg, 148 bytes"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlAdvFrameCfg {
     #[doc = " @brief  Advance Frame sequence and Subframe configuration"]
     pub frameSeq: rlAdvFrameSeqCfg_t,
@@ -11955,7 +11980,7 @@ pub type rlAdvFrameCfg_t = rlAdvFrameCfg;
 #[doc = " \\brief"]
 #[doc = " Continous Mode config API parameters"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlContModeCfg {
     #[doc = " @brief  Start frequency \\n"]
     #[doc = "For 77GHz devices (76 - 81 GHz): \\n"]
@@ -12148,7 +12173,7 @@ pub type rlContModeCfg_t = rlContModeCfg;
 #[doc = " \\brief"]
 #[doc = " Continous Mode Enable API parameters"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlContModeEn {
     #[doc = " @brief  Enable continuous steaming mode \\n"]
     #[doc = "0x00 Disable continuous streaming mode \\n"]
@@ -12194,7 +12219,7 @@ pub type rlContModeEn_t = rlContModeEn;
 #[doc = " \\brief"]
 #[doc = " Frame Trigger API parameters RL_RF_FRAMESTARTSTOP_CONF_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlFrameTrigger {
     #[doc = " @brief  Start/Stop Frame \\n"]
     #[doc = "0x0000 - Stop the transmission of frames after the current frame is over at the"]
@@ -12243,7 +12268,7 @@ pub type rlFrameTrigger_t = rlFrameTrigger;
 #[doc = " \\brief"]
 #[doc = " The Object position and signal strength parameter structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTestSourceObject {
     #[doc = " @brief  Relative position in Cartesian coordinate from sensor to objects \\n"]
     #[doc = "X position of object 1lsb = 1cm, -32768cm to 32767cm \\n"]
@@ -12432,7 +12457,7 @@ pub type rlTestSourceObject_t = rlTestSourceObject;
 #[doc = " \\brief"]
 #[doc = " The Antenna position parameter structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTestSourceAntPos {
     #[doc = " @brief  Antenna position X 1lsb=wavelength/8 Valid range = +/-15 wave lengths"]
     pub antPosX: rlInt8_t,
@@ -12476,7 +12501,7 @@ pub type rlTestSourceAntPos_t = rlTestSourceAntPos;
 #[doc = " \\brief"]
 #[doc = " Test source config API parameters E_API_AR_TEST_SOURCE_CONF_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTestSource {
     #[doc = " @brief  Arary of test Objects"]
     pub testObj: [rlTestSourceObject_t; 2usize],
@@ -12544,7 +12569,7 @@ pub type rlTestSource_t = rlTestSource;
 #[doc = " \\brief"]
 #[doc = " Test source Enable API parameters RL_RF_TEST_SOURCE_ENABLE_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTestSourceEn {
     #[doc = " @brief  Test source Enable - 1, Disable - 0"]
     pub tsEnable: rlUInt16_t,
@@ -12588,7 +12613,7 @@ pub type rlTestSourceEnable_t = rlTestSourceEn;
 #[doc = " \\brief"]
 #[doc = " RF characterization Time and Temperature data structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfTempData {
     #[doc = " @brief  radarSS local Time from device powerup. 1 LSB = 1 ms"]
     pub time: rlUInt32_t,
@@ -12742,7 +12767,7 @@ pub type rlRfTempData_t = rlRfTempData;
 #[doc = " \\brief"]
 #[doc = " The DFE Statistics for Rx Channel for particular profile"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDfeRxdStatReport {
     #[doc = " @brief  Average DC value in I chain for profile x, RX channel x"]
     pub iAvgDC: rlInt16_t,
@@ -12824,7 +12849,7 @@ pub type rlDfeRxStatReport_t = rlDfeRxdStatReport;
 #[doc = " \\brief"]
 #[doc = " The DFE Statistics Report Contents"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDfeStatReport {
     #[doc = " @brief Contain DFE statistic report for all profile and receiver"]
     pub dfeStatRepo: [[rlDfeRxStatReport_t; 4usize]; 4usize],
@@ -12856,7 +12881,7 @@ pub type rlDfeStatReport_t = rlDfeStatReport;
 #[doc = " \\brief"]
 #[doc = " Dynamic power saving API parameters"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDynPwrSave {
     #[doc = " @brief  Enable dynamic power saving during inter-chirp IDLE times by \\n"]
     #[doc = "          turning off various circuits e.g. TX, RX, LO. 3 LSB is vaild \\n"]
@@ -12911,7 +12936,7 @@ pub type rlDynPwrSave_t = rlDynPwrSave;
 #[doc = " \\brief"]
 #[doc = " API RF device Config SBC M_API_AR_RF_DEV_CONF_SBC"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfDevCfg {
     #[doc = " @brief Bit Definition \\n"]
     #[doc = "        b1:0 Global Async event direction \\n"]
@@ -13058,7 +13083,7 @@ pub type rlRfDevCfg_t = rlRfDevCfg;
 #[doc = "  Num of samples to collect for API GPADC sensors"]
 #[doc = "  sampleCnt    : Number of samples to collect @625KHz"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlGpAdcSamples {
     #[doc = " @brief  Number of samples to collect"]
     pub sampleCnt: rlUInt8_t,
@@ -13103,7 +13128,7 @@ pub type rlGpAdcSamples_t = rlGpAdcSamples;
 #[doc = " \\brief"]
 #[doc = " API radarSS GPADC API MEAS SET SBC M_API_AR_RF_GPADC_API_SET_SB"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlGpAdcCfg {
     #[doc = " @brief  Enable different sensors \\n"]
     #[doc = "[b0] 1: ANATEST1 Enable,  0: ANATEST1 Disable \\n"]
@@ -13198,7 +13223,7 @@ pub type rlGpAdcCfg_t = rlGpAdcCfg;
 #[doc = " \\brief"]
 #[doc = " Radar RF LDO bypass enable/disable configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfLdoBypassCfg {
     #[doc = " @brief  Enable LDO bypass \\n"]
     #[doc = "[b0] 1: RF LDO bypassed, Should be used only when 1.0V RF supply is provided"]
@@ -13285,7 +13310,7 @@ pub type rlRfLdoBypassCfg_t = rlRfLdoBypassCfg;
 #[doc = " \\brief"]
 #[doc = " Radar RF Phase Shift enable/disable configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfPhaseShiftCfg {
     #[doc = " @brief  Chirp Start Index, Valid Range 0 -511"]
     pub chirpStartIdx: rlUInt16_t,
@@ -13397,7 +13422,7 @@ pub type rlRfPhaseShiftCfg_t = rlRfPhaseShiftCfg;
 #[doc = " \\brief"]
 #[doc = " Radar RF PA loopback configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfPALoopbackCfg {
     #[doc = " @brief  value is a 100MHz divider which sets the loopback frequency \\n"]
     #[doc = "For e.g. for a 1 MHz frequency, set this to 10 \\n"]
@@ -13462,7 +13487,7 @@ pub type rlRfPALoopbackCfg_t = rlRfPALoopbackCfg;
 #[doc = " \\brief"]
 #[doc = " Radar RF Phase shift loopback configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfPSLoopbackCfg {
     #[doc = " @brief  Loop back frequency in kHz, 1 LSB = 1kHz"]
     pub psLoopbackFreq: rlUInt16_t,
@@ -13591,7 +13616,7 @@ pub type rlRfPSLoopbackCfg_t = rlRfPSLoopbackCfg;
 #[doc = " \\brief"]
 #[doc = " Radar RF IF loopback configuration."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfIFLoopbackCfg {
     #[doc = " @brief  IF loopback frequency value \\n"]
     #[doc = "           0: 180 kHz    \\n"]
@@ -13733,11 +13758,16 @@ fn bindgen_test_layout_rlRfProgFiltCoeff() {
         )
     );
 }
+impl Default for rlRfProgFiltCoeff {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlRfProgFiltCoeff_t = rlRfProgFiltCoeff;
 #[doc = " \\brief"]
 #[doc = " Radar RF programmable filter configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfProgFiltConf {
     #[doc = " @brief  Profile Index for which this configuration applies."]
     pub profileId: rlUInt8_t,
@@ -13822,7 +13852,7 @@ pub type rlRfProgFiltConf_t = rlRfProgFiltConf;
 #[doc = " \\brief"]
 #[doc = " Radar RF Miscconfiguration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfMiscConf {
     #[doc = " @brief  b0 PERCHIRP_PHASESHIFTER_EN \\n"]
     #[doc = "          0 Per chirp phase shifter is disabled \\n"]
@@ -13870,7 +13900,7 @@ pub type rlRfMiscConf_t = rlRfMiscConf;
 #[doc = " \\brief"]
 #[doc = " Radar RF Calibration monitoring time unit configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfCalMonTimeUntConf {
     #[doc = " @brief  Defines the basic time unit, in terms of which calibration and/or monitoring \\n"]
     #[doc = "periodicities are to be defined. \\n"]
@@ -13956,7 +13986,7 @@ pub type rlRfCalMonTimeUntConf_t = rlRfCalMonTimeUntConf;
 #[doc = " \\brief"]
 #[doc = " Radar RF Calibration monitoring Frequency Limit configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfCalMonFreqLimitConf {
     #[doc = " @brief  The sensor's lower frequency limit for calibrations and monitoring is encoded \\n"]
     #[doc = "          in 2 bytes (16 bit unsigned number) \\n"]
@@ -14049,7 +14079,7 @@ pub type rlRfCalMonFreqLimitConf_t = rlRfCalMonFreqLimitConf;
 #[doc = " \\brief"]
 #[doc = " Radar RF Init Calibration configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfInitCalConf {
     #[doc = " @brief  Allowed values = 0x000 or 0xFFF Normally, upon receiving RF INIT message, the \\n"]
     #[doc = "         radarSS performs all relevant initial calibrations. This step can be disabled \\n"]
@@ -14152,7 +14182,7 @@ pub type rlRfInitCalConf_t = rlRfInitCalConf;
 #[doc = " \\brief"]
 #[doc = " Radar RF Run time calibration configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRunTimeCalibConf {
     #[doc = " @brief   Upon receiving this trigger message, one time calibration of various RF/analog \\n"]
     #[doc = "          aspects are triggered if the corresponding bits in this field are set to 1. The \\n"]
@@ -14338,7 +14368,7 @@ pub type rlRunTimeCalibConf_t = rlRunTimeCalibConf;
 #[doc = " \\brief"]
 #[doc = " RX gain temperature LUT read"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRxGainTempLutReadReq {
     #[doc = " @brief  This field indicates the profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -14400,7 +14430,7 @@ pub type rlRxGainTempLutReadReq_t = rlRxGainTempLutReadReq;
 #[doc = " \\brief"]
 #[doc = " TX gain temperature LUT read"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTxGainTempLutReadReq {
     #[doc = " @brief  This field indicates the profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -14462,7 +14492,7 @@ pub type rlTxGainTempLutReadReq_t = rlTxGainTempLutReadReq;
 #[doc = " \\brief"]
 #[doc = " RX gain temperature LUT inject"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRxGainTempLutData {
     #[doc = " @brief  This field indicates the profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -14575,7 +14605,7 @@ pub type rlRxGainTempLutData_t = rlRxGainTempLutData;
 #[doc = " \\brief"]
 #[doc = " TX gain temperature LUT inject"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTxGainTempLutData {
     #[doc = " @brief  This field indicates the profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -14672,7 +14702,7 @@ pub type rlTxGainTempLutData_t = rlTxGainTempLutData;
 #[doc = " \\brief"]
 #[doc = " Tx freq and power limit configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfTxFreqPwrLimitMonConf {
     #[doc = " @ brief  The sensor's lower frequency limit for calibrations and monitoring for TX0 is \\n"]
     #[doc = "encoded in 2 bytes (16 bit unsigned number) \\n"]
@@ -14954,7 +14984,7 @@ pub type rlRfTxFreqPwrLimitMonConf_t = rlRfTxFreqPwrLimitMonConf;
 #[doc = " \\brief"]
 #[doc = " Loopback burst set configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlLoopbackBurst {
     #[doc = " @brief Loopback selection  \\n"]
     #[doc = "          Value Definition  \\n"]
@@ -15358,7 +15388,7 @@ pub type rlLoopbackBurst_t = rlLoopbackBurst;
 #[doc = " \\brief"]
 #[doc = " Chirp row configuration, radarSS stores each chirp config in memory in 3 rows."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlChirpRow {
     #[doc = " @brief Nth Chirp config Row 1"]
     #[doc = "Bits Definition"]
@@ -15465,7 +15495,7 @@ pub type rlChirpRow_t = rlChirpRow;
 #[doc = " \\brief"]
 #[doc = " Dynamic chirp configuration for 16 chirp configurations."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDynChirpCfg {
     #[doc = " @brief  Reserved for Future use"]
     #[doc = "Bits   Definition"]
@@ -15556,7 +15586,7 @@ pub type rlDynChirpCfg_t = rlDynChirpCfg;
 #[doc = " \\brief"]
 #[doc = " Dynamic chirp enable configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDynChirpEnCfg {
     #[doc = " @brief  Reserved for Future use"]
     pub reserved: rlUInt32_t,
@@ -15588,7 +15618,7 @@ pub type rlDynChirpEnCfg_t = rlDynChirpEnCfg;
 #[doc = " \\brief"]
 #[doc = " Dynamic per chirp phase shifter configuration for each TX"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlChirpPhShiftPerTx {
     #[doc = " @brief Nth Chirp TX0 phase shift value"]
     #[doc = "Bits TX0 phase shift definition"]
@@ -15668,7 +15698,7 @@ pub type rlChirpPhShiftPerTx_t = rlChirpPhShiftPerTx;
 #[doc = " \\brief"]
 #[doc = " Dynamic per chirp phase shifter configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDynPerChirpPhShftCfg {
     #[doc = " @brief  Reserved for Future use"]
     pub reserved: rlUInt8_t,
@@ -15752,7 +15782,7 @@ pub type rlDynPerChirpPhShftCfg_t = rlDynPerChirpPhShftCfg;
 #[doc = " \\brief"]
 #[doc = " Get calibration data configuration structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlCalDataGetCfg {
     #[doc = " @brief  Reserved for Future use"]
     pub reserved: rlUInt16_t,
@@ -15848,6 +15878,11 @@ fn bindgen_test_layout_rlCalDataStore() {
             stringify!(calData)
         )
     );
+}
+impl Default for rlCalDataStore {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
 }
 pub type rlCalDataStore_t = rlCalDataStore;
 #[doc = " \\brief"]
@@ -15974,11 +16009,16 @@ fn bindgen_test_layout_rlCalibrationData() {
         )
     );
 }
+impl Default for rlCalibrationData {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlCalibrationData_t = rlCalibrationData;
 #[doc = " \\brief"]
 #[doc = " Inter-Rx gain and phase offset configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlInterRxGainPhConf {
     #[doc = " @brief  This field indicates the profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -16101,7 +16141,7 @@ pub type rlInterRxGainPhConf_t = rlInterRxGainPhConf;
 #[doc = " \\brief"]
 #[doc = " BSS Bootup status data structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfBootStatusCfg {
     #[doc = " @brief radarSS bootup status"]
     #[doc = "Bit     definition [1: pass, 0: fail]"]
@@ -16201,7 +16241,7 @@ pub type rlRfBootStatusCfg_t = rlRfBootStatusCfg;
 #[doc = " \\brief"]
 #[doc = " Inter Chirp block control configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlInterChirpBlkCtrlCfg {
     #[doc = " @brief Time to wait after ramp end before turning off RX0 and RX2 RF stages. \\n"]
     #[doc = "1 LSB = 10 ns               \\n"]
@@ -16521,7 +16561,7 @@ pub type rlInterChirpBlkCtrlCfg_t = rlInterChirpBlkCtrlCfg;
 #[doc = " \\brief"]
 #[doc = " Sub-frame trigger API"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlSubFrameStartCfg {
     #[doc = " @brief Command for sub-frame trigger     \\n"]
     #[doc = "Value 0 = No effect               \\n"]
@@ -16567,7 +16607,7 @@ pub type rlSubFrameStartCfg_t = rlSubFrameStartCfg;
 #[doc = " \\brief"]
 #[doc = " Get phase shift calibration data configuration structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlPhShiftCalDataGetCfg {
     #[doc = " @brief  Index of the transmitter channel for which the phase shift is desired \\n"]
     #[doc = "Valid range: 0 to (Number of Tx channels enabled at rlSetChannelConfig) - 1 \\n"]
@@ -16748,6 +16788,11 @@ fn bindgen_test_layout_rlPhShiftCalibrationStore() {
         )
     );
 }
+impl Default for rlPhShiftCalibrationStore {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlPhShiftCalibrationStore_t = rlPhShiftCalibrationStore;
 #[doc = " \\brief"]
 #[doc = " Structure to store all Phase shifter calibration data chunks which device provides in response of"]
@@ -16784,11 +16829,16 @@ fn bindgen_test_layout_rlPhShiftCalibrationData() {
         )
     );
 }
+impl Default for rlPhShiftCalibrationData {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlPhShiftCalibrationData_t = rlPhShiftCalibrationData;
 #[doc = " \\brief"]
 #[doc = " Die ID data structure"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfDieIdCfg {
     #[doc = " @brief Lot number"]
     pub lotNo: rlUInt32_t,
@@ -16904,7 +16954,7 @@ pub type rlRfDieIdCfg_t = rlRfDieIdCfg;
 #[doc = " \\brief"]
 #[doc = " APLL Synthesizer Bandwidth Control"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRfApllSynthBwControl {
     #[doc = " @brief  Synth ICP trim code \\n"]
     pub synthIcpTrim: rlUInt8_t,
@@ -17335,7 +17385,7 @@ extern "C" {
 #[doc = " \\brief"]
 #[doc = " Digital monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonDigEnables {
     #[doc = " @brief  Bit: Dig Monitoring \\n"]
     #[doc = "0 Reserved \\n"]
@@ -17446,7 +17496,7 @@ pub type rlMonDigEnables_t = rlMonDigEnables;
 #[doc = " \\brief"]
 #[doc = " Digital monitoring latent fault reporting configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDigMonPeriodicConf {
     #[doc = " @brief  Value    Definition \\n"]
     #[doc = "0     Report is sent every monitoring period \\n"]
@@ -17539,7 +17589,7 @@ pub type rlDigMonPeriodicConf_t = rlDigMonPeriodicConf;
 #[doc = " \\brief"]
 #[doc = " Analog monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlMonAnaEnables {
     #[doc = " @brief  Bit   Analog monitoring control \\n"]
     #[doc = "0   TEMPERATURE_MONITOR_EN \\n"]
@@ -17624,7 +17674,7 @@ pub type rlMonAnaEnables_t = rlMonAnaEnables;
 #[doc = " \\brief"]
 #[doc = " Temperature sensor monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTempMonConf {
     #[doc = " @brief  Value    Definition \\n"]
     #[doc = "0      Report is sent every monitoring period without threshold check \\n"]
@@ -17786,7 +17836,7 @@ pub type rlTempMonConf_t = rlTempMonConf;
 #[doc = " \\brief"]
 #[doc = " RX gain and phase monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRxGainPhaseMonConf {
     #[doc = " @brief  This field indicates the profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -18045,7 +18095,7 @@ pub type rlRxGainPhaseMonConf_t = rlRxGainPhaseMonConf;
 #[doc = " \\brief"]
 #[doc = " RX noise monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRxNoiseMonConf {
     #[doc = " @brief  This field indicates the profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -18169,7 +18219,7 @@ pub type rlRxNoiseMonConf_t = rlRxNoiseMonConf;
 #[doc = " \\brief"]
 #[doc = " RX IF stage monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRxIfStageMonConf {
     #[doc = " @brief  This field indicates the profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -18314,7 +18364,7 @@ pub type rlRxIfStageMonConf_t = rlRxIfStageMonConf;
 #[doc = " \\brief"]
 #[doc = " TX power monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTxPowMonConf {
     #[doc = " @brief  This field indicates the profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -18528,11 +18578,16 @@ fn bindgen_test_layout_rlAllTxPowMonConf() {
         )
     );
 }
+impl Default for rlAllTxPowMonConf {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlAllTxPowMonConf_t = rlAllTxPowMonConf;
 #[doc = " \\brief"]
 #[doc = " TX ballbreak monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTxBallbreakMonConf {
     #[doc = " @brief  Value    Definition \\n"]
     #[doc = "0      Report is sent every monitoring period without threshold check \\n"]
@@ -18688,11 +18743,16 @@ fn bindgen_test_layout_rlAllTxBallBreakMonCfg() {
         )
     );
 }
+impl Default for rlAllTxBallBreakMonCfg {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlAllTxBallBreakMonCfg_t = rlAllTxBallBreakMonCfg;
 #[doc = " \\brief"]
 #[doc = " TX gain and phase mismatch monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTxGainPhaseMismatchMonConf {
     #[doc = " @brief  This field indicates the Profile Index for which this monitoring configuration \\n"]
     #[doc = "applies. The TX settings corresponding to this profile index are used during \\n"]
@@ -18952,7 +19012,7 @@ pub type rlTxGainPhaseMismatchMonConf_t = rlTxGainPhaseMismatchMonConf;
 #[doc = " \\brief"]
 #[doc = " TX BPM monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTxBpmMonConf {
     #[doc = " @brief  This field indicates the Profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -19203,11 +19263,16 @@ fn bindgen_test_layout_rlAllTxBpmMonConf() {
         )
     );
 }
+impl Default for rlAllTxBpmMonConf {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlAllTxBpmMonConf_t = rlAllTxBpmMonConf;
 #[doc = " \\brief"]
 #[doc = " Synthesizer frequency monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlSynthFreqMonConf {
     #[doc = " @brief  This field indicates the Profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -19360,7 +19425,7 @@ pub type rlSynthFreqMonConf_t = rlSynthFreqMonConf;
 #[doc = " \\brief"]
 #[doc = " External analog signals monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlExtAnaSignalsMonConf {
     #[doc = " @brief  Value    Definition \\n"]
     #[doc = "0       Report is sent every monitoring period without threshold check \\n"]
@@ -19568,7 +19633,7 @@ pub type rlExtAnaSignalsMonConf_t = rlExtAnaSignalsMonConf;
 #[doc = " \\brief"]
 #[doc = " Internal signals in the TX path monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlTxIntAnaSignalsMonConf {
     #[doc = " @brief  The RF analog settings corresponding to this profile are used for monitoring the \\n"]
     #[doc = "enabled signals, using test chirps (static frequency, at the center of the \\n"]
@@ -19715,9 +19780,14 @@ fn bindgen_test_layout_rlAllTxIntAnaSignalsMonConf() {
         )
     );
 }
+impl Default for rlAllTxIntAnaSignalsMonConf {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlAllTxIntAnaSignalsMonConf_t = rlAllTxIntAnaSignalsMonConf;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRxIntAnaSignalsMonConf {
     #[doc = " @brief  The RF analog settings corresponding to this profile are used for monitoring the \\n"]
     #[doc = "enabled signals, using test chirps(static frequency,at the center of the \\n"]
@@ -19798,7 +19868,7 @@ pub type rlRxIntAnaSignalsMonConf_t = rlRxIntAnaSignalsMonConf;
 #[doc = " \\brief"]
 #[doc = " Internal signals for PM, CLK and LO monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlPmClkLoIntAnaSignalsMonConf {
     #[doc = " @brief  The RF analog settings corresponding to this profile are used for monitoring the \\n"]
     #[doc = "enabled signals, using test chirps(static frequency, at the center of the  \\n"]
@@ -19936,7 +20006,7 @@ pub type rlPmClkLoIntAnaSignalsMonConf_t = rlPmClkLoIntAnaSignalsMonConf;
 #[doc = " \\brief"]
 #[doc = " Internal signals for GPADC monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlGpadcIntAnaSignalsMonConf {
     #[doc = " @brief  Value    Definition \\n"]
     #[doc = "0      RESERVED \\n"]
@@ -20015,7 +20085,7 @@ pub type rlGpadcIntAnaSignalsMonConf_t = rlGpadcIntAnaSignalsMonConf;
 #[doc = " \\brief"]
 #[doc = " Internal signals for PLL control voltage monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlPllContrlVoltMonConf {
     #[doc = " @brief  Value    Definition \\n"]
     #[doc = "0      RESERVED \\n"]
@@ -20113,7 +20183,7 @@ pub type rlPllContrVoltMonConf_t = rlPllContrlVoltMonConf;
 #[doc = " \\brief"]
 #[doc = " Internal signals for DCC based clock monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlDualClkCompMonConf {
     #[doc = " @brief  Value    Definition \\n"]
     #[doc = "0      RESERVED \\n"]
@@ -20200,7 +20270,7 @@ pub type rlDualClkCompMonConf_t = rlDualClkCompMonConf;
 #[doc = " \\brief"]
 #[doc = " RX saturation monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRxSatMonConf {
     #[doc = " @brief  This field indicates the profile Index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -20374,7 +20444,7 @@ pub type rlRxSatMonConf_t = rlRxSatMonConf;
 #[doc = " \\brief"]
 #[doc = " Signal and image band energy monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlSigImgMonConf {
     #[doc = " @brief  This field indicates the profile index for which this configuration applies."]
     pub profileIndx: rlUInt8_t,
@@ -20469,7 +20539,7 @@ pub type rlSigImgMonConf_t = rlSigImgMonConf;
 #[doc = " \\brief"]
 #[doc = " RX mixer input power monitoring configuration"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlRxMixInPwrMonConf {
     #[doc = " @brief  The RF analog settings corresponding to this profile are used for monitoring RX \\n"]
     #[doc = "mixer input power using test chirps (static frequency, at the center of the \\n"]
@@ -20663,6 +20733,11 @@ fn bindgen_test_layout_rlRfSigImgPowerCqData() {
         )
     );
 }
+impl Default for rlRfSigImgPowerCqData {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlRfSigImgPowerCqData_t = rlRfSigImgPowerCqData;
 #[doc = " \\brief"]
 #[doc = " RX ADC and IF saturation information"]
@@ -20735,9 +20810,14 @@ fn bindgen_test_layout_rlRfRxSaturationCqData() {
         )
     );
 }
+impl Default for rlRfRxSaturationCqData {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
 pub type rlRfRxSaturationCqData_t = rlRfRxSaturationCqData;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct rlAnaFaultInj {
     #[doc = " @brief  Reserved for Future use"]
     pub reserved0: rlUInt8_t,
@@ -21223,7 +21303,7 @@ extern "C" {
         -> rlReturnVal_t;
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone)]
 pub struct __locale_data {
     pub _address: u8,
 }
