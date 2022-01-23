@@ -111,10 +111,9 @@ pub const __GLIBC__: u32 = 2;
 pub const __GLIBC_MINOR__: u32 = 27;
 pub const _SYS_CDEFS_H: u32 = 1;
 pub const __glibc_c99_flexarr_available: u32 = 1;
-pub const __WORDSIZE: u32 = 32;
-pub const __WORDSIZE32_SIZE_ULONG: u32 = 0;
-pub const __WORDSIZE32_PTRDIFF_LONG: u32 = 0;
-pub const __WORDSIZE_TIME64_COMPAT32: u32 = 0;
+pub const __WORDSIZE: u32 = 64;
+pub const __WORDSIZE_TIME64_COMPAT32: u32 = 1;
+pub const __SYSCALL_WORDSIZE: u32 = 64;
 pub const __HAVE_GENERIC_SELECTION: u32 = 1;
 pub const __GLIBC_USE_LIB_EXT2: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_BFP_EXT: u32 = 0;
@@ -122,7 +121,9 @@ pub const __GLIBC_USE_IEC_60559_FUNCS_EXT: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_TYPES_EXT: u32 = 0;
 pub const _BITS_TYPES_H: u32 = 1;
 pub const _BITS_TYPESIZES_H: u32 = 1;
-pub const __RLIM_T_MATCHES_RLIM64_T: u32 = 0;
+pub const __OFF_T_MATCHES_OFF64_T: u32 = 1;
+pub const __INO_T_MATCHES_INO64_T: u32 = 1;
+pub const __RLIM_T_MATCHES_RLIM64_T: u32 = 1;
 pub const __FD_SETSIZE: u32 = 1024;
 pub const _BITS_WCHAR_H: u32 = 1;
 pub const _BITS_STDINT_INTN_H: u32 = 1;
@@ -146,22 +147,22 @@ pub const UINT_LEAST8_MAX: u32 = 255;
 pub const UINT_LEAST16_MAX: u32 = 65535;
 pub const UINT_LEAST32_MAX: u32 = 4294967295;
 pub const INT_FAST8_MIN: i32 = -128;
-pub const INT_FAST16_MIN: i32 = -2147483648;
-pub const INT_FAST32_MIN: i32 = -2147483648;
+pub const INT_FAST16_MIN: i64 = -9223372036854775808;
+pub const INT_FAST32_MIN: i64 = -9223372036854775808;
 pub const INT_FAST8_MAX: u32 = 127;
-pub const INT_FAST16_MAX: u32 = 2147483647;
-pub const INT_FAST32_MAX: u32 = 2147483647;
+pub const INT_FAST16_MAX: u64 = 9223372036854775807;
+pub const INT_FAST32_MAX: u64 = 9223372036854775807;
 pub const UINT_FAST8_MAX: u32 = 255;
-pub const UINT_FAST16_MAX: u32 = 4294967295;
-pub const UINT_FAST32_MAX: u32 = 4294967295;
-pub const INTPTR_MIN: i32 = -2147483648;
-pub const INTPTR_MAX: u32 = 2147483647;
-pub const UINTPTR_MAX: u32 = 4294967295;
-pub const PTRDIFF_MIN: i32 = -2147483648;
-pub const PTRDIFF_MAX: u32 = 2147483647;
+pub const UINT_FAST16_MAX: i32 = -1;
+pub const UINT_FAST32_MAX: i32 = -1;
+pub const INTPTR_MIN: i64 = -9223372036854775808;
+pub const INTPTR_MAX: u64 = 9223372036854775807;
+pub const UINTPTR_MAX: i32 = -1;
+pub const PTRDIFF_MIN: i64 = -9223372036854775808;
+pub const PTRDIFF_MAX: u64 = 9223372036854775807;
 pub const SIG_ATOMIC_MIN: i32 = -2147483648;
 pub const SIG_ATOMIC_MAX: u32 = 2147483647;
-pub const SIZE_MAX: u32 = 4294967295;
+pub const SIZE_MAX: i32 = -1;
 pub const WINT_MIN: u32 = 0;
 pub const WINT_MAX: u32 = 4294967295;
 pub const _STRING_H: u32 = 1;
@@ -874,21 +875,21 @@ pub type __int16_t = cty::c_short;
 pub type __uint16_t = cty::c_ushort;
 pub type __int32_t = cty::c_int;
 pub type __uint32_t = cty::c_uint;
-pub type __int64_t = cty::c_longlong;
-pub type __uint64_t = cty::c_ulonglong;
-pub type __quad_t = cty::c_longlong;
-pub type __u_quad_t = cty::c_ulonglong;
-pub type __intmax_t = cty::c_longlong;
-pub type __uintmax_t = cty::c_ulonglong;
-pub type __dev_t = __u_quad_t;
+pub type __int64_t = cty::c_long;
+pub type __uint64_t = cty::c_ulong;
+pub type __quad_t = cty::c_long;
+pub type __u_quad_t = cty::c_ulong;
+pub type __intmax_t = cty::c_long;
+pub type __uintmax_t = cty::c_ulong;
+pub type __dev_t = cty::c_ulong;
 pub type __uid_t = cty::c_uint;
 pub type __gid_t = cty::c_uint;
 pub type __ino_t = cty::c_ulong;
-pub type __ino64_t = __u_quad_t;
+pub type __ino64_t = cty::c_ulong;
 pub type __mode_t = cty::c_uint;
-pub type __nlink_t = cty::c_uint;
+pub type __nlink_t = cty::c_ulong;
 pub type __off_t = cty::c_long;
-pub type __off64_t = __quad_t;
+pub type __off64_t = cty::c_long;
 pub type __pid_t = cty::c_int;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -920,7 +921,7 @@ fn bindgen_test_layout___fsid_t() {
 }
 pub type __clock_t = cty::c_long;
 pub type __rlim_t = cty::c_ulong;
-pub type __rlim64_t = __u_quad_t;
+pub type __rlim64_t = cty::c_ulong;
 pub type __id_t = cty::c_uint;
 pub type __time_t = cty::c_long;
 pub type __useconds_t = cty::c_uint;
@@ -931,56 +932,58 @@ pub type __clockid_t = cty::c_int;
 pub type __timer_t = *mut cty::c_void;
 pub type __blksize_t = cty::c_long;
 pub type __blkcnt_t = cty::c_long;
-pub type __blkcnt64_t = __quad_t;
+pub type __blkcnt64_t = cty::c_long;
 pub type __fsblkcnt_t = cty::c_ulong;
-pub type __fsblkcnt64_t = __u_quad_t;
+pub type __fsblkcnt64_t = cty::c_ulong;
 pub type __fsfilcnt_t = cty::c_ulong;
-pub type __fsfilcnt64_t = __u_quad_t;
-pub type __fsword_t = cty::c_int;
-pub type __ssize_t = cty::c_int;
+pub type __fsfilcnt64_t = cty::c_ulong;
+pub type __fsword_t = cty::c_long;
+pub type __ssize_t = cty::c_long;
 pub type __syscall_slong_t = cty::c_long;
 pub type __syscall_ulong_t = cty::c_ulong;
 pub type __loff_t = __off64_t;
 pub type __caddr_t = *mut cty::c_char;
-pub type __intptr_t = cty::c_int;
+pub type __intptr_t = cty::c_long;
 pub type __socklen_t = cty::c_uint;
 pub type __sig_atomic_t = cty::c_int;
 pub type int_least8_t = cty::c_schar;
 pub type int_least16_t = cty::c_short;
 pub type int_least32_t = cty::c_int;
-pub type int_least64_t = cty::c_longlong;
+pub type int_least64_t = cty::c_long;
 pub type uint_least8_t = cty::c_uchar;
 pub type uint_least16_t = cty::c_ushort;
 pub type uint_least32_t = cty::c_uint;
-pub type uint_least64_t = cty::c_ulonglong;
+pub type uint_least64_t = cty::c_ulong;
 pub type int_fast8_t = cty::c_schar;
-pub type int_fast16_t = cty::c_int;
-pub type int_fast32_t = cty::c_int;
-pub type int_fast64_t = cty::c_longlong;
+pub type int_fast16_t = cty::c_long;
+pub type int_fast32_t = cty::c_long;
+pub type int_fast64_t = cty::c_long;
 pub type uint_fast8_t = cty::c_uchar;
-pub type uint_fast16_t = cty::c_uint;
-pub type uint_fast32_t = cty::c_uint;
-pub type uint_fast64_t = cty::c_ulonglong;
+pub type uint_fast16_t = cty::c_ulong;
+pub type uint_fast32_t = cty::c_ulong;
+pub type uint_fast64_t = cty::c_ulong;
 pub type intmax_t = __intmax_t;
 pub type uintmax_t = __uintmax_t;
-pub type size_t = cty::c_uint;
-pub type wchar_t = cty::c_uint;
+pub type size_t = cty::c_ulong;
+pub type wchar_t = cty::c_int;
 #[repr(C)]
+#[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct max_align_t {
     pub __clang_max_align_nonce1: cty::c_longlong,
-    pub __clang_max_align_nonce2: f64,
+    pub __bindgen_padding_0: u64,
+    pub __clang_max_align_nonce2: u128,
 }
 #[test]
 fn bindgen_test_layout_max_align_t() {
     assert_eq!(
         ::core::mem::size_of::<max_align_t>(),
-        16usize,
+        32usize,
         concat!("Size of: ", stringify!(max_align_t))
     );
     assert_eq!(
         ::core::mem::align_of::<max_align_t>(),
-        8usize,
+        16usize,
         concat!("Alignment of ", stringify!(max_align_t))
     );
     assert_eq!(
@@ -999,7 +1002,7 @@ fn bindgen_test_layout_max_align_t() {
         unsafe {
             &(*(::core::ptr::null::<max_align_t>())).__clang_max_align_nonce2 as *const _ as usize
         },
-        8usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(max_align_t),
@@ -1012,14 +1015,14 @@ extern "C" {
     pub fn memcpy(
         __dest: *mut cty::c_void,
         __src: *const cty::c_void,
-        __n: cty::c_uint,
+        __n: cty::c_ulong,
     ) -> *mut cty::c_void;
 }
 extern "C" {
     pub fn memmove(
         __dest: *mut cty::c_void,
         __src: *const cty::c_void,
-        __n: cty::c_uint,
+        __n: cty::c_ulong,
     ) -> *mut cty::c_void;
 }
 extern "C" {
@@ -1031,17 +1034,17 @@ extern "C" {
     ) -> *mut cty::c_void;
 }
 extern "C" {
-    pub fn memset(__s: *mut cty::c_void, __c: cty::c_int, __n: cty::c_uint) -> *mut cty::c_void;
+    pub fn memset(__s: *mut cty::c_void, __c: cty::c_int, __n: cty::c_ulong) -> *mut cty::c_void;
 }
 extern "C" {
     pub fn memcmp(
         __s1: *const cty::c_void,
         __s2: *const cty::c_void,
-        __n: cty::c_uint,
+        __n: cty::c_ulong,
     ) -> cty::c_int;
 }
 extern "C" {
-    pub fn memchr(__s: *const cty::c_void, __c: cty::c_int, __n: cty::c_uint) -> *mut cty::c_void;
+    pub fn memchr(__s: *const cty::c_void, __c: cty::c_int, __n: cty::c_ulong) -> *mut cty::c_void;
 }
 extern "C" {
     pub fn strcpy(__dest: *mut cty::c_char, __src: *const cty::c_char) -> *mut cty::c_char;
@@ -1050,7 +1053,7 @@ extern "C" {
     pub fn strncpy(
         __dest: *mut cty::c_char,
         __src: *const cty::c_char,
-        __n: cty::c_uint,
+        __n: cty::c_ulong,
     ) -> *mut cty::c_char;
 }
 extern "C" {
@@ -1060,7 +1063,7 @@ extern "C" {
     pub fn strncat(
         __dest: *mut cty::c_char,
         __src: *const cty::c_char,
-        __n: cty::c_uint,
+        __n: cty::c_ulong,
     ) -> *mut cty::c_char;
 }
 extern "C" {
@@ -1070,7 +1073,7 @@ extern "C" {
     pub fn strncmp(
         __s1: *const cty::c_char,
         __s2: *const cty::c_char,
-        __n: cty::c_uint,
+        __n: cty::c_ulong,
     ) -> cty::c_int;
 }
 extern "C" {
@@ -1080,8 +1083,8 @@ extern "C" {
     pub fn strxfrm(
         __dest: *mut cty::c_char,
         __src: *const cty::c_char,
-        __n: cty::c_uint,
-    ) -> cty::c_uint;
+        __n: cty::c_ulong,
+    ) -> cty::c_ulong;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1096,12 +1099,12 @@ pub struct __locale_struct {
 fn bindgen_test_layout___locale_struct() {
     assert_eq!(
         ::core::mem::size_of::<__locale_struct>(),
-        116usize,
+        232usize,
         concat!("Size of: ", stringify!(__locale_struct))
     );
     assert_eq!(
         ::core::mem::align_of::<__locale_struct>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(__locale_struct))
     );
     assert_eq!(
@@ -1116,7 +1119,7 @@ fn bindgen_test_layout___locale_struct() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<__locale_struct>())).__ctype_b as *const _ as usize },
-        52usize,
+        104usize,
         concat!(
             "Offset of field: ",
             stringify!(__locale_struct),
@@ -1128,7 +1131,7 @@ fn bindgen_test_layout___locale_struct() {
         unsafe {
             &(*(::core::ptr::null::<__locale_struct>())).__ctype_tolower as *const _ as usize
         },
-        56usize,
+        112usize,
         concat!(
             "Offset of field: ",
             stringify!(__locale_struct),
@@ -1140,7 +1143,7 @@ fn bindgen_test_layout___locale_struct() {
         unsafe {
             &(*(::core::ptr::null::<__locale_struct>())).__ctype_toupper as *const _ as usize
         },
-        60usize,
+        120usize,
         concat!(
             "Offset of field: ",
             stringify!(__locale_struct),
@@ -1150,7 +1153,7 @@ fn bindgen_test_layout___locale_struct() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<__locale_struct>())).__names as *const _ as usize },
-        64usize,
+        128usize,
         concat!(
             "Offset of field: ",
             stringify!(__locale_struct),
@@ -1185,7 +1188,7 @@ extern "C" {
     pub fn strdup(__s: *const cty::c_char) -> *mut cty::c_char;
 }
 extern "C" {
-    pub fn strndup(__string: *const cty::c_char, __n: cty::c_uint) -> *mut cty::c_char;
+    pub fn strndup(__string: *const cty::c_char, __n: cty::c_ulong) -> *mut cty::c_char;
 }
 extern "C" {
     pub fn strchr(__s: *const cty::c_char, __c: cty::c_int) -> *mut cty::c_char;
@@ -1194,10 +1197,10 @@ extern "C" {
     pub fn strrchr(__s: *const cty::c_char, __c: cty::c_int) -> *mut cty::c_char;
 }
 extern "C" {
-    pub fn strcspn(__s: *const cty::c_char, __reject: *const cty::c_char) -> cty::c_uint;
+    pub fn strcspn(__s: *const cty::c_char, __reject: *const cty::c_char) -> cty::c_ulong;
 }
 extern "C" {
-    pub fn strspn(__s: *const cty::c_char, __accept: *const cty::c_char) -> cty::c_uint;
+    pub fn strspn(__s: *const cty::c_char, __accept: *const cty::c_char) -> cty::c_ulong;
 }
 extern "C" {
     pub fn strpbrk(__s: *const cty::c_char, __accept: *const cty::c_char) -> *mut cty::c_char;
@@ -1224,7 +1227,7 @@ extern "C" {
     ) -> *mut cty::c_char;
 }
 extern "C" {
-    pub fn strlen(__s: *const cty::c_char) -> cty::c_uint;
+    pub fn strlen(__s: *const cty::c_char) -> cty::c_ulong;
 }
 extern "C" {
     pub fn strnlen(__string: *const cty::c_char, __maxlen: size_t) -> size_t;
@@ -1250,7 +1253,7 @@ extern "C" {
     pub fn bcopy(__src: *const cty::c_void, __dest: *mut cty::c_void, __n: size_t);
 }
 extern "C" {
-    pub fn bzero(__s: *mut cty::c_void, __n: cty::c_uint);
+    pub fn bzero(__s: *mut cty::c_void, __n: cty::c_ulong);
 }
 extern "C" {
     pub fn index(__s: *const cty::c_char, __c: cty::c_int) -> *mut cty::c_char;
@@ -1274,7 +1277,7 @@ extern "C" {
     pub fn strncasecmp(
         __s1: *const cty::c_char,
         __s2: *const cty::c_char,
-        __n: cty::c_uint,
+        __n: cty::c_ulong,
     ) -> cty::c_int;
 }
 extern "C" {
@@ -1321,7 +1324,7 @@ extern "C" {
     pub fn stpncpy(
         __dest: *mut cty::c_char,
         __src: *const cty::c_char,
-        __n: cty::c_uint,
+        __n: cty::c_ulong,
     ) -> *mut cty::c_char;
 }
 #[doc = " TYPE-DEFINE STRUCT/ENUM/UNION DEFINITIONS"]
@@ -1423,12 +1426,12 @@ pub struct rlComIfCbs {
 fn bindgen_test_layout_rlComIfCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlComIfCbs>(),
-        16usize,
+        32usize,
         concat!("Size of: ", stringify!(rlComIfCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlComIfCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlComIfCbs))
     );
     assert_eq!(
@@ -1443,7 +1446,7 @@ fn bindgen_test_layout_rlComIfCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlComIfCbs>())).rlComIfRead as *const _ as usize },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlComIfCbs),
@@ -1453,7 +1456,7 @@ fn bindgen_test_layout_rlComIfCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlComIfCbs>())).rlComIfWrite as *const _ as usize },
-        8usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlComIfCbs),
@@ -1463,7 +1466,7 @@ fn bindgen_test_layout_rlComIfCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlComIfCbs>())).rlComIfClose as *const _ as usize },
-        12usize,
+        24usize,
         concat!(
             "Offset of field: ",
             stringify!(rlComIfCbs),
@@ -1540,12 +1543,12 @@ pub struct rlOsiMutexCbs {
 fn bindgen_test_layout_rlOsiMutexCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlOsiMutexCbs>(),
-        16usize,
+        32usize,
         concat!("Size of: ", stringify!(rlOsiMutexCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlOsiMutexCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlOsiMutexCbs))
     );
     assert_eq!(
@@ -1560,7 +1563,7 @@ fn bindgen_test_layout_rlOsiMutexCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiMutexCbs>())).rlOsiMutexLock as *const _ as usize },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiMutexCbs),
@@ -1570,7 +1573,7 @@ fn bindgen_test_layout_rlOsiMutexCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiMutexCbs>())).rlOsiMutexUnLock as *const _ as usize },
-        8usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiMutexCbs),
@@ -1580,7 +1583,7 @@ fn bindgen_test_layout_rlOsiMutexCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiMutexCbs>())).rlOsiMutexDelete as *const _ as usize },
-        12usize,
+        24usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiMutexCbs),
@@ -1644,12 +1647,12 @@ pub struct rlOsiSemCbs {
 fn bindgen_test_layout_rlOsiSemCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlOsiSemCbs>(),
-        16usize,
+        32usize,
         concat!("Size of: ", stringify!(rlOsiSemCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlOsiSemCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlOsiSemCbs))
     );
     assert_eq!(
@@ -1664,7 +1667,7 @@ fn bindgen_test_layout_rlOsiSemCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiSemCbs>())).rlOsiSemWait as *const _ as usize },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiSemCbs),
@@ -1674,7 +1677,7 @@ fn bindgen_test_layout_rlOsiSemCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiSemCbs>())).rlOsiSemSignal as *const _ as usize },
-        8usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiSemCbs),
@@ -1684,7 +1687,7 @@ fn bindgen_test_layout_rlOsiSemCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiSemCbs>())).rlOsiSemDelete as *const _ as usize },
-        12usize,
+        24usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiSemCbs),
@@ -1725,12 +1728,12 @@ pub struct rlOsiMsgQCbs {
 fn bindgen_test_layout_rlOsiMsgQCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlOsiMsgQCbs>(),
-        4usize,
+        8usize,
         concat!("Size of: ", stringify!(rlOsiMsgQCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlOsiMsgQCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlOsiMsgQCbs))
     );
     assert_eq!(
@@ -1764,12 +1767,12 @@ pub struct rlOsiCbs {
 fn bindgen_test_layout_rlOsiCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlOsiCbs>(),
-        36usize,
+        72usize,
         concat!("Size of: ", stringify!(rlOsiCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlOsiCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlOsiCbs))
     );
     assert_eq!(
@@ -1784,7 +1787,7 @@ fn bindgen_test_layout_rlOsiCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiCbs>())).sem as *const _ as usize },
-        16usize,
+        32usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiCbs),
@@ -1794,7 +1797,7 @@ fn bindgen_test_layout_rlOsiCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiCbs>())).queue as *const _ as usize },
-        32usize,
+        64usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiCbs),
@@ -1834,12 +1837,12 @@ pub struct rlEventCbs {
 fn bindgen_test_layout_rlEventCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlEventCbs>(),
-        4usize,
+        8usize,
         concat!("Size of: ", stringify!(rlEventCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlEventCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlEventCbs))
     );
     assert_eq!(
@@ -1865,12 +1868,12 @@ pub struct rlTimerCbs {
 fn bindgen_test_layout_rlTimerCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlTimerCbs>(),
-        4usize,
+        8usize,
         concat!("Size of: ", stringify!(rlTimerCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlTimerCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlTimerCbs))
     );
     assert_eq!(
@@ -1900,12 +1903,12 @@ pub struct rlCmdParserCbs {
 fn bindgen_test_layout_rlCmdParserCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlCmdParserCbs>(),
-        8usize,
+        16usize,
         concat!("Size of: ", stringify!(rlCmdParserCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlCmdParserCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlCmdParserCbs))
     );
     assert_eq!(
@@ -1920,7 +1923,7 @@ fn bindgen_test_layout_rlCmdParserCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlCmdParserCbs>())).rlPostCnysStep as *const _ as usize },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlCmdParserCbs),
@@ -1964,12 +1967,12 @@ pub struct rlCrcCbs {
 fn bindgen_test_layout_rlCrcCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlCrcCbs>(),
-        4usize,
+        8usize,
         concat!("Size of: ", stringify!(rlCrcCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlCrcCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlCrcCbs))
     );
     assert_eq!(
@@ -2080,12 +2083,12 @@ pub struct rlDeviceCtrlCbs {
 fn bindgen_test_layout_rlDeviceCtrlCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlDeviceCtrlCbs>(),
-        28usize,
+        56usize,
         concat!("Size of: ", stringify!(rlDeviceCtrlCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlDeviceCtrlCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlDeviceCtrlCbs))
     );
     assert_eq!(
@@ -2102,7 +2105,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         unsafe {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlDeviceDisable as *const _ as usize
         },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2114,7 +2117,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         unsafe {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlDeviceMaskHostIrq as *const _ as usize
         },
-        8usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2126,7 +2129,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         unsafe {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlDeviceUnMaskHostIrq as *const _ as usize
         },
-        12usize,
+        24usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2138,7 +2141,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         unsafe {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlDeviceWaitIrqStatus as *const _ as usize
         },
-        16usize,
+        32usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2150,7 +2153,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         unsafe {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlCommIfAssertIrq as *const _ as usize
         },
-        20usize,
+        40usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2163,7 +2166,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlRegisterInterruptHandler as *const _
                 as usize
         },
-        24usize,
+        48usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2200,12 +2203,12 @@ pub struct rlDbgCb {
 fn bindgen_test_layout_rlDbgCb() {
     assert_eq!(
         ::core::mem::size_of::<rlDbgCb>(),
-        8usize,
+        16usize,
         concat!("Size of: ", stringify!(rlDbgCb))
     );
     assert_eq!(
         ::core::mem::align_of::<rlDbgCb>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlDbgCb))
     );
     assert_eq!(
@@ -2220,7 +2223,7 @@ fn bindgen_test_layout_rlDbgCb() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlDbgCb>())).dbgLevel as *const _ as usize },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDbgCb),
@@ -2270,12 +2273,12 @@ pub struct rlClientCbs {
 fn bindgen_test_layout_rlClientCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlClientCbs>(),
-        120usize,
+        232usize,
         concat!("Size of: ", stringify!(rlClientCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlClientCbs>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlClientCbs))
     );
     assert_eq!(
@@ -2290,7 +2293,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).osiCb as *const _ as usize },
-        16usize,
+        32usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2300,7 +2303,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).eventCb as *const _ as usize },
-        52usize,
+        104usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2310,7 +2313,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).devCtrlCb as *const _ as usize },
-        56usize,
+        112usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2320,7 +2323,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).timerCb as *const _ as usize },
-        84usize,
+        168usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2330,7 +2333,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).cmdParserCb as *const _ as usize },
-        88usize,
+        176usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2340,7 +2343,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).crcCb as *const _ as usize },
-        96usize,
+        192usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2350,7 +2353,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).crcType as *const _ as usize },
-        100usize,
+        200usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2360,7 +2363,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).ackTimeout as *const _ as usize },
-        104usize,
+        204usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2370,7 +2373,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).platform as *const _ as usize },
-        108usize,
+        208usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2380,7 +2383,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).arDevType as *const _ as usize },
-        109usize,
+        209usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2390,7 +2393,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).dbgCb as *const _ as usize },
-        112usize,
+        216usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -9475,12 +9478,12 @@ pub struct rlDevHsiCfg {
 fn bindgen_test_layout_rlDevHsiCfg() {
     assert_eq!(
         ::core::mem::size_of::<rlDevHsiCfg>(),
-        12usize,
+        24usize,
         concat!("Size of: ", stringify!(rlDevHsiCfg))
     );
     assert_eq!(
         ::core::mem::align_of::<rlDevHsiCfg>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlDevHsiCfg))
     );
     assert_eq!(
@@ -9495,7 +9498,7 @@ fn bindgen_test_layout_rlDevHsiCfg() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlDevHsiCfg>())).dataPath as *const _ as usize },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDevHsiCfg),
@@ -9505,7 +9508,7 @@ fn bindgen_test_layout_rlDevHsiCfg() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlDevHsiCfg>())).dataPathClk as *const _ as usize },
-        8usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDevHsiCfg),
@@ -18530,12 +18533,12 @@ pub struct rlAllTxPowMonConf {
 fn bindgen_test_layout_rlAllTxPowMonConf() {
     assert_eq!(
         ::core::mem::size_of::<rlAllTxPowMonConf>(),
-        12usize,
+        24usize,
         concat!("Size of: ", stringify!(rlAllTxPowMonConf))
     );
     assert_eq!(
         ::core::mem::align_of::<rlAllTxPowMonConf>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlAllTxPowMonConf))
     );
     assert_eq!(
@@ -18554,7 +18557,7 @@ fn bindgen_test_layout_rlAllTxPowMonConf() {
         unsafe {
             &(*(::core::ptr::null::<rlAllTxPowMonConf>())).tx1PowrMonCfg as *const _ as usize
         },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxPowMonConf),
@@ -18566,7 +18569,7 @@ fn bindgen_test_layout_rlAllTxPowMonConf() {
         unsafe {
             &(*(::core::ptr::null::<rlAllTxPowMonConf>())).tx2PowrMonCfg as *const _ as usize
         },
-        8usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxPowMonConf),
@@ -18692,12 +18695,12 @@ pub struct rlAllTxBallBreakMonCfg {
 fn bindgen_test_layout_rlAllTxBallBreakMonCfg() {
     assert_eq!(
         ::core::mem::size_of::<rlAllTxBallBreakMonCfg>(),
-        12usize,
+        24usize,
         concat!("Size of: ", stringify!(rlAllTxBallBreakMonCfg))
     );
     assert_eq!(
         ::core::mem::align_of::<rlAllTxBallBreakMonCfg>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlAllTxBallBreakMonCfg))
     );
     assert_eq!(
@@ -18718,7 +18721,7 @@ fn bindgen_test_layout_rlAllTxBallBreakMonCfg() {
             &(*(::core::ptr::null::<rlAllTxBallBreakMonCfg>())).tx1BallBrkMonCfg as *const _
                 as usize
         },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxBallBreakMonCfg),
@@ -18731,7 +18734,7 @@ fn bindgen_test_layout_rlAllTxBallBreakMonCfg() {
             &(*(::core::ptr::null::<rlAllTxBallBreakMonCfg>())).tx2BallBrkMonCfg as *const _
                 as usize
         },
-        8usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxBallBreakMonCfg),
@@ -19221,12 +19224,12 @@ pub struct rlAllTxBpmMonConf {
 fn bindgen_test_layout_rlAllTxBpmMonConf() {
     assert_eq!(
         ::core::mem::size_of::<rlAllTxBpmMonConf>(),
-        12usize,
+        24usize,
         concat!("Size of: ", stringify!(rlAllTxBpmMonConf))
     );
     assert_eq!(
         ::core::mem::align_of::<rlAllTxBpmMonConf>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlAllTxBpmMonConf))
     );
     assert_eq!(
@@ -19241,7 +19244,7 @@ fn bindgen_test_layout_rlAllTxBpmMonConf() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlAllTxBpmMonConf>())).tx1BpmMonCfg as *const _ as usize },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxBpmMonConf),
@@ -19251,7 +19254,7 @@ fn bindgen_test_layout_rlAllTxBpmMonConf() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlAllTxBpmMonConf>())).tx2BpmMonCfg as *const _ as usize },
-        8usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxBpmMonConf),
@@ -19729,12 +19732,12 @@ pub struct rlAllTxIntAnaSignalsMonConf {
 fn bindgen_test_layout_rlAllTxIntAnaSignalsMonConf() {
     assert_eq!(
         ::core::mem::size_of::<rlAllTxIntAnaSignalsMonConf>(),
-        12usize,
+        24usize,
         concat!("Size of: ", stringify!(rlAllTxIntAnaSignalsMonConf))
     );
     assert_eq!(
         ::core::mem::align_of::<rlAllTxIntAnaSignalsMonConf>(),
-        4usize,
+        8usize,
         concat!("Alignment of ", stringify!(rlAllTxIntAnaSignalsMonConf))
     );
     assert_eq!(
@@ -19755,7 +19758,7 @@ fn bindgen_test_layout_rlAllTxIntAnaSignalsMonConf() {
             &(*(::core::ptr::null::<rlAllTxIntAnaSignalsMonConf>())).tx1IntAnaSgnlMonCfg as *const _
                 as usize
         },
-        4usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxIntAnaSignalsMonConf),
@@ -19768,7 +19771,7 @@ fn bindgen_test_layout_rlAllTxIntAnaSignalsMonConf() {
             &(*(::core::ptr::null::<rlAllTxIntAnaSignalsMonConf>())).tx2IntAnaSgnlMonCfg as *const _
                 as usize
         },
-        8usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxIntAnaSignalsMonConf),
