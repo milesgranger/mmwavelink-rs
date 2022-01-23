@@ -1,3 +1,6 @@
+use anyhow::{bail, ensure, Result};
+use core::convert::TryInto;
+use core::slice;
 use mmwavelink_sys::ffi;
 
 /// Communication interface(SPI, MailBox, UART etc) callback functions.
@@ -63,6 +66,15 @@ pub enum CrcType {
     SixtyFour = 64_u8,
 }
 
+pub fn u32_from_le_bytes(payload: *mut u8, len: u16) -> Result<u32> {
+    ensure!(len == 4, "Slice len does not equal 4");
+    let bytes_slice = unsafe { slice::from_raw_parts(payload as _, len as _) };
+    match bytes_slice.try_into() {
+        Ok(bytes) => Ok(u32::from_le_bytes(bytes)),
+        Err(_) => bail!("Failed to convert bytes slice to array of 4"),
+    }
+}
+
 impl ClientCallBacks {
     pub fn new(
         communication_interface_cb: CommunicationInterfaceCallbacks,
@@ -105,4 +117,9 @@ impl ClientCallBacks {
 /// Bring mmwave Device Out of Reset
 pub fn device_power_on(device_map: u8, client_cb: ffi::rlClientCbs) -> i32 {
     unsafe { ffi::rlDevicePowerOn(device_map, client_cb) }
+}
+
+/// Shutdown mmwave device.
+pub fn device_power_off() -> i32 {
+    unsafe { ffi::rlDevicePowerOff() }
 }
