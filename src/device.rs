@@ -27,10 +27,6 @@ pub struct OsiCallbacks(ffi::rlOsiCbs);
 
 #[derive(Debug, Default, Copy, Clone)]
 #[repr(transparent)]
-pub struct EventCallback(ffi::rlEventCbs);
-
-#[derive(Debug, Default, Copy, Clone)]
-#[repr(transparent)]
 pub struct DeviceControlCallbacks(ffi::rlDeviceCtrlCbs);
 
 #[derive(Debug, Default, Copy, Clone)]
@@ -79,7 +75,9 @@ impl ClientCallBacks {
     pub fn new(
         communication_interface_cb: CommunicationInterfaceCallbacks,
         osi_cb: OsiCallbacks,
-        event_cb: EventCallback,
+        event_cb: Option<
+            unsafe extern "C" fn(dev_idx: u8, sub_id: u16, sub_len: u16, payload: *mut u8),
+        >,
         device_ctrl_cb: DeviceControlCallbacks,
         timer_cb: TimerCallback,
         crc_cb: CrcCallback,
@@ -92,7 +90,9 @@ impl ClientCallBacks {
         Self(ffi::rlClientCbs {
             comIfCb: communication_interface_cb.0,
             osiCb: osi_cb.0,
-            eventCb: event_cb.0,
+            eventCb: ffi::rlEventCbs {
+                rlAsyncEvent: event_cb,
+            },
             devCtrlCb: device_ctrl_cb.0,
             timerCb: timer_cb.0,
             cmdParserCb: ffi::rlCmdParserCbs::default(), // TI internal use only
