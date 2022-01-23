@@ -58,9 +58,9 @@ pub enum DeviceType {
 #[repr(u8)]
 #[derive(Debug, Copy, Clone)]
 pub enum CrcType {
-    Sixteen = 16,
-    ThirtyTwo = 32,
-    SixtyFour = 64,
+    Sixteen = 16_u8,
+    ThirtyTwo = 32_u8,
+    SixtyFour = 64_u8,
 }
 
 impl ClientCallBacks {
