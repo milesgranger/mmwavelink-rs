@@ -31,10 +31,6 @@ pub struct DeviceControlCallbacks(ffi::rlDeviceCtrlCbs);
 
 #[derive(Debug, Default, Copy, Clone)]
 #[repr(transparent)]
-pub struct CrcCallback(ffi::rlCrcCbs);
-
-#[derive(Debug, Default, Copy, Clone)]
-#[repr(transparent)]
 pub struct DebugCallback(ffi::rlDbgCb);
 
 #[derive(Debug, Copy, Default, Clone)]
@@ -76,7 +72,9 @@ impl ClientCallBacks {
         >,
         device_ctrl_cb: DeviceControlCallbacks,
         timer_cb: Option<unsafe extern "C" fn(delay: u32) -> i32>,
-        crc_cb: CrcCallback,
+        crc_cb: Option<
+            unsafe extern "C" fn(data: *mut u8, len: u32, crc_type: u8, crc: *mut u8) -> i32,
+        >,
         crc_type: CrcType,
         ack_timeout: u32,
         platform: Platform,
@@ -92,7 +90,9 @@ impl ClientCallBacks {
             devCtrlCb: device_ctrl_cb.0,
             timerCb: ffi::rlTimerCbs { rlDelay: timer_cb },
             cmdParserCb: ffi::rlCmdParserCbs::default(), // TI internal use only
-            crcCb: crc_cb.0,
+            crcCb: ffi::rlCrcCbs {
+                rlComputeCRC: crc_cb,
+            },
             crcType: crc_type as u8,
             ackTimeout: ack_timeout,
             platform: platform as u8,
