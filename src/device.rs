@@ -49,6 +49,32 @@ pub struct DebugCallback(ffi::rlDbgCb);
 #[repr(transparent)]
 pub struct ClientCallBacks(ffi::rlClientCbs);
 
+#[repr(u8)]
+#[derive(Debug, Copy, Clone)]
+pub enum Platform {
+    ExtHost = 0x0,
+    MSS = 0x1,
+    DSS = 0x2,
+}
+
+#[repr(u8)]
+#[derive(Debug, Copy, Clone)]
+pub enum DeviceType {
+    XWR1243Host = 0x0,
+    XWR1443Mss = 0x1,
+    XWR1642MssDss = 0x2,
+    XWR1843MssDss = 0x3,
+    XWR6843MssDss = 0x4,
+}
+
+#[repr(u8)]
+#[derive(Debug, Copy, Clone)]
+pub enum CrcType {
+    Sixteen = 16,
+    ThirtyTwo = 32,
+    SixtyFour = 64,
+}
+
 impl ClientCallBacks {
     pub fn new(
         communication_interface_cb: CommunicationInterfaceCallbacks,
@@ -57,10 +83,10 @@ impl ClientCallBacks {
         device_ctrl_cb: DeviceControlCallbacks,
         timer_cb: TimerCallback,
         crc_cb: CrcCallback,
-        crc_type: u8,
+        crc_type: CrcType,
         ack_timeout: u32,
-        platform: u8,
-        device_type: u8,
+        platform: Platform,
+        device_type: DeviceType,
         dbg_callback: DebugCallback,
     ) -> Self {
         Self(ffi::rlClientCbs {
@@ -71,10 +97,10 @@ impl ClientCallBacks {
             timerCb: timer_cb.0,
             cmdParserCb: ffi::rlCmdParserCbs::default(), // TI internal use only
             crcCb: crc_cb.0,
-            crcType: crc_type,
+            crcType: crc_type as u8,
             ackTimeout: ack_timeout,
-            platform: platform,
-            arDevType: device_type,
+            platform: platform as u8,
+            arDevType: device_type as u8,
             dbgCb: dbg_callback.0,
         })
     }
