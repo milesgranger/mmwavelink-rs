@@ -371,6 +371,7 @@ impl PowerSaveModeConfig {
 }
 
 /// API over `mmwavelink::ffi::rlFrameCfg`
+#[derive(Copy, Clone, Debug, Default)]
 #[repr(transparent)]
 pub struct FrameConfig(ffi::rlFrameCfg);
 

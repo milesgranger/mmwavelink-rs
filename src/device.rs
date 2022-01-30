@@ -115,8 +115,8 @@ impl ClientCallBacks {
 }
 
 /// Bring mmwave Device Out of Reset
-pub fn device_power_on(device_map: u8, client_cb: ffi::rlClientCbs) -> i32 {
-    unsafe { ffi::rlDevicePowerOn(device_map, client_cb) }
+pub fn device_power_on(device_map: u8, client_cb: ClientCallBacks) -> i32 {
+    unsafe { ffi::rlDevicePowerOn(device_map, client_cb.0) }
 }
 
 /// Shutdown mmwave device.
