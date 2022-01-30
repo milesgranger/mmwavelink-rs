@@ -1,7 +1,8 @@
-use anyhow::{bail, ensure, Result};
 use core::convert::TryInto;
 use core::slice;
 use mmwavelink_sys::ffi;
+
+use crate::error::{Error, Result};
 
 /// Communication interface(SPI, MailBox, UART etc) callback functions.
 #[derive(Debug, Copy, Default, Clone)]
@@ -67,11 +68,13 @@ pub enum CrcType {
 }
 
 pub fn u32_from_le_bytes(payload: *mut u8, len: u16) -> Result<u32> {
-    ensure!(len == 4, "Slice len does not equal 4");
+    if len != 4 {
+        todo!("Handle when len doesn't equal 4");
+    }
     let bytes_slice = unsafe { slice::from_raw_parts(payload as _, len as _) };
     match bytes_slice.try_into() {
         Ok(bytes) => Ok(u32::from_le_bytes(bytes)),
-        Err(_) => bail!("Failed to convert bytes slice to array of 4"),
+        Err(_) => todo!("Failed to convert bytes slice to array of 4"),
     }
 }
 
@@ -115,11 +118,11 @@ impl ClientCallBacks {
 }
 
 /// Bring mmwave Device Out of Reset
-pub fn device_power_on(device_map: u8, client_cb: ClientCallBacks) -> i32 {
-    unsafe { ffi::rlDevicePowerOn(device_map, client_cb.0) }
+pub fn device_power_on(device_map: u8, client_cb: ClientCallBacks) -> Result<()> {
+    Error::maybe_device_error(unsafe { ffi::rlDevicePowerOn(device_map, client_cb.0) }, ())
 }
 
 /// Shutdown mmwave device.
-pub fn device_power_off() -> i32 {
-    unsafe { ffi::rlDevicePowerOff() }
+pub fn device_power_off() -> Result<()> {
+    Error::maybe_device_error(unsafe { ffi::rlDevicePowerOff() }, ())
 }
