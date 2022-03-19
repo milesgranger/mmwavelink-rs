@@ -84,6 +84,7 @@ where
 pub const _STDINT_H: u32 = 1;
 pub const _FEATURES_H: u32 = 1;
 pub const _DEFAULT_SOURCE: u32 = 1;
+pub const __GLIBC_USE_ISOC2X: u32 = 0;
 pub const __USE_ISOC11: u32 = 1;
 pub const __USE_ISOC99: u32 = 1;
 pub const __USE_ISOC95: u32 = 1;
@@ -101,30 +102,35 @@ pub const __USE_MISC: u32 = 1;
 pub const __USE_ATFILE: u32 = 1;
 pub const __USE_FORTIFY_LEVEL: u32 = 0;
 pub const __GLIBC_USE_DEPRECATED_GETS: u32 = 0;
+pub const __GLIBC_USE_DEPRECATED_SCANF: u32 = 0;
 pub const _STDC_PREDEF_H: u32 = 1;
 pub const __STDC_IEC_559__: u32 = 1;
 pub const __STDC_IEC_559_COMPLEX__: u32 = 1;
 pub const __STDC_ISO_10646__: u32 = 201706;
-pub const __STDC_NO_THREADS__: u32 = 1;
 pub const __GNU_LIBRARY__: u32 = 6;
 pub const __GLIBC__: u32 = 2;
-pub const __GLIBC_MINOR__: u32 = 27;
+pub const __GLIBC_MINOR__: u32 = 31;
 pub const _SYS_CDEFS_H: u32 = 1;
 pub const __glibc_c99_flexarr_available: u32 = 1;
-pub const __WORDSIZE: u32 = 64;
-pub const __WORDSIZE_TIME64_COMPAT32: u32 = 1;
-pub const __SYSCALL_WORDSIZE: u32 = 64;
+pub const __WORDSIZE: u32 = 32;
+pub const __WORDSIZE32_SIZE_ULONG: u32 = 0;
+pub const __WORDSIZE32_PTRDIFF_LONG: u32 = 0;
+pub const __WORDSIZE_TIME64_COMPAT32: u32 = 0;
+pub const __LONG_DOUBLE_USES_FLOAT128: u32 = 0;
 pub const __HAVE_GENERIC_SELECTION: u32 = 1;
 pub const __GLIBC_USE_LIB_EXT2: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_BFP_EXT: u32 = 0;
+pub const __GLIBC_USE_IEC_60559_BFP_EXT_C2X: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_FUNCS_EXT: u32 = 0;
+pub const __GLIBC_USE_IEC_60559_FUNCS_EXT_C2X: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_TYPES_EXT: u32 = 0;
 pub const _BITS_TYPES_H: u32 = 1;
+pub const __TIMESIZE: u32 = 32;
 pub const _BITS_TYPESIZES_H: u32 = 1;
-pub const __OFF_T_MATCHES_OFF64_T: u32 = 1;
-pub const __INO_T_MATCHES_INO64_T: u32 = 1;
-pub const __RLIM_T_MATCHES_RLIM64_T: u32 = 1;
+pub const __RLIM_T_MATCHES_RLIM64_T: u32 = 0;
+pub const __STATFS_MATCHES_STATFS64: u32 = 0;
 pub const __FD_SETSIZE: u32 = 1024;
+pub const _BITS_TIME64_H: u32 = 1;
 pub const _BITS_WCHAR_H: u32 = 1;
 pub const _BITS_STDINT_INTN_H: u32 = 1;
 pub const _BITS_STDINT_UINTN_H: u32 = 1;
@@ -147,22 +153,22 @@ pub const UINT_LEAST8_MAX: u32 = 255;
 pub const UINT_LEAST16_MAX: u32 = 65535;
 pub const UINT_LEAST32_MAX: u32 = 4294967295;
 pub const INT_FAST8_MIN: i32 = -128;
-pub const INT_FAST16_MIN: i64 = -9223372036854775808;
-pub const INT_FAST32_MIN: i64 = -9223372036854775808;
+pub const INT_FAST16_MIN: i32 = -2147483648;
+pub const INT_FAST32_MIN: i32 = -2147483648;
 pub const INT_FAST8_MAX: u32 = 127;
-pub const INT_FAST16_MAX: u64 = 9223372036854775807;
-pub const INT_FAST32_MAX: u64 = 9223372036854775807;
+pub const INT_FAST16_MAX: u32 = 2147483647;
+pub const INT_FAST32_MAX: u32 = 2147483647;
 pub const UINT_FAST8_MAX: u32 = 255;
-pub const UINT_FAST16_MAX: i32 = -1;
-pub const UINT_FAST32_MAX: i32 = -1;
-pub const INTPTR_MIN: i64 = -9223372036854775808;
-pub const INTPTR_MAX: u64 = 9223372036854775807;
-pub const UINTPTR_MAX: i32 = -1;
-pub const PTRDIFF_MIN: i64 = -9223372036854775808;
-pub const PTRDIFF_MAX: u64 = 9223372036854775807;
+pub const UINT_FAST16_MAX: u32 = 4294967295;
+pub const UINT_FAST32_MAX: u32 = 4294967295;
+pub const INTPTR_MIN: i32 = -2147483648;
+pub const INTPTR_MAX: u32 = 2147483647;
+pub const UINTPTR_MAX: u32 = 4294967295;
+pub const PTRDIFF_MIN: i32 = -2147483648;
+pub const PTRDIFF_MAX: u32 = 2147483647;
 pub const SIG_ATOMIC_MIN: i32 = -2147483648;
 pub const SIG_ATOMIC_MAX: u32 = 2147483647;
-pub const SIZE_MAX: i32 = -1;
+pub const SIZE_MAX: u32 = 4294967295;
 pub const WINT_MIN: u32 = 0;
 pub const WINT_MAX: u32 = 4294967295;
 pub const _STRING_H: u32 = 1;
@@ -875,21 +881,29 @@ pub type __int16_t = cty::c_short;
 pub type __uint16_t = cty::c_ushort;
 pub type __int32_t = cty::c_int;
 pub type __uint32_t = cty::c_uint;
-pub type __int64_t = cty::c_long;
-pub type __uint64_t = cty::c_ulong;
-pub type __quad_t = cty::c_long;
-pub type __u_quad_t = cty::c_ulong;
-pub type __intmax_t = cty::c_long;
-pub type __uintmax_t = cty::c_ulong;
-pub type __dev_t = cty::c_ulong;
+pub type __int64_t = cty::c_longlong;
+pub type __uint64_t = cty::c_ulonglong;
+pub type __int_least8_t = __int8_t;
+pub type __uint_least8_t = __uint8_t;
+pub type __int_least16_t = __int16_t;
+pub type __uint_least16_t = __uint16_t;
+pub type __int_least32_t = __int32_t;
+pub type __uint_least32_t = __uint32_t;
+pub type __int_least64_t = __int64_t;
+pub type __uint_least64_t = __uint64_t;
+pub type __quad_t = cty::c_longlong;
+pub type __u_quad_t = cty::c_ulonglong;
+pub type __intmax_t = cty::c_longlong;
+pub type __uintmax_t = cty::c_ulonglong;
+pub type __dev_t = __uint64_t;
 pub type __uid_t = cty::c_uint;
 pub type __gid_t = cty::c_uint;
 pub type __ino_t = cty::c_ulong;
-pub type __ino64_t = cty::c_ulong;
+pub type __ino64_t = __uint64_t;
 pub type __mode_t = cty::c_uint;
-pub type __nlink_t = cty::c_ulong;
+pub type __nlink_t = cty::c_uint;
 pub type __off_t = cty::c_long;
-pub type __off64_t = cty::c_long;
+pub type __off64_t = __int64_t;
 pub type __pid_t = cty::c_int;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -921,7 +935,7 @@ fn bindgen_test_layout___fsid_t() {
 }
 pub type __clock_t = cty::c_long;
 pub type __rlim_t = cty::c_ulong;
-pub type __rlim64_t = cty::c_ulong;
+pub type __rlim64_t = __uint64_t;
 pub type __id_t = cty::c_uint;
 pub type __time_t = cty::c_long;
 pub type __useconds_t = cty::c_uint;
@@ -932,58 +946,57 @@ pub type __clockid_t = cty::c_int;
 pub type __timer_t = *mut cty::c_void;
 pub type __blksize_t = cty::c_long;
 pub type __blkcnt_t = cty::c_long;
-pub type __blkcnt64_t = cty::c_long;
+pub type __blkcnt64_t = __int64_t;
 pub type __fsblkcnt_t = cty::c_ulong;
-pub type __fsblkcnt64_t = cty::c_ulong;
+pub type __fsblkcnt64_t = __uint64_t;
 pub type __fsfilcnt_t = cty::c_ulong;
-pub type __fsfilcnt64_t = cty::c_ulong;
-pub type __fsword_t = cty::c_long;
-pub type __ssize_t = cty::c_long;
+pub type __fsfilcnt64_t = __uint64_t;
+pub type __fsword_t = cty::c_int;
+pub type __ssize_t = cty::c_int;
 pub type __syscall_slong_t = cty::c_long;
 pub type __syscall_ulong_t = cty::c_ulong;
 pub type __loff_t = __off64_t;
 pub type __caddr_t = *mut cty::c_char;
-pub type __intptr_t = cty::c_long;
+pub type __intptr_t = cty::c_int;
 pub type __socklen_t = cty::c_uint;
 pub type __sig_atomic_t = cty::c_int;
-pub type int_least8_t = cty::c_schar;
-pub type int_least16_t = cty::c_short;
-pub type int_least32_t = cty::c_int;
-pub type int_least64_t = cty::c_long;
-pub type uint_least8_t = cty::c_uchar;
-pub type uint_least16_t = cty::c_ushort;
-pub type uint_least32_t = cty::c_uint;
-pub type uint_least64_t = cty::c_ulong;
+pub type __time64_t = __int64_t;
+pub type int_least8_t = __int_least8_t;
+pub type int_least16_t = __int_least16_t;
+pub type int_least32_t = __int_least32_t;
+pub type int_least64_t = __int_least64_t;
+pub type uint_least8_t = __uint_least8_t;
+pub type uint_least16_t = __uint_least16_t;
+pub type uint_least32_t = __uint_least32_t;
+pub type uint_least64_t = __uint_least64_t;
 pub type int_fast8_t = cty::c_schar;
-pub type int_fast16_t = cty::c_long;
-pub type int_fast32_t = cty::c_long;
-pub type int_fast64_t = cty::c_long;
+pub type int_fast16_t = cty::c_int;
+pub type int_fast32_t = cty::c_int;
+pub type int_fast64_t = cty::c_longlong;
 pub type uint_fast8_t = cty::c_uchar;
-pub type uint_fast16_t = cty::c_ulong;
-pub type uint_fast32_t = cty::c_ulong;
-pub type uint_fast64_t = cty::c_ulong;
+pub type uint_fast16_t = cty::c_uint;
+pub type uint_fast32_t = cty::c_uint;
+pub type uint_fast64_t = cty::c_ulonglong;
 pub type intmax_t = __intmax_t;
 pub type uintmax_t = __uintmax_t;
-pub type size_t = cty::c_ulong;
-pub type wchar_t = cty::c_int;
+pub type size_t = cty::c_uint;
+pub type wchar_t = cty::c_uint;
 #[repr(C)]
-#[repr(align(16))]
 #[derive(Debug, Default, Copy, Clone)]
 pub struct max_align_t {
     pub __clang_max_align_nonce1: cty::c_longlong,
-    pub __bindgen_padding_0: u64,
-    pub __clang_max_align_nonce2: u128,
+    pub __clang_max_align_nonce2: f64,
 }
 #[test]
 fn bindgen_test_layout_max_align_t() {
     assert_eq!(
         ::core::mem::size_of::<max_align_t>(),
-        32usize,
+        16usize,
         concat!("Size of: ", stringify!(max_align_t))
     );
     assert_eq!(
         ::core::mem::align_of::<max_align_t>(),
-        16usize,
+        8usize,
         concat!("Alignment of ", stringify!(max_align_t))
     );
     assert_eq!(
@@ -1002,7 +1015,7 @@ fn bindgen_test_layout_max_align_t() {
         unsafe {
             &(*(::core::ptr::null::<max_align_t>())).__clang_max_align_nonce2 as *const _ as usize
         },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(max_align_t),
@@ -1015,14 +1028,14 @@ extern "C" {
     pub fn memcpy(
         __dest: *mut cty::c_void,
         __src: *const cty::c_void,
-        __n: cty::c_ulong,
+        __n: cty::c_uint,
     ) -> *mut cty::c_void;
 }
 extern "C" {
     pub fn memmove(
         __dest: *mut cty::c_void,
         __src: *const cty::c_void,
-        __n: cty::c_ulong,
+        __n: cty::c_uint,
     ) -> *mut cty::c_void;
 }
 extern "C" {
@@ -1030,21 +1043,21 @@ extern "C" {
         __dest: *mut cty::c_void,
         __src: *const cty::c_void,
         __c: cty::c_int,
-        __n: size_t,
+        __n: cty::c_uint,
     ) -> *mut cty::c_void;
 }
 extern "C" {
-    pub fn memset(__s: *mut cty::c_void, __c: cty::c_int, __n: cty::c_ulong) -> *mut cty::c_void;
+    pub fn memset(__s: *mut cty::c_void, __c: cty::c_int, __n: cty::c_uint) -> *mut cty::c_void;
 }
 extern "C" {
     pub fn memcmp(
         __s1: *const cty::c_void,
         __s2: *const cty::c_void,
-        __n: cty::c_ulong,
+        __n: cty::c_uint,
     ) -> cty::c_int;
 }
 extern "C" {
-    pub fn memchr(__s: *const cty::c_void, __c: cty::c_int, __n: cty::c_ulong) -> *mut cty::c_void;
+    pub fn memchr(__s: *const cty::c_void, __c: cty::c_int, __n: cty::c_uint) -> *mut cty::c_void;
 }
 extern "C" {
     pub fn strcpy(__dest: *mut cty::c_char, __src: *const cty::c_char) -> *mut cty::c_char;
@@ -1053,7 +1066,7 @@ extern "C" {
     pub fn strncpy(
         __dest: *mut cty::c_char,
         __src: *const cty::c_char,
-        __n: cty::c_ulong,
+        __n: cty::c_uint,
     ) -> *mut cty::c_char;
 }
 extern "C" {
@@ -1063,7 +1076,7 @@ extern "C" {
     pub fn strncat(
         __dest: *mut cty::c_char,
         __src: *const cty::c_char,
-        __n: cty::c_ulong,
+        __n: cty::c_uint,
     ) -> *mut cty::c_char;
 }
 extern "C" {
@@ -1073,7 +1086,7 @@ extern "C" {
     pub fn strncmp(
         __s1: *const cty::c_char,
         __s2: *const cty::c_char,
-        __n: cty::c_ulong,
+        __n: cty::c_uint,
     ) -> cty::c_int;
 }
 extern "C" {
@@ -1083,8 +1096,8 @@ extern "C" {
     pub fn strxfrm(
         __dest: *mut cty::c_char,
         __src: *const cty::c_char,
-        __n: cty::c_ulong,
-    ) -> cty::c_ulong;
+        __n: cty::c_uint,
+    ) -> cty::c_uint;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1099,12 +1112,12 @@ pub struct __locale_struct {
 fn bindgen_test_layout___locale_struct() {
     assert_eq!(
         ::core::mem::size_of::<__locale_struct>(),
-        232usize,
+        116usize,
         concat!("Size of: ", stringify!(__locale_struct))
     );
     assert_eq!(
         ::core::mem::align_of::<__locale_struct>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(__locale_struct))
     );
     assert_eq!(
@@ -1119,7 +1132,7 @@ fn bindgen_test_layout___locale_struct() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<__locale_struct>())).__ctype_b as *const _ as usize },
-        104usize,
+        52usize,
         concat!(
             "Offset of field: ",
             stringify!(__locale_struct),
@@ -1131,7 +1144,7 @@ fn bindgen_test_layout___locale_struct() {
         unsafe {
             &(*(::core::ptr::null::<__locale_struct>())).__ctype_tolower as *const _ as usize
         },
-        112usize,
+        56usize,
         concat!(
             "Offset of field: ",
             stringify!(__locale_struct),
@@ -1143,7 +1156,7 @@ fn bindgen_test_layout___locale_struct() {
         unsafe {
             &(*(::core::ptr::null::<__locale_struct>())).__ctype_toupper as *const _ as usize
         },
-        120usize,
+        60usize,
         concat!(
             "Offset of field: ",
             stringify!(__locale_struct),
@@ -1153,7 +1166,7 @@ fn bindgen_test_layout___locale_struct() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<__locale_struct>())).__names as *const _ as usize },
-        128usize,
+        64usize,
         concat!(
             "Offset of field: ",
             stringify!(__locale_struct),
@@ -1188,7 +1201,7 @@ extern "C" {
     pub fn strdup(__s: *const cty::c_char) -> *mut cty::c_char;
 }
 extern "C" {
-    pub fn strndup(__string: *const cty::c_char, __n: cty::c_ulong) -> *mut cty::c_char;
+    pub fn strndup(__string: *const cty::c_char, __n: cty::c_uint) -> *mut cty::c_char;
 }
 extern "C" {
     pub fn strchr(__s: *const cty::c_char, __c: cty::c_int) -> *mut cty::c_char;
@@ -1197,10 +1210,10 @@ extern "C" {
     pub fn strrchr(__s: *const cty::c_char, __c: cty::c_int) -> *mut cty::c_char;
 }
 extern "C" {
-    pub fn strcspn(__s: *const cty::c_char, __reject: *const cty::c_char) -> cty::c_ulong;
+    pub fn strcspn(__s: *const cty::c_char, __reject: *const cty::c_char) -> cty::c_uint;
 }
 extern "C" {
-    pub fn strspn(__s: *const cty::c_char, __accept: *const cty::c_char) -> cty::c_ulong;
+    pub fn strspn(__s: *const cty::c_char, __accept: *const cty::c_char) -> cty::c_uint;
 }
 extern "C" {
     pub fn strpbrk(__s: *const cty::c_char, __accept: *const cty::c_char) -> *mut cty::c_char;
@@ -1227,7 +1240,7 @@ extern "C" {
     ) -> *mut cty::c_char;
 }
 extern "C" {
-    pub fn strlen(__s: *const cty::c_char) -> cty::c_ulong;
+    pub fn strlen(__s: *const cty::c_char) -> cty::c_uint;
 }
 extern "C" {
     pub fn strnlen(__string: *const cty::c_char, __maxlen: size_t) -> size_t;
@@ -1247,13 +1260,14 @@ extern "C" {
     pub fn strerror_l(__errnum: cty::c_int, __l: locale_t) -> *mut cty::c_char;
 }
 extern "C" {
-    pub fn bcmp(__s1: *const cty::c_void, __s2: *const cty::c_void, __n: size_t) -> cty::c_int;
+    pub fn bcmp(__s1: *const cty::c_void, __s2: *const cty::c_void, __n: cty::c_uint)
+        -> cty::c_int;
 }
 extern "C" {
     pub fn bcopy(__src: *const cty::c_void, __dest: *mut cty::c_void, __n: size_t);
 }
 extern "C" {
-    pub fn bzero(__s: *mut cty::c_void, __n: cty::c_ulong);
+    pub fn bzero(__s: *mut cty::c_void, __n: cty::c_uint);
 }
 extern "C" {
     pub fn index(__s: *const cty::c_char, __c: cty::c_int) -> *mut cty::c_char;
@@ -1277,7 +1291,7 @@ extern "C" {
     pub fn strncasecmp(
         __s1: *const cty::c_char,
         __s2: *const cty::c_char,
-        __n: cty::c_ulong,
+        __n: cty::c_uint,
     ) -> cty::c_int;
 }
 extern "C" {
@@ -1324,7 +1338,7 @@ extern "C" {
     pub fn stpncpy(
         __dest: *mut cty::c_char,
         __src: *const cty::c_char,
-        __n: cty::c_ulong,
+        __n: cty::c_uint,
     ) -> *mut cty::c_char;
 }
 #[doc = " TYPE-DEFINE STRUCT/ENUM/UNION DEFINITIONS"]
@@ -1426,12 +1440,12 @@ pub struct rlComIfCbs {
 fn bindgen_test_layout_rlComIfCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlComIfCbs>(),
-        32usize,
+        16usize,
         concat!("Size of: ", stringify!(rlComIfCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlComIfCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlComIfCbs))
     );
     assert_eq!(
@@ -1446,7 +1460,7 @@ fn bindgen_test_layout_rlComIfCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlComIfCbs>())).rlComIfRead as *const _ as usize },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlComIfCbs),
@@ -1456,7 +1470,7 @@ fn bindgen_test_layout_rlComIfCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlComIfCbs>())).rlComIfWrite as *const _ as usize },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlComIfCbs),
@@ -1466,7 +1480,7 @@ fn bindgen_test_layout_rlComIfCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlComIfCbs>())).rlComIfClose as *const _ as usize },
-        24usize,
+        12usize,
         concat!(
             "Offset of field: ",
             stringify!(rlComIfCbs),
@@ -1475,6 +1489,8 @@ fn bindgen_test_layout_rlComIfCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Communication interface(SPI, MailBox, UART etc) callback functions"]
 pub type rlComIfCbs_t = rlComIfCbs;
 #[doc = " \\brief"]
 #[doc = " OS mutex callback functions"]
@@ -1543,12 +1559,12 @@ pub struct rlOsiMutexCbs {
 fn bindgen_test_layout_rlOsiMutexCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlOsiMutexCbs>(),
-        32usize,
+        16usize,
         concat!("Size of: ", stringify!(rlOsiMutexCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlOsiMutexCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlOsiMutexCbs))
     );
     assert_eq!(
@@ -1563,7 +1579,7 @@ fn bindgen_test_layout_rlOsiMutexCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiMutexCbs>())).rlOsiMutexLock as *const _ as usize },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiMutexCbs),
@@ -1573,7 +1589,7 @@ fn bindgen_test_layout_rlOsiMutexCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiMutexCbs>())).rlOsiMutexUnLock as *const _ as usize },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiMutexCbs),
@@ -1583,7 +1599,7 @@ fn bindgen_test_layout_rlOsiMutexCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiMutexCbs>())).rlOsiMutexDelete as *const _ as usize },
-        24usize,
+        12usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiMutexCbs),
@@ -1592,6 +1608,8 @@ fn bindgen_test_layout_rlOsiMutexCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " OS mutex callback functions"]
 pub type rlOsiMutexCbs_t = rlOsiMutexCbs;
 #[doc = " \\brief"]
 #[doc = " OS semaphore callback functions"]
@@ -1647,12 +1665,12 @@ pub struct rlOsiSemCbs {
 fn bindgen_test_layout_rlOsiSemCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlOsiSemCbs>(),
-        32usize,
+        16usize,
         concat!("Size of: ", stringify!(rlOsiSemCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlOsiSemCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlOsiSemCbs))
     );
     assert_eq!(
@@ -1667,7 +1685,7 @@ fn bindgen_test_layout_rlOsiSemCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiSemCbs>())).rlOsiSemWait as *const _ as usize },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiSemCbs),
@@ -1677,7 +1695,7 @@ fn bindgen_test_layout_rlOsiSemCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiSemCbs>())).rlOsiSemSignal as *const _ as usize },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiSemCbs),
@@ -1687,7 +1705,7 @@ fn bindgen_test_layout_rlOsiSemCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiSemCbs>())).rlOsiSemDelete as *const _ as usize },
-        24usize,
+        12usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiSemCbs),
@@ -1696,6 +1714,8 @@ fn bindgen_test_layout_rlOsiSemCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " OS semaphore callback functions"]
 pub type rlOsiSemCbs_t = rlOsiSemCbs;
 #[doc = " \\brief"]
 #[doc = " OS message queue/Spawn callback functions"]
@@ -1728,12 +1748,12 @@ pub struct rlOsiMsgQCbs {
 fn bindgen_test_layout_rlOsiMsgQCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlOsiMsgQCbs>(),
-        8usize,
+        4usize,
         concat!("Size of: ", stringify!(rlOsiMsgQCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlOsiMsgQCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlOsiMsgQCbs))
     );
     assert_eq!(
@@ -1747,6 +1767,8 @@ fn bindgen_test_layout_rlOsiMsgQCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " OS message queue/Spawn callback functions"]
 pub type rlOsiMsgQCbs_t = rlOsiMsgQCbs;
 #[doc = " \\brief"]
 #[doc = " OS services callback functions"]
@@ -1767,12 +1789,12 @@ pub struct rlOsiCbs {
 fn bindgen_test_layout_rlOsiCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlOsiCbs>(),
-        72usize,
+        36usize,
         concat!("Size of: ", stringify!(rlOsiCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlOsiCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlOsiCbs))
     );
     assert_eq!(
@@ -1787,7 +1809,7 @@ fn bindgen_test_layout_rlOsiCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiCbs>())).sem as *const _ as usize },
-        32usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiCbs),
@@ -1797,7 +1819,7 @@ fn bindgen_test_layout_rlOsiCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlOsiCbs>())).queue as *const _ as usize },
-        64usize,
+        32usize,
         concat!(
             "Offset of field: ",
             stringify!(rlOsiCbs),
@@ -1806,6 +1828,8 @@ fn bindgen_test_layout_rlOsiCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " OS services callback functions"]
 pub type rlOsiCbs_t = rlOsiCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink Asynchronous event callback function"]
@@ -1837,12 +1861,12 @@ pub struct rlEventCbs {
 fn bindgen_test_layout_rlEventCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlEventCbs>(),
-        8usize,
+        4usize,
         concat!("Size of: ", stringify!(rlEventCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlEventCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlEventCbs))
     );
     assert_eq!(
@@ -1856,6 +1880,8 @@ fn bindgen_test_layout_rlEventCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink Asynchronous event callback function"]
 pub type rlEventCbs_t = rlEventCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink Timer callback functions"]
@@ -1868,12 +1894,12 @@ pub struct rlTimerCbs {
 fn bindgen_test_layout_rlTimerCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlTimerCbs>(),
-        8usize,
+        4usize,
         concat!("Size of: ", stringify!(rlTimerCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlTimerCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlTimerCbs))
     );
     assert_eq!(
@@ -1887,6 +1913,8 @@ fn bindgen_test_layout_rlTimerCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink Timer callback functions"]
 pub type rlTimerCbs_t = rlTimerCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink callback functions for Command parser"]
@@ -1903,12 +1931,12 @@ pub struct rlCmdParserCbs {
 fn bindgen_test_layout_rlCmdParserCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlCmdParserCbs>(),
-        16usize,
+        8usize,
         concat!("Size of: ", stringify!(rlCmdParserCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlCmdParserCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlCmdParserCbs))
     );
     assert_eq!(
@@ -1923,7 +1951,7 @@ fn bindgen_test_layout_rlCmdParserCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlCmdParserCbs>())).rlPostCnysStep as *const _ as usize },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlCmdParserCbs),
@@ -1932,6 +1960,8 @@ fn bindgen_test_layout_rlCmdParserCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink callback functions for Command parser"]
 pub type rlCmdParserCbs_t = rlCmdParserCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink CRC callback function"]
@@ -1967,12 +1997,12 @@ pub struct rlCrcCbs {
 fn bindgen_test_layout_rlCrcCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlCrcCbs>(),
-        8usize,
+        4usize,
         concat!("Size of: ", stringify!(rlCrcCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlCrcCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlCrcCbs))
     );
     assert_eq!(
@@ -1986,6 +2016,11 @@ fn bindgen_test_layout_rlCrcCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink CRC callback function"]
+#[doc = " @note : Device SPI protocol Limitation for AWR1243: The CRC length of the message"]
+#[doc = " or Async-event shall be multiple of 4 bytes to enable reliable retry recovery"]
+#[doc = " mechanism in case of any checksum failure in a message."]
 pub type rlCrcCbs_t = rlCrcCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink Device Control, Interrupt callback functions"]
@@ -2083,12 +2118,12 @@ pub struct rlDeviceCtrlCbs {
 fn bindgen_test_layout_rlDeviceCtrlCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlDeviceCtrlCbs>(),
-        56usize,
+        28usize,
         concat!("Size of: ", stringify!(rlDeviceCtrlCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlDeviceCtrlCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlDeviceCtrlCbs))
     );
     assert_eq!(
@@ -2105,7 +2140,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         unsafe {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlDeviceDisable as *const _ as usize
         },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2117,7 +2152,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         unsafe {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlDeviceMaskHostIrq as *const _ as usize
         },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2129,7 +2164,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         unsafe {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlDeviceUnMaskHostIrq as *const _ as usize
         },
-        24usize,
+        12usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2141,7 +2176,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         unsafe {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlDeviceWaitIrqStatus as *const _ as usize
         },
-        32usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2153,7 +2188,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         unsafe {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlCommIfAssertIrq as *const _ as usize
         },
-        40usize,
+        20usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2166,7 +2201,7 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
             &(*(::core::ptr::null::<rlDeviceCtrlCbs>())).rlRegisterInterruptHandler as *const _
                 as usize
         },
-        48usize,
+        24usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDeviceCtrlCbs),
@@ -2175,6 +2210,8 @@ fn bindgen_test_layout_rlDeviceCtrlCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink Device Control, Interrupt callback functions"]
 pub type rlDeviceCtrlCbs_t = rlDeviceCtrlCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink print function prototype"]
@@ -2203,12 +2240,12 @@ pub struct rlDbgCb {
 fn bindgen_test_layout_rlDbgCb() {
     assert_eq!(
         ::core::mem::size_of::<rlDbgCb>(),
-        16usize,
+        8usize,
         concat!("Size of: ", stringify!(rlDbgCb))
     );
     assert_eq!(
         ::core::mem::align_of::<rlDbgCb>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlDbgCb))
     );
     assert_eq!(
@@ -2223,7 +2260,7 @@ fn bindgen_test_layout_rlDbgCb() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlDbgCb>())).dbgLevel as *const _ as usize },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDbgCb),
@@ -2232,6 +2269,8 @@ fn bindgen_test_layout_rlDbgCb() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink debug callback structure"]
 pub type rlDbgCb_t = rlDbgCb;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink client callback structure"]
@@ -2273,12 +2312,12 @@ pub struct rlClientCbs {
 fn bindgen_test_layout_rlClientCbs() {
     assert_eq!(
         ::core::mem::size_of::<rlClientCbs>(),
-        232usize,
+        120usize,
         concat!("Size of: ", stringify!(rlClientCbs))
     );
     assert_eq!(
         ::core::mem::align_of::<rlClientCbs>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlClientCbs))
     );
     assert_eq!(
@@ -2293,7 +2332,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).osiCb as *const _ as usize },
-        32usize,
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2303,7 +2342,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).eventCb as *const _ as usize },
-        104usize,
+        52usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2313,7 +2352,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).devCtrlCb as *const _ as usize },
-        112usize,
+        56usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2323,7 +2362,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).timerCb as *const _ as usize },
-        168usize,
+        84usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2333,7 +2372,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).cmdParserCb as *const _ as usize },
-        176usize,
+        88usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2343,7 +2382,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).crcCb as *const _ as usize },
-        192usize,
+        96usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2353,7 +2392,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).crcType as *const _ as usize },
-        200usize,
+        100usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2363,7 +2402,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).ackTimeout as *const _ as usize },
-        204usize,
+        104usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2373,7 +2412,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).platform as *const _ as usize },
-        208usize,
+        108usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2383,7 +2422,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).arDevType as *const _ as usize },
-        209usize,
+        109usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2393,7 +2432,7 @@ fn bindgen_test_layout_rlClientCbs() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlClientCbs>())).dbgCb as *const _ as usize },
-        216usize,
+        112usize,
         concat!(
             "Offset of field: ",
             stringify!(rlClientCbs),
@@ -2402,6 +2441,8 @@ fn bindgen_test_layout_rlClientCbs() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink client callback structure"]
 pub type rlClientCbs_t = rlClientCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink Init Complete data structure for event RL_DEV_AE_MSSPOWERUPDONE_SB"]
@@ -2579,6 +2620,12 @@ fn bindgen_test_layout_rlInitComplete() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink Init Complete data structure for event RL_DEV_AE_MSSPOWERUPDONE_SB"]
+#[doc = " @note : The functional APIs shall be sent to radar device only after receiving"]
+#[doc = "         RL_DEV_AE_MSSPOWERUPDONE_SB Async-event after power cycle."]
+#[doc = "         In case of boot over SPI then functional APIs shall be sent to radar device only after"]
+#[doc = "         receiving AWR_AE_MSS_BOOTERRORSTATUS_SB Async-event."]
 pub type rlInitComplete_t = rlInitComplete;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink RF Start Complete data structure for event RL_DEV_AE_RFPOWERUPDONE_SB"]
@@ -2677,6 +2724,9 @@ fn bindgen_test_layout_rlStartComplete() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink RF Start Complete data structure for event RL_DEV_AE_RFPOWERUPDONE_SB"]
+#[doc = " @note : Bootup digital monitoring status are not applicable for QM devices"]
 pub type rlStartComplete_t = rlStartComplete;
 #[doc = " \\brief"]
 #[doc = " Structure to hold the MSS ESM Fault data structure for event RL_DEV_AE_MSS_ESMFAULT_SB"]
@@ -2812,6 +2862,11 @@ fn bindgen_test_layout_rlMssEsmFault() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Structure to hold the MSS ESM Fault data structure for event RL_DEV_AE_MSS_ESMFAULT_SB"]
+#[doc = " @note : The FRC lockstep fatal error(BSS module error) is connected to MSS ESM Group 1 lines,"]
+#[doc = "         This fatal error must be handled in Host in AWR1243 device (MSS or DSS in xWR1642,"]
+#[doc = "         xWR1843 and xWR6843 devices)"]
 pub type rlMssEsmFault_t = rlMssEsmFault;
 #[doc = " \\brief"]
 #[doc = " Structure to hold the MSS Boot error status data strucutre when booted over SPI"]
@@ -2996,6 +3051,11 @@ fn bindgen_test_layout_rlMssBootErrStatus() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Structure to hold the MSS Boot error status data strucutre when booted over SPI"]
+#[doc = " for event RL_DEV_AE_MSS_BOOTERRSTATUS_SB"]
+#[doc = " @note : The functional APIs shall be sent to radar device only after receiving"]
+#[doc = "         RL_DEV_AE_MSS_BOOTERRSTATUS_SB Async-event after boot over SPI (Flash is not connected)."]
 pub type rlMssBootErrStatus_t = rlMssBootErrStatus;
 #[doc = " \\brief"]
 #[doc = " Structure to hold the test status report of the latent fault tests data strucutre"]
@@ -3099,6 +3159,9 @@ fn bindgen_test_layout_rlMssLatentFaultReport() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Structure to hold the test status report of the latent fault tests data strucutre"]
+#[doc = " for event RL_DEV_AE_MSS_LATENTFLT_TEST_REPORT_SB"]
 pub type rlMssLatentFaultReport_t = rlMssLatentFaultReport;
 #[doc = " \\brief"]
 #[doc = " Structure to hold data strucutre for test status of the periodic tests"]
@@ -3152,6 +3215,9 @@ fn bindgen_test_layout_rlMssPeriodicTestStatus() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Structure to hold data strucutre for test status of the periodic tests"]
+#[doc = " for event RL_DEV_AE_MSS_PERIODIC_TEST_STATUS_SB"]
 pub type rlMssPeriodicTestStatus_t = rlMssPeriodicTestStatus;
 #[doc = " \\brief"]
 #[doc = " Structure to hold data strucutre for RF-error status send by MSS"]
@@ -3205,6 +3271,9 @@ fn bindgen_test_layout_rlMssRfErrStatus() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Structure to hold data strucutre for RF-error status send by MSS"]
+#[doc = " for event RL_DEV_AE_MSS_RF_ERROR_STATUS_SB"]
 pub type rlMssRfErrStatus_t = rlMssRfErrStatus;
 #[doc = " \\brief"]
 #[doc = " Structure to hold the BSS ESM Fault data strucutre for event RL_RF_AE_ESMFAULT_SB"]
@@ -3308,6 +3377,11 @@ fn bindgen_test_layout_rlBssEsmFault() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Structure to hold the BSS ESM Fault data strucutre for event RL_RF_AE_ESMFAULT_SB"]
+#[doc = " @note : The Programmable filter Parity error and double bit ECC errors are fatal errors but"]
+#[doc = "         connected to ESM Group 1 lines, these shuld be treated as fatal errors on the Host ."]
+#[doc = "         (MSS or DSS in xWR1642, xWR1843 and xWR6843 devices)"]
 pub type rlBssEsmFault_t = rlBssEsmFault;
 #[doc = " \\brief"]
 #[doc = "  This sub block indicates fault in analog supplies or LDO short circuit condition. Once a fault"]
@@ -3403,6 +3477,11 @@ fn bindgen_test_layout_rlVmonErrStatus() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = "  This sub block indicates fault in analog supplies or LDO short circuit condition. Once a fault"]
+#[doc = "  is detected the functionality cannot be resumed from then on and the sensor needs to be"]
+#[doc = "  re-started. This Async Event is generated with SB-ID RL_DEV_AE_MSS_VMON_ERROR_STATUS_SB."]
+#[doc = "  @note : This API Async Event is not supported."]
 pub type rlVmonErrStatus_t = rlVmonErrStatus;
 #[doc = " \\brief"]
 #[doc = "  This async event is in response to the command (RL_DEV_CONFIG_SET_MSG:"]
@@ -3455,6 +3534,11 @@ impl Default for rlRcvAdcData {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = "  This async event is in response to the command (RL_DEV_CONFIG_SET_MSG:"]
+#[doc = "  RL_DEV_RX_DATA_PATH_CONF_SET_SB) which indicates ADC data needs to be transferred over"]
+#[doc = "  SPI. This async event contains the ADC data followed by more such async events for"]
+#[doc = "  additional data. SB-ID : RL_DEV_AE_MSS_ADC_DATA_SB"]
 pub type rlRcvAdcData_t = rlRcvAdcData;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink RF Init Complete data structure for event RL_RF_AE_INITCALIBSTATUS_SB"]
@@ -3569,6 +3653,8 @@ fn bindgen_test_layout_rlRfInitComplete() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink RF Init Complete data structure for event RL_RF_AE_INITCALIBSTATUS_SB"]
 pub type rlRfInitComplete_t = rlRfInitComplete;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink RF Run time calibration report for event RL_RF_AE_RUN_TIME_CALIB_REPORT_SB"]
@@ -3698,6 +3784,8 @@ fn bindgen_test_layout_rlRfRunTimeCalibReport() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink RF Run time calibration report for event RL_RF_AE_RUN_TIME_CALIB_REPORT_SB"]
 pub type rlRfRunTimeCalibReport_t = rlRfRunTimeCalibReport;
 #[doc = " \\brief"]
 #[doc = " API APLL closed loop cal Status Get Sub block structure"]
@@ -3779,6 +3867,8 @@ fn bindgen_test_layout_rlRfApllCalDone() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " API APLL closed loop cal Status Get Sub block structure"]
 pub type rlRfApllCalDone_t = rlRfApllCalDone;
 #[doc = " \\brief"]
 #[doc = " Structure to hold the MSS/radarSS CPU Fault data strucutre for"]
@@ -3998,6 +4088,13 @@ fn bindgen_test_layout_rlCpuFault() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Structure to hold the MSS/radarSS CPU Fault data strucutre for"]
+#[doc = " event RL_DEV_AE_MSS_CPUFAULT_SB and RL_RF_AE_CPUFAULT_SB"]
+#[doc = " @note : All the Monitoring Async events will be sent out periodically at calibMonTimeUnit"]
+#[doc = "         frame rate (FTTI). The RadarSS/BSS has a queue to hold max 8 transmit API messages"]
+#[doc = "         (AEs or Responses), the host shall service all the AEs before start of the next FTTI"]
+#[doc = "         epoch to avoid RadarSS Queue full CPU fault fatal error."]
 pub type rlCpuFault_t = rlCpuFault;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink firmware version structure"]
@@ -4214,6 +4311,8 @@ fn bindgen_test_layout_rlFwVersionParam() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink firmware version structure"]
 pub type rlFwVersionParam_t = rlFwVersionParam;
 #[doc = " \\brief"]
 #[doc = " mmwavelink software version structure"]
@@ -4330,6 +4429,8 @@ fn bindgen_test_layout_rlSwVersionParam() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwavelink software version structure"]
 pub type rlSwVersionParam_t = rlSwVersionParam;
 #[doc = " \\brief"]
 #[doc = " mmwavelink version structure"]
@@ -4386,6 +4487,8 @@ fn bindgen_test_layout_rlVersion() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwavelink version structure"]
 pub type rlVersion_t = rlVersion;
 #[doc = " \\brief"]
 #[doc = " GPADC measurement data for sensors"]
@@ -4442,6 +4545,8 @@ fn bindgen_test_layout_rlGpAdcData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " GPADC measurement data for sensors"]
 pub type rlGpAdcData_t = rlGpAdcData;
 #[doc = " \\brief"]
 #[doc = " Sensors GPADC measurement data for event RL_RF_AE_GPADC_MEAS_DATA_SB"]
@@ -4498,6 +4603,8 @@ fn bindgen_test_layout_rlRecvdGpAdcData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Sensors GPADC measurement data for event RL_RF_AE_GPADC_MEAS_DATA_SB"]
 pub type rlRecvdGpAdcData_t = rlRecvdGpAdcData;
 #[doc = " \\brief"]
 #[doc = " Analog fault strucure for event RL_RF_AE_ANALOG_FAULT_SB"]
@@ -4598,6 +4705,8 @@ fn bindgen_test_layout_rlAnalogFaultReportData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Analog fault strucure for event RL_RF_AE_ANALOG_FAULT_SB"]
 pub type rlAnalogFaultReportData_t = rlAnalogFaultReportData;
 #[doc = " \\brief"]
 #[doc = " Calibration monitoring timing error data for event RL_RF_AE_MON_TIMING_FAIL_REPORT_SB"]
@@ -4656,6 +4765,9 @@ fn bindgen_test_layout_rlCalMonTimingErrorReportData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Calibration monitoring timing error data for event RL_RF_AE_MON_TIMING_FAIL_REPORT_SB"]
+#[doc = " @note : In QM devices (non safety), Periodic Digital and Analog Monitoring are not supported."]
 pub type rlCalMonTimingErrorReportData_t = rlCalMonTimingErrorReportData;
 #[doc = " \\brief"]
 #[doc = " Latent fault digital monitoring status data for event RL_RF_AE_DIG_LATENTFAULT_REPORT_AE_SB"]
@@ -4720,6 +4832,8 @@ fn bindgen_test_layout_rlDigLatentFaultReportData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Latent fault digital monitoring status data for event RL_RF_AE_DIG_LATENTFAULT_REPORT_AE_SB"]
 pub type rlDigLatentFaultReportData_t = rlDigLatentFaultReportData;
 #[doc = " \\brief"]
 #[doc = " The report header includes common information across all enabled monitors"]
@@ -4790,6 +4904,9 @@ fn bindgen_test_layout_rlMonReportHdrData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " The report header includes common information across all enabled monitors"]
+#[doc = " like current FTTI number and current temperature. event: RL_RF_AE_MON_REPORT_HEADER_SB"]
 pub type rlMonReportHdrData_t = rlMonReportHdrData;
 #[doc = " \\brief"]
 #[doc = " This async event is sent periodically to indicate the status of periodic"]
@@ -4848,6 +4965,9 @@ fn bindgen_test_layout_rlDigPeriodicReportData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This async event is sent periodically to indicate the status of periodic"]
+#[doc = " digital monitoring tests.Event: RL_RF_AE_MON_DIG_PERIODIC_REPORT_SB"]
 pub type rlDigPeriodicReportData_t = rlDigPeriodicReportData;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host,"]
@@ -4958,6 +5078,11 @@ fn bindgen_test_layout_rlMonTempReportData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host,"]
+#[doc = " containing the measured temperature near various RF analog and digital modules."]
+#[doc = " The xWR device sends this to host at the programmed periodicity or when failure occurs,"]
+#[doc = " as programmed by the configuration API SB. Event:RL_RF_AE_MON_TEMPERATURE_REPORT_SB"]
 pub type rlMonTempReportData_t = rlMonTempReportData;
 #[doc = " \\brief"]
 #[doc = " This API is a Monitoring report which RadarSS sends to the host,"]
@@ -5228,6 +5353,12 @@ fn bindgen_test_layout_rlMonRxGainPhRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This API is a Monitoring report which RadarSS sends to the host,"]
+#[doc = " containing the measured RX gain and phase values,Loopback Power and Noise Power. Noise Power can"]
+#[doc = " be used by the Host to detect the presence of interference. RadarSS sends this to host at the \\n"]
+#[doc = " programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
+#[doc = " Event: RL_RF_AE_MON_RX_GAIN_PHASE_REPORT"]
 pub type rlMonRxGainPhRep_t = rlMonRxGainPhRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends"]
@@ -5391,6 +5522,12 @@ fn bindgen_test_layout_rlMonRxNoiseFigRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends"]
+#[doc = " to the host, containing the measured RX noise figure values"]
+#[doc = " corresponding to the full IF band of a profile. RadarSS sends"]
+#[doc = " this to host at the programmed periodicity or when failure occurs,"]
+#[doc = " as programmed by the configuration API SB. Event: RL_RF_AE_MON_RX_NOISE_FIG_REPORT"]
 pub type rlMonRxNoiseFigRep_t = rlMonRxNoiseFigRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing the measured"]
@@ -5624,6 +5761,11 @@ fn bindgen_test_layout_rlMonRxIfStageRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing the measured"]
+#[doc = " RX IF filter attenuation values at the given IF frequencies. RadarSS sends this to host"]
+#[doc = " at the programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
+#[doc = " Event: RL_RF_AE_MON_RX_IF_STAGE_REPORT"]
 pub type rlMonRxIfStageRep_t = rlMonRxIfStageRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing the"]
@@ -5760,6 +5902,12 @@ fn bindgen_test_layout_rlMonTxPowRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing the"]
+#[doc = " measured TX power values during an explicit monitoring chirp. RadarSS sends this to"]
+#[doc = " host at the programmed periodicity or when failure occurs, as programmed by the"]
+#[doc = " configuration API SB. Same structure is application for Tx0/Tx1/Tx2 power report."]
+#[doc = " Event: RL_RF_AE_MON_TXn_POWER_REPORT"]
 pub type rlMonTxPowRep_t = rlMonTxPowRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing the measured"]
@@ -5869,6 +6017,13 @@ fn bindgen_test_layout_rlMonTxBallBreakRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing the measured"]
+#[doc = " TX reflection coefficient's magnitude values, meant for detecting TX ball break. RadarSS sends"]
+#[doc = " this to host at the programmed periodicity or when failure occurs, as programmed by the"]
+#[doc = " configuration API SB."]
+#[doc = " Same strucuture is applicable for Tx0/Tx1/Tx2 ball break report."]
+#[doc = " Event: RL_RF_AE_MON_TXn_BALLBREAK_REPORT"]
 pub type rlMonTxBallBreakRep_t = rlMonTxBallBreakRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing the measured Tx"]
@@ -6040,6 +6195,11 @@ fn bindgen_test_layout_rlMonTxGainPhaMisRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing the measured Tx"]
+#[doc = " gain and phase mismatch values during an explicit monitoring chirp. RadarSS sends this to host"]
+#[doc = " at the programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
+#[doc = " Event: RL_RF_AE_MON_TX_GAIN_MISMATCH_REPORT"]
 pub type rlMonTxGainPhaMisRep_t = rlMonTxGainPhaMisRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing the measured"]
@@ -6199,6 +6359,12 @@ fn bindgen_test_layout_rlMonTxBpmRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing the measured"]
+#[doc = " TX1 BPM error values. RadarSS sends this to host at the programmed periodicity or when failure"]
+#[doc = " occurs, as programmed by the configuration API SB. Same structure is applicable for"]
+#[doc = " Tx0/Tx1/Tx2 BPM report data."]
+#[doc = " Event: RL_RF_AE_MON_TXn_BPM_REPORT"]
 pub type rlMonTxBpmRep_t = rlMonTxBpmRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing information"]
@@ -6359,6 +6525,11 @@ fn bindgen_test_layout_rlMonSynthFreqRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing information"]
+#[doc = " related to measured frequency error during the chirp. RadarSS sends this to host at the"]
+#[doc = " programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
+#[doc = " Event: RL_RF_AE_MON_SYNTHESIZER_FREQ_REPORT"]
 pub type rlMonSynthFreqRep_t = rlMonSynthFreqRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing the external"]
@@ -6462,6 +6633,11 @@ fn bindgen_test_layout_rlMonExtAnaSigRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing the external"]
+#[doc = " signal voltage values measured using the GPADC. RadarSS sends this to host at the programmed"]
+#[doc = " periodicity or when failure occurs, as programmed by the configuration API SB."]
+#[doc = " Event: RL_RF_AE_MON_EXT_ANALOG_SIG_REPORT"]
 pub type rlMonExtAnaSigRep_t = rlMonExtAnaSigRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing information"]
@@ -6590,6 +6766,11 @@ fn bindgen_test_layout_rlMonTxIntAnaSigRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing information"]
+#[doc = " about Internal TX internal analog signals. RadarSS sends this to host at the programmed"]
+#[doc = " periodicity or when failure occurs, as programmed by the configuration API SB. Same structure"]
+#[doc = " is applicable for Tx0/Tx1/Tx2 monitoring report. Event: RL_RF_AE_MON_TXn_INT_ANA_SIG_REPORT"]
 pub type rlMonTxIntAnaSigRep_t = rlMonTxIntAnaSigRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing information"]
@@ -6701,6 +6882,11 @@ fn bindgen_test_layout_rlMonRxIntAnaSigRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing information"]
+#[doc = " about Internal RX internal analog signals. RadarSS sends this to host at the programmed"]
+#[doc = " periodicity or when failure occurs, as programmed by the configuration API SB."]
+#[doc = " Event: RL_RF_AE_MON_RX_INT_ANALOG_SIG_REPORT"]
 pub type rlMonRxIntAnaSigRep_t = rlMonRxIntAnaSigRep;
 #[doc = " \\brief"]
 #[doc = " This API is a Monitoring Report API which the AWR device sends to the host, containing"]
@@ -6823,6 +7009,12 @@ fn bindgen_test_layout_rlMonPmclkloIntAnaSigRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This API is a Monitoring Report API which the AWR device sends to the host, containing"]
+#[doc = " information about Internal PM, CLK and LO subsystems' internal analog signals and in cascade"]
+#[doc = " devices the 20GHz SYNC IN/OUT power. The AWR device sends this to host at the programmed"]
+#[doc = " periodicity or when failure occurs, as programmed by the configuration API SB."]
+#[doc = " Event: RL_RF_AE_MON_PMCLKLO_INT_ANA_SIG_REPORT"]
 pub type rlMonPmclkloIntAnaSigRep_t = rlMonPmclkloIntAnaSigRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing information"]
@@ -6943,6 +7135,12 @@ fn bindgen_test_layout_rlMonGpadcIntAnaSigRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing information"]
+#[doc = " about the measured value of the GPADC input DC signals whose measurements were enabled."]
+#[doc = " RadarSS sends this to host at the programmed periodicity or when failure occurs, as programmed"]
+#[doc = " by the configuration API."]
+#[doc = " SB. Event: RL_RF_AE_MON_GPADC_INT_ANA_SIG_REPORT"]
 pub type rlMonGpadcIntAnaSigRep_t = rlMonGpadcIntAnaSigRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing the measured PLL"]
@@ -7058,6 +7256,11 @@ fn bindgen_test_layout_rlMonPllConVoltRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing the measured PLL"]
+#[doc = " control voltage values during explicit monitoring chirps. RadarSS sends this to host at the"]
+#[doc = " programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
+#[doc = " Event: RL_RF_AE_MON_PLL_CONTROL_VOLT_REPORT"]
 pub type rlMonPllConVoltRep_t = rlMonPllConVoltRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which RadarSS sends to the host, containing information about"]
@@ -7162,6 +7365,11 @@ fn bindgen_test_layout_rlMonDccClkFreqRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which RadarSS sends to the host, containing information about"]
+#[doc = " the relative frequency measurements. RadarSS sends this to host at the programmed periodicity or"]
+#[doc = " when failure occurs, as programmed by the configuration API SB."]
+#[doc = " Event: RL_RF_AE_MON_DCC_CLK_FREQ_REPORT"]
 pub type rlMonDccClkFreqRep_t = rlMonDccClkFreqRep;
 #[doc = " \\brief"]
 #[doc = " This is the Monitoring report which the xWR device sends to the host, containing the"]
@@ -7303,6 +7511,11 @@ fn bindgen_test_layout_rlMonRxMixrInPwrRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is the Monitoring report which the xWR device sends to the host, containing the"]
+#[doc = " measured RX mixer input voltage swing values. The xWR device sends this to host at the"]
+#[doc = " programmed periodicity or when failure occurs, as programmed by the configuration API SB."]
+#[doc = " Event: RL_RF_AE_MON_RX_MIXER_IN_PWR_REPORT"]
 pub type rlMonRxMixrInPwrRep_t = rlMonRxMixrInPwrRep;
 #[doc = " \\brief"]
 #[doc = " This is a Non live Monitoring report which device sends to the host, containing information"]
@@ -7599,6 +7812,13 @@ fn bindgen_test_layout_rlMonSynthFreqNonLiveRep() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is a Non live Monitoring report which device sends to the host, containing information"]
+#[doc = " related to measured frequency error during the monitoring chirp for two profiles"]
+#[doc = " configurations. The device sends this to host at the programmed periodicity or when failure"]
+#[doc = " occurs, as programmed by the configuration API SB."]
+#[doc = " This is a new feature addition in xWR6843 device only."]
+#[doc = " Event: RL_RF_AE_MON_SYNTH_FREQ_NONLIVE_REPORT"]
 pub type rlMonSynthFreqNonLiveRep_t = rlMonSynthFreqNonLiveRep;
 #[doc = " \\brief"]
 #[doc = " This is an error status report internally generated from mmWaveLink when it finds any"]
@@ -7636,6 +7856,14 @@ fn bindgen_test_layout_rlMmwlErrorStatus() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " This is an error status report internally generated from mmWaveLink when it finds any"]
+#[doc = " issue with the recieved message or communication. Currently errorVal can be"]
+#[doc = " RL_RET_CODE_CRC_FAILED, RL_RET_CODE_CHKSUM_FAILED or RL_RET_CODE_HOSTIRQ_TIMEOUT."]
+#[doc = " Event: RL_MMWL_AE_MISMATCH_REPORT, RL_MMWL_AE_INTERNALERR_REPORT"]
+#[doc = " ErroVal: RL_RET_CODE_CRC_FAILED, RL_RET_CODE_CHKSUM_FAILED or RL_RET_CODE_HOSTIRQ_TIMEOUT"]
+#[doc = "          for RL_MMWL_AE_MISMATCH_REPORT Event and RL_RET_CODE_RADAR_OSIF_ERROR for"]
+#[doc = "          RL_MMWL_AE_INTERNALERR_REPORT Event"]
 pub type rlMmwlErrorStatus_t = rlMmwlErrorStatus;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink API Error Type"]
@@ -7683,6 +7911,8 @@ fn bindgen_test_layout_rlErrorResp() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmWaveLink API Error Sub block structure"]
 pub type rlErrorResp_t = rlErrorResp;
 #[doc = " \\brief"]
 #[doc = " RHCP SYNC Pattern Structure"]
@@ -7725,6 +7955,8 @@ fn bindgen_test_layout_rlSyncPattern() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " RHCP SYNC Pattern Structure"]
 pub type rlSyncPattern_t = rlSyncPattern;
 #[repr(C)]
 #[repr(align(2))]
@@ -8014,6 +8246,8 @@ fn bindgen_test_layout_rlProtHeader() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " RHCP protocol header structure"]
 pub type rlProtHeader_t = rlProtHeader;
 #[doc = " \\brief"]
 #[doc = " RHCP message structure"]
@@ -8072,6 +8306,8 @@ impl Default for rlRhcpMsg {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " RHCP message structure"]
 pub type rlRhcpMsg_t = rlRhcpMsg;
 #[doc = " \\brief"]
 #[doc = " File Dowload data structure"]
@@ -8121,6 +8357,8 @@ impl Default for rlFileData {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " File Dowload data structure"]
 pub type rlFileData_t = rlFileData;
 #[doc = " \\brief"]
 #[doc = " mmwave radar device MCU Clock output"]
@@ -8204,6 +8442,8 @@ fn bindgen_test_layout_rlMcuClkCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar device MCU Clock output"]
 pub type rlMcuClkCfg_t = rlMcuClkCfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar device PMIC Clock output"]
@@ -8368,6 +8608,8 @@ fn bindgen_test_layout_rlPmicClkCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar device PMIC Clock output"]
 pub type rlPmicClkCfg_t = rlPmicClkCfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar device latent fault test"]
@@ -8491,6 +8733,8 @@ fn bindgen_test_layout_rllatentFault() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar device latent fault test"]
 pub type rllatentFault_t = rllatentFault;
 #[doc = " \\brief"]
 #[doc = " mmwave radar periodicity test config"]
@@ -8582,6 +8826,8 @@ fn bindgen_test_layout_rlperiodicTest() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar periodicity test config"]
 pub type rlperiodicTest_t = rlperiodicTest;
 #[doc = " \\brief"]
 #[doc = " mmwave radar test pattern config"]
@@ -8817,6 +9063,8 @@ fn bindgen_test_layout_rltestPattern() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar test pattern config"]
 pub type rltestPattern_t = rltestPattern;
 #[doc = " \\brief"]
 #[doc = " mmwave radar data format config"]
@@ -8928,6 +9176,8 @@ fn bindgen_test_layout_rlDevDataFmtCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar data format config"]
 pub type rlDevDataFmtCfg_t = rlDevDataFmtCfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar data path config."]
@@ -9086,6 +9336,8 @@ fn bindgen_test_layout_rlDevDataPathCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar data path config."]
 pub type rlDevDataPathCfg_t = rlDevDataPathCfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar data path lane enable"]
@@ -9143,6 +9395,8 @@ fn bindgen_test_layout_rlDevLaneEnable() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar data path lane enable"]
 pub type rlDevLaneEnable_t = rlDevLaneEnable;
 #[doc = " \\brief"]
 #[doc = " DataPath clock configuration"]
@@ -9208,6 +9462,8 @@ fn bindgen_test_layout_rlDevDataPathClkCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " DataPath clock configuration"]
 pub type rlDevDataPathClkCfg_t = rlDevDataPathClkCfg;
 #[doc = " \\brief"]
 #[doc = " LVDS Lane configuration"]
@@ -9279,6 +9535,8 @@ fn bindgen_test_layout_rlDevLvdsLaneCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " LVDS Lane configuration"]
 pub type rlDevLvdsLaneCfg_t = rlDevLvdsLaneCfg;
 #[doc = " \\brief"]
 #[doc = " Continous streaming mode configuration"]
@@ -9328,6 +9586,8 @@ fn bindgen_test_layout_rlDevContStreamingModeCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Continous streaming mode configuration"]
 pub type rlDevContStreamingModeCfg_t = rlDevContStreamingModeCfg;
 #[doc = " \\brief"]
 #[doc = " CSI2 configuration"]
@@ -9411,6 +9671,8 @@ fn bindgen_test_layout_rlDevCsi2Cfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " CSI2 configuration"]
 pub type rlDevCsi2Cfg_t = rlDevCsi2Cfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar high speed clock configuration"]
@@ -9461,6 +9723,8 @@ fn bindgen_test_layout_rlDevHsiClk() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar high speed clock configuration"]
 pub type rlDevHsiClk_t = rlDevHsiClk;
 #[doc = " \\brief"]
 #[doc = " mmwave radar high speed Data path configuraiton"]
@@ -9478,12 +9742,12 @@ pub struct rlDevHsiCfg {
 fn bindgen_test_layout_rlDevHsiCfg() {
     assert_eq!(
         ::core::mem::size_of::<rlDevHsiCfg>(),
-        24usize,
+        12usize,
         concat!("Size of: ", stringify!(rlDevHsiCfg))
     );
     assert_eq!(
         ::core::mem::align_of::<rlDevHsiCfg>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlDevHsiCfg))
     );
     assert_eq!(
@@ -9498,7 +9762,7 @@ fn bindgen_test_layout_rlDevHsiCfg() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlDevHsiCfg>())).dataPath as *const _ as usize },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDevHsiCfg),
@@ -9508,7 +9772,7 @@ fn bindgen_test_layout_rlDevHsiCfg() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlDevHsiCfg>())).dataPathClk as *const _ as usize },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlDevHsiCfg),
@@ -9522,6 +9786,8 @@ impl Default for rlDevHsiCfg {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar high speed Data path configuraiton"]
 pub type rlDevHsiCfg_t = rlDevHsiCfg;
 #[doc = " \\brief"]
 #[doc = " mmwave radar device config"]
@@ -9605,6 +9871,8 @@ fn bindgen_test_layout_rlDevConfig() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " mmwave radar device config"]
 pub type rlDevMiscCfg_t = rlDevConfig;
 extern "C" {
     #[doc = "  @defgroup Device Device"]
@@ -9918,6 +10186,8 @@ fn bindgen_test_layout_rlChanCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Rx/Tx Channel Configuration"]
 pub type rlChanCfg_t = rlChanCfg;
 #[repr(C)]
 #[repr(align(4))]
@@ -10083,6 +10353,8 @@ fn bindgen_test_layout_rlAdcOutCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " ADC format and payload justification Configuration"]
 pub type rlAdcOutCfg_t = rlAdcOutCfg;
 #[repr(C)]
 #[repr(align(2))]
@@ -10329,6 +10601,8 @@ fn bindgen_test_layout_rlBpmCommonCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Binary phase modulation common configuration"]
 pub type rlBpmCommonCfg_t = rlBpmCommonCfg;
 #[doc = " \\brief"]
 #[doc = " Binary phase modulation common configuration"]
@@ -10409,6 +10683,8 @@ fn bindgen_test_layout_rlBpmChirpCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Binary phase modulation common configuration"]
 pub type rlBpmChirpCfg_t = rlBpmChirpCfg;
 #[doc = " \\brief"]
 #[doc = " Low Power mode configuration"]
@@ -10455,6 +10731,8 @@ fn bindgen_test_layout_rlLowPowerModeCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Low Power mode configuration"]
 pub type rlLowPowerModeCfg_t = rlLowPowerModeCfg;
 #[doc = " \\brief"]
 #[doc = " Power saving mode configuration"]
@@ -10535,6 +10813,8 @@ fn bindgen_test_layout_rlPowerSaveModeCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Power saving mode configuration"]
 pub type rlPowerSaveModeCfg_t = rlPowerSaveModeCfg;
 #[doc = " \\brief"]
 #[doc = " Profile config API parameters. A profile contains coarse parameters of FMCW chirp such as"]
@@ -10937,6 +11217,11 @@ fn bindgen_test_layout_rlProfileCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Profile config API parameters. A profile contains coarse parameters of FMCW chirp such as"]
+#[doc = " start frequency, chirp slope, ramp time, idle time etc. Fine dithering values need"]
+#[doc = " to be programmed in chirp configuration \\ref rlChirpCfg_t"]
+#[doc = " \\note Maximum of 4 profiles can be configured."]
 pub type rlProfileCfg_t = rlProfileCfg;
 #[doc = " \\brief"]
 #[doc = " Chirp config API parameters. This structure contains fine dithering to coarse profile"]
@@ -11095,6 +11380,12 @@ fn bindgen_test_layout_rlChirpCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Chirp config API parameters. This structure contains fine dithering to coarse profile"]
+#[doc = " defined in \\ref rlProfileCfg_t. It also includes the selection of Transmitter and"]
+#[doc = " binary phase modulation for a chirp.\\n"]
+#[doc = " @note : One can define upto 512 unique chirps.These chirps need to be included in"]
+#[doc = "         frame configuration structure \\ref rlFrameCfg_t to create FMCW frame"]
 pub type rlChirpCfg_t = rlChirpCfg;
 #[doc = " \\brief"]
 #[doc = " Chirp start, end Index parameters for rlGetChirpConfig"]
@@ -11137,6 +11428,8 @@ fn bindgen_test_layout_rlWordParam() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Chirp start, end Index parameters for rlGetChirpConfig"]
 pub type rlWordParam_t = rlWordParam;
 #[doc = " \\brief"]
 #[doc = " Frame config API parameters"]
@@ -11330,6 +11623,8 @@ fn bindgen_test_layout_rlFrameCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Frame config API parameters"]
 pub type rlFrameCfg_t = rlFrameCfg;
 #[doc = " \\brief"]
 #[doc = " Advance Frame config API Subframe configuration"]
@@ -11523,6 +11818,8 @@ fn bindgen_test_layout_rlSubFrameCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Advance Frame config API Subframe configuration"]
 pub type rlSubFrameCfg_t = rlSubFrameCfg;
 #[doc = " \\brief"]
 #[doc = " Advance Frame Sequence config API parameters rlAdvFrameCfg, 148 bytes"]
@@ -11706,6 +12003,8 @@ fn bindgen_test_layout_rlAdvFrameSeqCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Advance Frame Sequence config API parameters rlAdvFrameCfg, 148 bytes"]
 pub type rlAdvFrameSeqCfg_t = rlAdvFrameSeqCfg;
 #[doc = " \\brief"]
 #[doc = " Frame config API parameters"]
@@ -11766,6 +12065,8 @@ fn bindgen_test_layout_rlFrameApplyCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Frame config API parameters"]
 pub type rlFrameApplyCfg_t = rlFrameApplyCfg;
 #[doc = " \\brief"]
 #[doc = " Sub Frame data config API parameters"]
@@ -11860,6 +12161,8 @@ fn bindgen_test_layout_rlSubFrameDataCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Sub Frame data config API parameters"]
 pub type rlSubFrameDataCfg_t = rlSubFrameDataCfg;
 #[doc = " \\brief"]
 #[doc = " Advance Frame data config API parameters."]
@@ -11932,6 +12235,10 @@ fn bindgen_test_layout_rlAdvFrameDataCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Advance Frame data config API parameters."]
+#[doc = " This structure is only applicable when mmWaveLink instance is running on"]
+#[doc = " External Host and connected to AWR1243 device."]
 pub type rlAdvFrameDataCfg_t = rlAdvFrameDataCfg;
 #[doc = " \\brief"]
 #[doc = " Advance Frame Sequence config API parameters rlAdvFrameCfg, 148 bytes"]
@@ -11976,6 +12283,8 @@ fn bindgen_test_layout_rlAdvFrameCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Advance Frame Sequence config API parameters rlAdvFrameCfg, 148 bytes"]
 pub type rlAdvFrameCfg_t = rlAdvFrameCfg;
 #[doc = " \\brief"]
 #[doc = " Continous Mode config API parameters"]
@@ -12169,6 +12478,8 @@ fn bindgen_test_layout_rlContModeCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Continous Mode config API parameters"]
 pub type rlContModeCfg_t = rlContModeCfg;
 #[doc = " \\brief"]
 #[doc = " Continous Mode Enable API parameters"]
@@ -12215,6 +12526,8 @@ fn bindgen_test_layout_rlContModeEn() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Continous Mode Enable API parameters"]
 pub type rlContModeEn_t = rlContModeEn;
 #[doc = " \\brief"]
 #[doc = " Frame Trigger API parameters RL_RF_FRAMESTARTSTOP_CONF_SB"]
@@ -12264,6 +12577,8 @@ fn bindgen_test_layout_rlFrameTrigger() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Frame Trigger API parameters RL_RF_FRAMESTARTSTOP_CONF_SB"]
 pub type rlFrameTrigger_t = rlFrameTrigger;
 #[doc = " \\brief"]
 #[doc = " The Object position and signal strength parameter structure"]
@@ -12453,6 +12768,8 @@ fn bindgen_test_layout_rlTestSourceObject() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " The Object position and signal strength parameter structure"]
 pub type rlTestSourceObject_t = rlTestSourceObject;
 #[doc = " \\brief"]
 #[doc = " The Antenna position parameter structure"]
@@ -12497,6 +12814,8 @@ fn bindgen_test_layout_rlTestSourceAntPos() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " The Antenna position parameter structure"]
 pub type rlTestSourceAntPos_t = rlTestSourceAntPos;
 #[doc = " \\brief"]
 #[doc = " Test source config API parameters E_API_AR_TEST_SOURCE_CONF_SB"]
@@ -12565,6 +12884,8 @@ fn bindgen_test_layout_rlTestSource() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Test source config API parameters E_API_AR_TEST_SOURCE_CONF_SB"]
 pub type rlTestSource_t = rlTestSource;
 #[doc = " \\brief"]
 #[doc = " Test source Enable API parameters RL_RF_TEST_SOURCE_ENABLE_SB"]
@@ -12609,6 +12930,8 @@ fn bindgen_test_layout_rlTestSourceEn() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Test source Enable API parameters RL_RF_TEST_SOURCE_ENABLE_SB"]
 pub type rlTestSourceEnable_t = rlTestSourceEn;
 #[doc = " \\brief"]
 #[doc = " RF characterization Time and Temperature data structure"]
@@ -12763,6 +13086,8 @@ fn bindgen_test_layout_rlRfTempData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " RF characterization Time and Temperature data structure"]
 pub type rlRfTempData_t = rlRfTempData;
 #[doc = " \\brief"]
 #[doc = " The DFE Statistics for Rx Channel for particular profile"]
@@ -12845,6 +13170,8 @@ fn bindgen_test_layout_rlDfeRxdStatReport() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " The DFE Statistics for Rx Channel for particular profile"]
 pub type rlDfeRxStatReport_t = rlDfeRxdStatReport;
 #[doc = " \\brief"]
 #[doc = " The DFE Statistics Report Contents"]
@@ -12877,6 +13204,8 @@ fn bindgen_test_layout_rlDfeStatReport() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " The DFE Statistics Report Contents"]
 pub type rlDfeStatReport_t = rlDfeStatReport;
 #[doc = " \\brief"]
 #[doc = " Dynamic power saving API parameters"]
@@ -12932,6 +13261,8 @@ fn bindgen_test_layout_rlDynPwrSave() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Dynamic power saving API parameters"]
 pub type rlDynPwrSave_t = rlDynPwrSave;
 #[doc = " \\brief"]
 #[doc = " API RF device Config SBC M_API_AR_RF_DEV_CONF_SBC"]
@@ -13078,6 +13409,8 @@ fn bindgen_test_layout_rlRfDevCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " API RF device Config SBC M_API_AR_RF_DEV_CONF_SBC"]
 pub type rlRfDevCfg_t = rlRfDevCfg;
 #[doc = " \\brief"]
 #[doc = "  Num of samples to collect for API GPADC sensors"]
@@ -13124,6 +13457,9 @@ fn bindgen_test_layout_rlGpAdcSamples() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = "  Num of samples to collect for API GPADC sensors"]
+#[doc = "  sampleCnt    : Number of samples to collect @625KHz"]
 pub type rlGpAdcSamples_t = rlGpAdcSamples;
 #[doc = " \\brief"]
 #[doc = " API radarSS GPADC API MEAS SET SBC M_API_AR_RF_GPADC_API_SET_SB"]
@@ -13219,6 +13555,8 @@ fn bindgen_test_layout_rlGpAdcCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " API radarSS GPADC API MEAS SET SBC M_API_AR_RF_GPADC_API_SET_SB"]
 pub type rlGpAdcCfg_t = rlGpAdcCfg;
 #[doc = " \\brief"]
 #[doc = " Radar RF LDO bypass enable/disable configuration"]
@@ -13306,6 +13644,8 @@ fn bindgen_test_layout_rlRfLdoBypassCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF LDO bypass enable/disable configuration"]
 pub type rlRfLdoBypassCfg_t = rlRfLdoBypassCfg;
 #[doc = " \\brief"]
 #[doc = " Radar RF Phase Shift enable/disable configuration"]
@@ -13418,6 +13758,8 @@ fn bindgen_test_layout_rlRfPhaseShiftCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF Phase Shift enable/disable configuration"]
 pub type rlRfPhaseShiftCfg_t = rlRfPhaseShiftCfg;
 #[doc = " \\brief"]
 #[doc = " Radar RF PA loopback configuration"]
@@ -13483,6 +13825,8 @@ fn bindgen_test_layout_rlRfPALoopbackCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF PA loopback configuration"]
 pub type rlRfPALoopbackCfg_t = rlRfPALoopbackCfg;
 #[doc = " \\brief"]
 #[doc = " Radar RF Phase shift loopback configuration"]
@@ -13612,6 +13956,8 @@ fn bindgen_test_layout_rlRfPSLoopbackCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF Phase shift loopback configuration"]
 pub type rlRfPSLoopbackCfg_t = rlRfPSLoopbackCfg;
 #[doc = " \\brief"]
 #[doc = " Radar RF IF loopback configuration."]
@@ -13686,6 +14032,8 @@ fn bindgen_test_layout_rlRfIFLoopbackCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF IF loopback configuration."]
 pub type rlRfIFLoopbackCfg_t = rlRfIFLoopbackCfg;
 #[doc = " \\brief"]
 #[doc = " Array of coefficients for the RF programmable filter"]
@@ -13763,6 +14111,8 @@ impl Default for rlRfProgFiltCoeff {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " Array of coefficients for the RF programmable filter"]
 pub type rlRfProgFiltCoeff_t = rlRfProgFiltCoeff;
 #[doc = " \\brief"]
 #[doc = " Radar RF programmable filter configuration"]
@@ -13848,6 +14198,8 @@ fn bindgen_test_layout_rlRfProgFiltConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF programmable filter configuration"]
 pub type rlRfProgFiltConf_t = rlRfProgFiltConf;
 #[doc = " \\brief"]
 #[doc = " Radar RF Miscconfiguration"]
@@ -13896,6 +14248,8 @@ fn bindgen_test_layout_rlRfMiscConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF Miscconfiguration"]
 pub type rlRfMiscConf_t = rlRfMiscConf;
 #[doc = " \\brief"]
 #[doc = " Radar RF Calibration monitoring time unit configuration"]
@@ -13982,6 +14336,8 @@ fn bindgen_test_layout_rlRfCalMonTimeUntConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF Calibration monitoring time unit configuration"]
 pub type rlRfCalMonTimeUntConf_t = rlRfCalMonTimeUntConf;
 #[doc = " \\brief"]
 #[doc = " Radar RF Calibration monitoring Frequency Limit configuration"]
@@ -14075,6 +14431,8 @@ fn bindgen_test_layout_rlRfCalMonFreqLimitConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF Calibration monitoring Frequency Limit configuration"]
 pub type rlRfCalMonFreqLimitConf_t = rlRfCalMonFreqLimitConf;
 #[doc = " \\brief"]
 #[doc = " Radar RF Init Calibration configuration"]
@@ -14178,6 +14536,8 @@ fn bindgen_test_layout_rlRfInitCalConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF Init Calibration configuration"]
 pub type rlRfInitCalConf_t = rlRfInitCalConf;
 #[doc = " \\brief"]
 #[doc = " Radar RF Run time calibration configuration"]
@@ -14364,6 +14724,8 @@ fn bindgen_test_layout_rlRunTimeCalibConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Radar RF Run time calibration configuration"]
 pub type rlRunTimeCalibConf_t = rlRunTimeCalibConf;
 #[doc = " \\brief"]
 #[doc = " RX gain temperature LUT read"]
@@ -14426,6 +14788,8 @@ fn bindgen_test_layout_rlRxGainTempLutReadReq() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " RX gain temperature LUT read"]
 pub type rlRxGainTempLutReadReq_t = rlRxGainTempLutReadReq;
 #[doc = " \\brief"]
 #[doc = " TX gain temperature LUT read"]
@@ -14488,6 +14852,8 @@ fn bindgen_test_layout_rlTxGainTempLutReadReq() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " TX gain temperature LUT read"]
 pub type rlTxGainTempLutReadReq_t = rlTxGainTempLutReadReq;
 #[doc = " \\brief"]
 #[doc = " RX gain temperature LUT inject"]
@@ -14601,6 +14967,8 @@ fn bindgen_test_layout_rlRxGainTempLutData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " RX gain temperature LUT inject"]
 pub type rlRxGainTempLutData_t = rlRxGainTempLutData;
 #[doc = " \\brief"]
 #[doc = " TX gain temperature LUT inject"]
@@ -14698,6 +15066,8 @@ fn bindgen_test_layout_rlTxGainTempLutData() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " TX gain temperature LUT inject"]
 pub type rlTxGainTempLutData_t = rlTxGainTempLutData;
 #[doc = " \\brief"]
 #[doc = " Tx freq and power limit configuration"]
@@ -14980,6 +15350,8 @@ fn bindgen_test_layout_rlRfTxFreqPwrLimitMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Tx freq and power limit configuration"]
 pub type rlRfTxFreqPwrLimitMonConf_t = rlRfTxFreqPwrLimitMonConf;
 #[doc = " \\brief"]
 #[doc = " Loopback burst set configuration"]
@@ -15384,6 +15756,8 @@ fn bindgen_test_layout_rlLoopbackBurst() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Loopback burst set configuration"]
 pub type rlLoopbackBurst_t = rlLoopbackBurst;
 #[doc = " \\brief"]
 #[doc = " Chirp row configuration, radarSS stores each chirp config in memory in 3 rows."]
@@ -15491,6 +15865,8 @@ fn bindgen_test_layout_rlChirpRow() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Chirp row configuration, radarSS stores each chirp config in memory in 3 rows."]
 pub type rlChirpRow_t = rlChirpRow;
 #[doc = " \\brief"]
 #[doc = " Dynamic chirp configuration for 16 chirp configurations."]
@@ -15582,6 +15958,8 @@ fn bindgen_test_layout_rlDynChirpCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Dynamic chirp configuration for 16 chirp configurations."]
 pub type rlDynChirpCfg_t = rlDynChirpCfg;
 #[doc = " \\brief"]
 #[doc = " Dynamic chirp enable configuration"]
@@ -15614,6 +15992,8 @@ fn bindgen_test_layout_rlDynChirpEnCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Dynamic chirp enable configuration"]
 pub type rlDynChirpEnCfg_t = rlDynChirpEnCfg;
 #[doc = " \\brief"]
 #[doc = " Dynamic per chirp phase shifter configuration for each TX"]
@@ -15694,6 +16074,8 @@ fn bindgen_test_layout_rlChirpPhShiftPerTx() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Dynamic per chirp phase shifter configuration for each TX"]
 pub type rlChirpPhShiftPerTx_t = rlChirpPhShiftPerTx;
 #[doc = " \\brief"]
 #[doc = " Dynamic per chirp phase shifter configuration"]
@@ -15778,6 +16160,8 @@ fn bindgen_test_layout_rlDynPerChirpPhShftCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Dynamic per chirp phase shifter configuration"]
 pub type rlDynPerChirpPhShftCfg_t = rlDynPerChirpPhShftCfg;
 #[doc = " \\brief"]
 #[doc = " Get calibration data configuration structure"]
@@ -15822,6 +16206,8 @@ fn bindgen_test_layout_rlCalDataGetCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Get calibration data configuration structure"]
 pub type rlCalDataGetCfg_t = rlCalDataGetCfg;
 #[doc = " \\brief"]
 #[doc = " Calibration data which application will receive from radarSS and will feed in to the Device"]
@@ -15884,6 +16270,9 @@ impl Default for rlCalDataStore {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " Calibration data which application will receive from radarSS and will feed in to the Device"]
+#[doc = " in next power up to avoid calibration."]
 pub type rlCalDataStore_t = rlCalDataStore;
 #[doc = " \\brief"]
 #[doc = " Structure to store all Calibration data chunks which device provides in response of"]
@@ -16014,6 +16403,102 @@ impl Default for rlCalibrationData {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " Structure to store all Calibration data chunks which device provides in response of"]
+#[doc = " rlRfCalibDataStore API. Applcation needs to provide same structure to rlRfCalibDataRestore API"]
+#[doc = " to restore calibration data to the device. \\n"]
+#[doc = " Accumulative calData for 3 chunks (3 * 224 bytes) looks like as mentioned. \\n"]
+#[doc = " For xWR1243/xWR1443/xWR1642/xWR1843 devices:"]
+#[doc = " Field Name     Num.of bytes  Description \\n"]
+#[doc = " calValidStatus     4         This field indicates the status of each calibration (0 – FAIL,"]
+#[doc = "                              1 – PASS). If a particular calibration was not enabled, then its"]
+#[doc = "                              corresponding field should be ignored. \\n"]
+#[doc = "                              Bit   Definition (0 – FAIL, 1 – PASS) \\n"]
+#[doc = "                              b0    RESERVED \\n"]
+#[doc = "                              b1    APLL tuning (Ignore while restore) \\n"]
+#[doc = "                              b2    SYNTH VCO1 tuning (Ignore while restore) \\n"]
+#[doc = "                              b3    SYNTH VCO2 tuning (Ignore while restore) \\n"]
+#[doc = "                              b4    LODIST calibration (Ignore while restore) \\n"]
+#[doc = "                              b5    RX ADC DC offset calibration \\n"]
+#[doc = "                              b6    HPF cutoff calibration \\n"]
+#[doc = "                              b7    LPF cutoff calibration \\n"]
+#[doc = "                              b8    Peak detector calibration (optional) \\n"]
+#[doc = "                              b9    TX Power calibration (optional) \\n"]
+#[doc = "                              b10   RX gain calibration \\n"]
+#[doc = "                              b11   TX Phase calibration (Ignore while restore) \\n"]
+#[doc = "                              b12   RX IQMM calibration \\n"]
+#[doc = "                              b31:13 RESERVED"]
+#[doc = "                              The recommended Validity status bits while restoring"]
+#[doc = "                              is 0x000014E0, assuming only rxAdcDcCalData,"]
+#[doc = "                              hpfCalData, lpfCalData, rxRfGainCalData and IQMM"]
+#[doc = "                              iqmmCalData are stored and restored. \\n"]
+#[doc = " calValidStatusCpy 4          Redundant calValidStatus value, this value should match with"]
+#[doc = "                              calValidStatus. \\n"]
+#[doc = " ifStageCalStatus  4          This field indicates the status of IF stage calibration (0 – FAIL,"]
+#[doc = "                              1 – PASS). If a particular calibration was not enabled, then its"]
+#[doc = "                              corresponding field should be ignored. \\n"]
+#[doc = "                              Bit Definition (0 – FAIL, 1 – PASS) \\n"]
+#[doc = "                              b0  HPF1 \\n"]
+#[doc = "                              b1  HPF2 \\n"]
+#[doc = "                              b2  LPF1 \\n"]
+#[doc = "                              b3  LPF2 \\n"]
+#[doc = "                              b31:4 RESERVED \\n"]
+#[doc = "                              This value shall be set to 0xF if HPF and LPF"]
+#[doc = "                              calibration validity status are PASS. \\n"]
+#[doc = " reserved          4          Reserved for Future use \\n"]
+#[doc = " calTemperature    2          Temperature at which boot calibration is done. \\n"]
+#[doc = " reserved          14         Reserved for Future use \\n"]
+#[doc = " rxAdcDcCalibData  16         RX chain ADC DC calibration data \\n"]
+#[doc = " hpf1CalData       1          HPF1 calibration data \\n"]
+#[doc = " hpf2CalData       1          HPF2 calibration data \\n"]
+#[doc = " reserved          2          Reserved for Future use \\n"]
+#[doc = " lpf1CalData       24         LPF1 calibration data \\n"]
+#[doc = " lpf2CalData       24         LPF2 calibration data \\n"]
+#[doc = " rxRfGainCalData   12         RX RF gain calibration data \\n"]
+#[doc = " iqmmCalibData     72         RX IQMM calibration data \\n"]
+#[doc = " txPowCalData      84         TX Power calibration data \\n"]
+#[doc = " powDetCalData     348        Power detector calibration data \\n"]
+#[doc = " reserved          56         Reserved for Future use \\n"]
+#[doc = ""]
+#[doc = " For xWR6843 device:"]
+#[doc = " Field Name     Num.of bytes  Description \\n"]
+#[doc = " calValidStatus     4         This field indicates the status of each calibration (0 – FAIL,"]
+#[doc = "                              1 – PASS). If a particular calibration was not enabled, then its"]
+#[doc = "                              corresponding field should be ignored. \\n"]
+#[doc = "                              Bit   Definition (0 – FAIL, 1 – PASS) \\n"]
+#[doc = "                              b0    RESERVED \\n"]
+#[doc = "                              b1    APLL tuning (Ignore while restore) \\n"]
+#[doc = "                              b2    SYNTH VCO1 tuning (Ignore while restore) \\n"]
+#[doc = "                              b3    SYNTH VCO2 tuning (Ignore while restore) \\n"]
+#[doc = "                              b4    LODIST calibration (Ignore while restore) \\n"]
+#[doc = "                              b5    RX ADC DC offset calibration \\n"]
+#[doc = "                              b6    HPF cutoff calibration \\n"]
+#[doc = "                              b7    LPF cutoff calibration \\n"]
+#[doc = "                              b8    Peak detector calibration (optional) \\n"]
+#[doc = "                              b9    TX Power calibration (optional) \\n"]
+#[doc = "                              b10   RX gain calibration \\n"]
+#[doc = "                              b11   TX Phase calibration (optional) \\n"]
+#[doc = "                              b12   RX IQMM calibration \\n"]
+#[doc = "                              b31:13 RESERVED"]
+#[doc = "                              The recommended Validity status bits while restoring"]
+#[doc = "                              is 0x000014E0, assuming only rxAdcDcCalData,"]
+#[doc = "                              hpfCalData, lpfCalData, rxRfGainCalData and IQMM"]
+#[doc = "                              iqmmCalData are stored and restored. \\n"]
+#[doc = " calValidStatusCpy 4          Redundant calValidStatus value, this value should match with"]
+#[doc = "                              calValidStatus. \\n"]
+#[doc = " reserved          8          Reserved for Future use \\n"]
+#[doc = " calTemperature    2          Temperature at which boot calibration is done. \\n"]
+#[doc = " reserved          14         Reserved for Future use \\n"]
+#[doc = " rxAdcDcCalibData  16         RX chain ADC DC calibration data \\n"]
+#[doc = " hpf1CalData       1          HPF1 calibration data \\n"]
+#[doc = " hpf2CalData       1          HPF2 calibration data \\n"]
+#[doc = " loDistBiasCode    1          LODIST calibration data \\n"]
+#[doc = " reserved          1          Reserved for Future use \\n"]
+#[doc = " rxRfGainCalData   8          RX RF gain calibration data \\n"]
+#[doc = " iqmmCalibData     104        RX IQMM calibration data \\n"]
+#[doc = " txPowCalData      122        TX Power calibration data \\n"]
+#[doc = " powDetCalData     344        Power detector calibration data \\n"]
+#[doc = " reserved          42         Reserved for Future use \\n"]
 pub type rlCalibrationData_t = rlCalibrationData;
 #[doc = " \\brief"]
 #[doc = " Inter-Rx gain and phase offset configuration"]
@@ -16137,6 +16622,8 @@ fn bindgen_test_layout_rlInterRxGainPhConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Inter-Rx gain and phase offset configuration"]
 pub type rlInterRxGainPhConf_t = rlInterRxGainPhConf;
 #[doc = " \\brief"]
 #[doc = " BSS Bootup status data structure"]
@@ -16237,6 +16724,8 @@ fn bindgen_test_layout_rlRfBootStatusCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " BSS Bootup status data structure"]
 pub type rlRfBootStatusCfg_t = rlRfBootStatusCfg;
 #[doc = " \\brief"]
 #[doc = " Inter Chirp block control configuration"]
@@ -16557,6 +17046,8 @@ fn bindgen_test_layout_rlInterChirpBlkCtrlCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Inter Chirp block control configuration"]
 pub type rlInterChirpBlkCtrlCfg_t = rlInterChirpBlkCtrlCfg;
 #[doc = " \\brief"]
 #[doc = " Sub-frame trigger API"]
@@ -16603,6 +17094,8 @@ fn bindgen_test_layout_rlSubFrameStartCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Sub-frame trigger API"]
 pub type rlSubFrameStartCfg_t = rlSubFrameStartCfg;
 #[doc = " \\brief"]
 #[doc = " Get phase shift calibration data configuration structure"]
@@ -16665,6 +17158,8 @@ fn bindgen_test_layout_rlPhShiftCalDataGetCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Get phase shift calibration data configuration structure"]
 pub type rlPhShiftCalDataGetCfg_t = rlPhShiftCalDataGetCfg;
 #[doc = " \\brief"]
 #[doc = " Phase shift calibration data which application will receive from radarSS and will feed in to the"]
@@ -16793,6 +17288,9 @@ impl Default for rlPhShiftCalibrationStore {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " Phase shift calibration data which application will receive from radarSS and will feed in to the"]
+#[doc = " Device in next power up to avoid calibration."]
 pub type rlPhShiftCalibrationStore_t = rlPhShiftCalibrationStore;
 #[doc = " \\brief"]
 #[doc = " Structure to store all Phase shifter calibration data chunks which device provides in response of"]
@@ -16834,6 +17332,10 @@ impl Default for rlPhShiftCalibrationData {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " Structure to store all Phase shifter calibration data chunks which device provides in response of"]
+#[doc = " rlRfPhShiftCalibDataStore API. Applcation needs to provide same structure to"]
+#[doc = " rlRfPhShiftCalibDataRestore API to restore calibration data to the device."]
 pub type rlPhShiftCalibrationData_t = rlPhShiftCalibrationData;
 #[doc = " \\brief"]
 #[doc = " Die ID data structure"]
@@ -16950,6 +17452,8 @@ fn bindgen_test_layout_rlRfDieIdCfg() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Die ID data structure"]
 pub type rlRfDieIdCfg_t = rlRfDieIdCfg;
 #[doc = " \\brief"]
 #[doc = " APLL Synthesizer Bandwidth Control"]
@@ -17068,6 +17572,8 @@ fn bindgen_test_layout_rlRfApllSynthBwControl() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " APLL Synthesizer Bandwidth Control"]
 pub type rlRfApllSynthBwControl_t = rlRfApllSynthBwControl;
 extern "C" {
     #[doc = " FUNCTION DECLARATIONS"]
@@ -17492,6 +17998,8 @@ fn bindgen_test_layout_rlMonDigEnables() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Digital monitoring configuration"]
 pub type rlMonDigEnables_t = rlMonDigEnables;
 #[doc = " \\brief"]
 #[doc = " Digital monitoring latent fault reporting configuration"]
@@ -17585,6 +18093,8 @@ fn bindgen_test_layout_rlDigMonPeriodicConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Digital monitoring latent fault reporting configuration"]
 pub type rlDigMonPeriodicConf_t = rlDigMonPeriodicConf;
 #[doc = " \\brief"]
 #[doc = " Analog monitoring configuration"]
@@ -17670,6 +18180,8 @@ fn bindgen_test_layout_rlMonAnaEnables() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Analog monitoring configuration"]
 pub type rlMonAnaEnables_t = rlMonAnaEnables;
 #[doc = " \\brief"]
 #[doc = " Temperature sensor monitoring configuration"]
@@ -17832,6 +18344,8 @@ fn bindgen_test_layout_rlTempMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Temperature sensor monitoring configuration"]
 pub type rlTempMonConf_t = rlTempMonConf;
 #[doc = " \\brief"]
 #[doc = " RX gain and phase monitoring configuration"]
@@ -18091,6 +18605,8 @@ fn bindgen_test_layout_rlRxGainPhaseMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " RX gain and phase monitoring configuration"]
 pub type rlRxGainPhaseMonConf_t = rlRxGainPhaseMonConf;
 #[doc = " \\brief"]
 #[doc = " RX noise monitoring configuration"]
@@ -18215,6 +18731,8 @@ fn bindgen_test_layout_rlRxNoiseMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " RX noise monitoring configuration"]
 pub type rlRxNoiseMonConf_t = rlRxNoiseMonConf;
 #[doc = " \\brief"]
 #[doc = " RX IF stage monitoring configuration"]
@@ -18360,6 +18878,8 @@ fn bindgen_test_layout_rlRxIfStageMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " RX IF stage monitoring configuration"]
 pub type rlRxIfStageMonConf_t = rlRxIfStageMonConf;
 #[doc = " \\brief"]
 #[doc = " TX power monitoring configuration"]
@@ -18516,6 +19036,8 @@ fn bindgen_test_layout_rlTxPowMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " TX power monitoring configuration"]
 pub type rlTxPowMonConf_t = rlTxPowMonConf;
 #[doc = " \\brief"]
 #[doc = " TX power monitoring configuration"]
@@ -18533,12 +19055,12 @@ pub struct rlAllTxPowMonConf {
 fn bindgen_test_layout_rlAllTxPowMonConf() {
     assert_eq!(
         ::core::mem::size_of::<rlAllTxPowMonConf>(),
-        24usize,
+        12usize,
         concat!("Size of: ", stringify!(rlAllTxPowMonConf))
     );
     assert_eq!(
         ::core::mem::align_of::<rlAllTxPowMonConf>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlAllTxPowMonConf))
     );
     assert_eq!(
@@ -18557,7 +19079,7 @@ fn bindgen_test_layout_rlAllTxPowMonConf() {
         unsafe {
             &(*(::core::ptr::null::<rlAllTxPowMonConf>())).tx1PowrMonCfg as *const _ as usize
         },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxPowMonConf),
@@ -18569,7 +19091,7 @@ fn bindgen_test_layout_rlAllTxPowMonConf() {
         unsafe {
             &(*(::core::ptr::null::<rlAllTxPowMonConf>())).tx2PowrMonCfg as *const _ as usize
         },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxPowMonConf),
@@ -18583,6 +19105,8 @@ impl Default for rlAllTxPowMonConf {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " TX power monitoring configuration"]
 pub type rlAllTxPowMonConf_t = rlAllTxPowMonConf;
 #[doc = " \\brief"]
 #[doc = " TX ballbreak monitoring configuration"]
@@ -18678,6 +19202,8 @@ fn bindgen_test_layout_rlTxBallbreakMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " TX ballbreak monitoring configuration"]
 pub type rlTxBallbreakMonConf_t = rlTxBallbreakMonConf;
 #[doc = " \\brief"]
 #[doc = " TX ballbreak monitoring configuration"]
@@ -18695,12 +19221,12 @@ pub struct rlAllTxBallBreakMonCfg {
 fn bindgen_test_layout_rlAllTxBallBreakMonCfg() {
     assert_eq!(
         ::core::mem::size_of::<rlAllTxBallBreakMonCfg>(),
-        24usize,
+        12usize,
         concat!("Size of: ", stringify!(rlAllTxBallBreakMonCfg))
     );
     assert_eq!(
         ::core::mem::align_of::<rlAllTxBallBreakMonCfg>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlAllTxBallBreakMonCfg))
     );
     assert_eq!(
@@ -18721,7 +19247,7 @@ fn bindgen_test_layout_rlAllTxBallBreakMonCfg() {
             &(*(::core::ptr::null::<rlAllTxBallBreakMonCfg>())).tx1BallBrkMonCfg as *const _
                 as usize
         },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxBallBreakMonCfg),
@@ -18734,7 +19260,7 @@ fn bindgen_test_layout_rlAllTxBallBreakMonCfg() {
             &(*(::core::ptr::null::<rlAllTxBallBreakMonCfg>())).tx2BallBrkMonCfg as *const _
                 as usize
         },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxBallBreakMonCfg),
@@ -18748,6 +19274,8 @@ impl Default for rlAllTxBallBreakMonCfg {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " TX ballbreak monitoring configuration"]
 pub type rlAllTxBallBreakMonCfg_t = rlAllTxBallBreakMonCfg;
 #[doc = " \\brief"]
 #[doc = " TX gain and phase mismatch monitoring configuration"]
@@ -19008,6 +19536,8 @@ fn bindgen_test_layout_rlTxGainPhaseMismatchMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " TX gain and phase mismatch monitoring configuration"]
 pub type rlTxGainPhaseMismatchMonConf_t = rlTxGainPhaseMismatchMonConf;
 #[doc = " \\brief"]
 #[doc = " TX BPM monitoring configuration"]
@@ -19207,6 +19737,8 @@ fn bindgen_test_layout_rlTxBpmMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " TX BPM monitoring configuration"]
 pub type rlTxBpmMonConf_t = rlTxBpmMonConf;
 #[doc = " \\brief"]
 #[doc = " TX BPM monitoring configuration"]
@@ -19224,12 +19756,12 @@ pub struct rlAllTxBpmMonConf {
 fn bindgen_test_layout_rlAllTxBpmMonConf() {
     assert_eq!(
         ::core::mem::size_of::<rlAllTxBpmMonConf>(),
-        24usize,
+        12usize,
         concat!("Size of: ", stringify!(rlAllTxBpmMonConf))
     );
     assert_eq!(
         ::core::mem::align_of::<rlAllTxBpmMonConf>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlAllTxBpmMonConf))
     );
     assert_eq!(
@@ -19244,7 +19776,7 @@ fn bindgen_test_layout_rlAllTxBpmMonConf() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlAllTxBpmMonConf>())).tx1BpmMonCfg as *const _ as usize },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxBpmMonConf),
@@ -19254,7 +19786,7 @@ fn bindgen_test_layout_rlAllTxBpmMonConf() {
     );
     assert_eq!(
         unsafe { &(*(::core::ptr::null::<rlAllTxBpmMonConf>())).tx2BpmMonCfg as *const _ as usize },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxBpmMonConf),
@@ -19268,6 +19800,8 @@ impl Default for rlAllTxBpmMonConf {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " TX BPM monitoring configuration"]
 pub type rlAllTxBpmMonConf_t = rlAllTxBpmMonConf;
 #[doc = " \\brief"]
 #[doc = " Synthesizer frequency monitoring configuration"]
@@ -19421,6 +19955,8 @@ fn bindgen_test_layout_rlSynthFreqMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Synthesizer frequency monitoring configuration"]
 pub type rlSynthFreqMonConf_t = rlSynthFreqMonConf;
 #[doc = " \\brief"]
 #[doc = " External analog signals monitoring configuration"]
@@ -19629,6 +20165,8 @@ fn bindgen_test_layout_rlExtAnaSignalsMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " External analog signals monitoring configuration"]
 pub type rlExtAnaSignalsMonConf_t = rlExtAnaSignalsMonConf;
 #[doc = " \\brief"]
 #[doc = " Internal signals in the TX path monitoring configuration"]
@@ -19715,6 +20253,8 @@ fn bindgen_test_layout_rlTxIntAnaSignalsMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Internal signals in the TX path monitoring configuration"]
 pub type rlTxIntAnaSignalsMonConf_t = rlTxIntAnaSignalsMonConf;
 #[doc = " \\brief"]
 #[doc = " Internal signals in the TX path monitoring configuration"]
@@ -19732,12 +20272,12 @@ pub struct rlAllTxIntAnaSignalsMonConf {
 fn bindgen_test_layout_rlAllTxIntAnaSignalsMonConf() {
     assert_eq!(
         ::core::mem::size_of::<rlAllTxIntAnaSignalsMonConf>(),
-        24usize,
+        12usize,
         concat!("Size of: ", stringify!(rlAllTxIntAnaSignalsMonConf))
     );
     assert_eq!(
         ::core::mem::align_of::<rlAllTxIntAnaSignalsMonConf>(),
-        8usize,
+        4usize,
         concat!("Alignment of ", stringify!(rlAllTxIntAnaSignalsMonConf))
     );
     assert_eq!(
@@ -19758,7 +20298,7 @@ fn bindgen_test_layout_rlAllTxIntAnaSignalsMonConf() {
             &(*(::core::ptr::null::<rlAllTxIntAnaSignalsMonConf>())).tx1IntAnaSgnlMonCfg as *const _
                 as usize
         },
-        8usize,
+        4usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxIntAnaSignalsMonConf),
@@ -19771,7 +20311,7 @@ fn bindgen_test_layout_rlAllTxIntAnaSignalsMonConf() {
             &(*(::core::ptr::null::<rlAllTxIntAnaSignalsMonConf>())).tx2IntAnaSgnlMonCfg as *const _
                 as usize
         },
-        16usize,
+        8usize,
         concat!(
             "Offset of field: ",
             stringify!(rlAllTxIntAnaSignalsMonConf),
@@ -19785,6 +20325,8 @@ impl Default for rlAllTxIntAnaSignalsMonConf {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " Internal signals in the TX path monitoring configuration"]
 pub type rlAllTxIntAnaSignalsMonConf_t = rlAllTxIntAnaSignalsMonConf;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -20002,6 +20544,8 @@ fn bindgen_test_layout_rlPmClkLoIntAnaSignalsMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Internal signals for PM, CLK and LO monitoring configuration"]
 pub type rlPmClkLoIntAnaSignalsMonConf_t = rlPmClkLoIntAnaSignalsMonConf;
 #[doc = " \\brief"]
 #[doc = " Internal signals for GPADC monitoring configuration"]
@@ -20081,6 +20625,8 @@ fn bindgen_test_layout_rlGpadcIntAnaSignalsMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Internal signals for GPADC monitoring configuration"]
 pub type rlGpadcIntAnaSignalsMonConf_t = rlGpadcIntAnaSignalsMonConf;
 #[doc = " \\brief"]
 #[doc = " Internal signals for PLL control voltage monitoring configuration"]
@@ -20179,6 +20725,8 @@ fn bindgen_test_layout_rlPllContrlVoltMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Internal signals for PLL control voltage monitoring configuration"]
 pub type rlPllContrVoltMonConf_t = rlPllContrlVoltMonConf;
 #[doc = " \\brief"]
 #[doc = " Internal signals for DCC based clock monitoring configuration"]
@@ -20266,6 +20814,8 @@ fn bindgen_test_layout_rlDualClkCompMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Internal signals for DCC based clock monitoring configuration"]
 pub type rlDualClkCompMonConf_t = rlDualClkCompMonConf;
 #[doc = " \\brief"]
 #[doc = " RX saturation monitoring configuration"]
@@ -20440,6 +20990,8 @@ fn bindgen_test_layout_rlRxSatMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " RX saturation monitoring configuration"]
 pub type rlRxSatMonConf_t = rlRxSatMonConf;
 #[doc = " \\brief"]
 #[doc = " Signal and image band energy monitoring configuration"]
@@ -20535,6 +21087,8 @@ fn bindgen_test_layout_rlSigImgMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " Signal and image band energy monitoring configuration"]
 pub type rlSigImgMonConf_t = rlSigImgMonConf;
 #[doc = " \\brief"]
 #[doc = " RX mixer input power monitoring configuration"]
@@ -20663,6 +21217,8 @@ fn bindgen_test_layout_rlRxMixInPwrMonConf() {
         )
     );
 }
+#[doc = " \\brief"]
+#[doc = " RX mixer input power monitoring configuration"]
 pub type rlRxMixInPwrMonConf_t = rlRxMixInPwrMonConf;
 #[doc = " \\brief"]
 #[doc = " RX signal and image band energy statistics"]
@@ -20738,6 +21294,8 @@ impl Default for rlRfSigImgPowerCqData {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " RX signal and image band energy statistics"]
 pub type rlRfSigImgPowerCqData_t = rlRfSigImgPowerCqData;
 #[doc = " \\brief"]
 #[doc = " RX ADC and IF saturation information"]
@@ -20815,6 +21373,8 @@ impl Default for rlRfRxSaturationCqData {
         unsafe { ::core::mem::zeroed() }
     }
 }
+#[doc = " \\brief"]
+#[doc = " RX ADC and IF saturation information"]
 pub type rlRfRxSaturationCqData_t = rlRfRxSaturationCqData;
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]

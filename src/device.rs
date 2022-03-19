@@ -1,5 +1,5 @@
-use core::convert::TryInto;
 use core::slice;
+use core::{convert::TryInto, ffi::c_void};
 use mmwavelink_sys::ffi;
 
 use crate::error::{Error, Result};
@@ -32,6 +32,34 @@ pub struct OsiCallbacks(ffi::rlOsiCbs);
 #[derive(Debug, Default, Copy, Clone)]
 #[repr(transparent)]
 pub struct DeviceControlCallbacks(ffi::rlDeviceCtrlCbs);
+
+impl DeviceControlCallbacks {
+    pub fn new(
+        device_enable: Option<unsafe extern "C" fn(device_index: u8) -> i32>,
+        device_disable: Option<unsafe extern "C" fn(device_index: u8) -> i32>,
+        device_mask_host_irq: Option<unsafe extern "C" fn(fd: *mut c_void)>,
+        device_unmask_host_irq: Option<unsafe extern "C" fn(fd: *mut c_void)>,
+        device_wait_irq_status: Option<unsafe extern "C" fn(fd: *mut c_void, high_low: u8) -> i32>,
+        comm_if_assert_irq: Option<unsafe extern "C" fn(high_low: u8) -> u16>,
+        register_interrupt_handler: Option<
+            unsafe extern "C" fn(
+                device_index: u8,
+                handler: Option<unsafe extern "C" fn(u8, *mut c_void)>,
+                *mut c_void,
+            ) -> i32,
+        >,
+    ) -> Self {
+        Self(ffi::rlDeviceCtrlCbs {
+            rlDeviceEnable: device_enable,
+            rlDeviceDisable: device_disable,
+            rlDeviceMaskHostIrq: device_mask_host_irq,
+            rlDeviceUnMaskHostIrq: device_unmask_host_irq,
+            rlDeviceWaitIrqStatus: device_wait_irq_status,
+            rlCommIfAssertIrq: comm_if_assert_irq,
+            rlRegisterInterruptHandler: register_interrupt_handler,
+        })
+    }
+}
 
 #[derive(Debug, Default, Copy, Clone)]
 #[repr(transparent)]
