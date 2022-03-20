@@ -2221,7 +2221,7 @@ pub type rlDeviceCtrlCbs_t = rlDeviceCtrlCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink print function prototype"]
 pub type rlPrintFptr =
-    ::core::option::Option<unsafe extern "C" fn(format: *const rlInt8_t, ...) -> rlInt32_t>;
+    ::core::option::Option<unsafe extern "C" fn(format: *const i8, ...) -> rlInt32_t>;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink debug callback structure"]
 #[repr(C)]

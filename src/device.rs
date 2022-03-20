@@ -65,6 +65,15 @@ impl DeviceControlCallbacks {
 #[repr(transparent)]
 pub struct DebugCallback(ffi::rlDbgCb);
 
+impl DebugCallback {
+    pub fn new(debug_cb: unsafe extern "C" fn(format: *const i8, ...) -> i32, dbg_lvl: u8) -> Self {
+        Self(ffi::rlDbgCb {
+            rlPrint: Some(debug_cb),
+            dbgLevel: dbg_lvl
+        })
+    }
+}
+
 #[derive(Debug, Copy, Default, Clone)]
 #[repr(transparent)]
 pub struct ClientCallBacks(ffi::rlClientCbs);
