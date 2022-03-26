@@ -14,7 +14,7 @@ fn main() -> Result<()> {
 
     println!("cargo:rustc-link-search={}", out_dir.to_str().unwrap());
     println!("cargo:rustc-link-lib=static={}", lib_name);
-    println!("cargo:rerun-if-changed={}", header.display());
+    //println!("cargo:rerun-if-changed={}", header.display());
 
     let bindings = bindgen::Builder::default()
         .header(header.to_str().unwrap())
@@ -55,7 +55,7 @@ fn compile() -> Result<&'static str> {
         ])
         .include(includes)
         .static_flag(true)
-        .compile("libmmwavelink.a");
+        .compile("mmwavelink");
 
     Ok("mmwavelink")
 }

@@ -1201,7 +1201,7 @@ MMWL_EXPORT rlReturnVal_t rlDeviceSetCsi2Config(rlUInt8_t deviceMap,
                                                 rlDevCsi2Cfg_t*data);
 MMWL_EXPORT rlReturnVal_t rlDeviceGetCsi2Config(rlUInt8_t deviceMap,
                                                 rlDevCsi2Cfg_t*data);
-
+int sanity_echo(int v);
 
 
 /*!

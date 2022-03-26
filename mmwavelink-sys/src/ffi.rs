@@ -2221,7 +2221,7 @@ pub type rlDeviceCtrlCbs_t = rlDeviceCtrlCbs;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink print function prototype"]
 pub type rlPrintFptr =
-    ::core::option::Option<unsafe extern "C" fn(format: *const i8, ...) -> rlInt32_t>;
+    ::core::option::Option<unsafe extern "C" fn(format: *const rlInt8_t, ...) -> rlInt32_t>;
 #[doc = " \\brief"]
 #[doc = " mmWaveLink debug callback structure"]
 #[repr(C)]
@@ -10070,6 +10070,9 @@ extern "C" {
 }
 extern "C" {
     pub fn rlDeviceGetCsi2Config(deviceMap: rlUInt8_t, data: *mut rlDevCsi2Cfg_t) -> rlReturnVal_t;
+}
+extern "C" {
+    pub fn sanity_echo(v: cty::c_int) -> cty::c_int;
 }
 #[doc = " \\brief"]
 #[doc = " Rx/Tx Channel Configuration"]

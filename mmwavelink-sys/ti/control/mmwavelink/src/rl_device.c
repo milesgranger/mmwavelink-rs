@@ -1828,6 +1828,10 @@ rlReturnVal_t rlDeviceSetRetryCount(rlUInt8_t retryCnt)
     return rlDriverSetRetryCount(retryCnt);
 }
 
+int sanity_echo(int v) {
+    return v;
+}
+
 /*
  * END OF rl_device.c FILE
  */

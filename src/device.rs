@@ -66,10 +66,10 @@ impl DeviceControlCallbacks {
 pub struct DebugCallback(ffi::rlDbgCb);
 
 impl DebugCallback {
-    pub fn new(debug_cb: unsafe extern "C" fn(format: *const i8, ...) -> i32, dbg_lvl: u8) -> Self {
+    pub fn new(debug_cb: unsafe extern "C" fn(format: *const u8, ...) -> i32, dbg_lvl: u8) -> Self {
         Self(ffi::rlDbgCb {
             rlPrint: Some(debug_cb),
-            dbgLevel: dbg_lvl
+            dbgLevel: dbg_lvl,
         })
     }
 }
@@ -152,6 +152,11 @@ impl ClientCallBacks {
             dbgCb: dbg_callback.0,
         })
     }
+}
+
+/// Sanity check calls to mmwavelink C api work
+pub fn sanity_echo(v: i32) -> i32 {
+    unsafe { ffi::sanity_echo(v) }
 }
 
 /// Bring mmwave Device Out of Reset
