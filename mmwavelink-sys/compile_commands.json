@@ -1,0 +1,62 @@
+[
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-I/home/milesg/Projects/mmwavelink-rs/mmwavelink-sys",
+            "-I/usr/lib/llvm-6.0/lib/clang/6.0.1/include",
+            "-nostartfiles",
+            "ti/control/mmwavelink/src/rl_driver.c"
+        ],
+        "directory": "/home/milesg/Projects/mmwavelink-rs/mmwavelink-sys",
+        "file": "ti/control/mmwavelink/src/rl_driver.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-I/home/milesg/Projects/mmwavelink-rs/mmwavelink-sys",
+            "-I/usr/lib/llvm-6.0/lib/clang/6.0.1/include",
+            "-nostartfiles",
+            "ti/control/mmwavelink/src/rl_controller.c"
+        ],
+        "directory": "/home/milesg/Projects/mmwavelink-rs/mmwavelink-sys",
+        "file": "ti/control/mmwavelink/src/rl_controller.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-I/home/milesg/Projects/mmwavelink-rs/mmwavelink-sys",
+            "-I/usr/lib/llvm-6.0/lib/clang/6.0.1/include",
+            "-nostartfiles",
+            "ti/control/mmwavelink/src/rl_device.c"
+        ],
+        "directory": "/home/milesg/Projects/mmwavelink-rs/mmwavelink-sys",
+        "file": "ti/control/mmwavelink/src/rl_device.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-I/home/milesg/Projects/mmwavelink-rs/mmwavelink-sys",
+            "-I/usr/lib/llvm-6.0/lib/clang/6.0.1/include",
+            "-nostartfiles",
+            "ti/control/mmwavelink/src/rl_sensor.c"
+        ],
+        "directory": "/home/milesg/Projects/mmwavelink-rs/mmwavelink-sys",
+        "file": "ti/control/mmwavelink/src/rl_sensor.c"
+    },
+    {
+        "arguments": [
+            "cc",
+            "-c",
+            "-I/home/milesg/Projects/mmwavelink-rs/mmwavelink-sys",
+            "-I/usr/lib/llvm-6.0/lib/clang/6.0.1/include",
+            "-nostartfiles",
+            "ti/control/mmwavelink/src/rl_monitoring.c"
+        ],
+        "directory": "/home/milesg/Projects/mmwavelink-rs/mmwavelink-sys",
+        "file": "ti/control/mmwavelink/src/rl_monitoring.c"
+    }
+]
