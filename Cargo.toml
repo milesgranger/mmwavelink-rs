@@ -6,5 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-mmwavelink-sys = { path = "mmwavelink-sys" }
 snafu = { version = "0.7", default-features = false }
+libc = { version = "*", default-features = false }
+c2rust-bitfields = "*"
