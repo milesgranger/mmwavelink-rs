@@ -8,7 +8,7 @@
     unused_mut
 )]
 
-use libc::memcpy;
+use crate::driver::memcpy;
 
 /* ***************************************************************************************
  * FileName     : rl_datatypes.h
@@ -69,9 +69,9 @@ use libc::memcpy;
 /* ! \brief
  * Standard C data types typedef
  */
-pub type rlUInt8_t = libc::c_uchar;
-pub type rlUInt16_t = libc::c_ushort;
-pub type rlInt32_t = libc::c_int;
+pub type rlUInt8_t = core::ffi::c_uchar;
+pub type rlUInt16_t = core::ffi::c_ushort;
+pub type rlInt32_t = core::ffi::c_int;
 /* !< This includes payload+HR+CRC */
 /* * @note : \n
  * 1. When Running On MSS: \n
@@ -228,15 +228,15 @@ pub unsafe extern "C" fn rlAppendSubBlock(
     let mut retVal: rlReturnVal_t = 0;
     /* check for null pointer */
     if rhcpPayload.is_null()
-        || sbLen as libc::c_uint
-            > (256 as libc::c_uint).wrapping_sub(
-                (4 as libc::c_uint)
-                    .wrapping_add(12 as libc::c_uint)
-                    .wrapping_add(8 as libc::c_uint),
+        || sbLen as core::ffi::c_uint
+            > (256 as core::ffi::c_uint).wrapping_sub(
+                (4 as core::ffi::c_uint)
+                    .wrapping_add(12 as core::ffi::c_uint)
+                    .wrapping_add(8 as core::ffi::c_uint),
             )
     {
         /* set error code */
-        retVal = -(9 as libc::c_int)
+        retVal = -(9 as core::ffi::c_int)
     } else {
         /* Append SB Id  */
         /*AR_CODE_REVIEW MR:R.11.2 <APPROVED> "The Payload SbId is of type UINT16,
@@ -245,7 +245,7 @@ pub unsafe extern "C" fn rlAppendSubBlock(
         /*LDRA_INSPECTED 94 S */
         /*LDRA_INSPECTED 95 S */
         /*LDRA_INSPECTED 87 S */
-        *(rhcpPayload.offset(0 as libc::c_uint as isize) as *mut rlUInt16_t) = sblkId;
+        *(rhcpPayload.offset(0 as core::ffi::c_uint as isize) as *mut rlUInt16_t) = sblkId;
         /* Append SB Len */
         /*AR_CODE_REVIEW MR:R.11.2 <APPROVED> "The Payload SbLen is of type UINT16,
          * so pointer conversion type to UINT16*
@@ -253,26 +253,26 @@ pub unsafe extern "C" fn rlAppendSubBlock(
         /*LDRA_INSPECTED 94 S */
         /*LDRA_INSPECTED 95 S */
         /*LDRA_INSPECTED 87 S */
-        *(rhcpPayload.offset((0 as libc::c_uint).wrapping_add(2 as libc::c_uint) as isize)
-            as *mut rlUInt16_t) = (sbLen as libc::c_uint)
-            .wrapping_add(2 as libc::c_uint)
-            .wrapping_add(2 as libc::c_uint) as rlUInt16_t;
+        *(rhcpPayload.offset((0 as core::ffi::c_uint).wrapping_add(2 as core::ffi::c_uint) as isize)
+            as *mut rlUInt16_t) = (sbLen as core::ffi::c_uint)
+            .wrapping_add(2 as core::ffi::c_uint)
+            .wrapping_add(2 as core::ffi::c_uint) as rlUInt16_t;
         /* Append SB Payload */
-        if sbLen as libc::c_uint > 0 as libc::c_uint && !sbData.is_null() {
+        if sbLen as core::ffi::c_uint > 0 as core::ffi::c_uint && !sbData.is_null() {
             memcpy(
                 &mut *rhcpPayload.offset(
-                    (0 as libc::c_uint)
-                        .wrapping_add(2 as libc::c_uint)
-                        .wrapping_add(2 as libc::c_uint) as isize,
-                ) as *mut rlUInt8_t as *mut libc::c_void,
-                sbData as *const libc::c_void,
+                    (0 as core::ffi::c_uint)
+                        .wrapping_add(2 as core::ffi::c_uint)
+                        .wrapping_add(2 as core::ffi::c_uint) as isize,
+                ) as *mut rlUInt8_t as *mut core::ffi::c_void,
+                sbData as *const core::ffi::c_void,
                 sbLen as _,
             );
-            retVal = 0 as libc::c_int
-        } else if sbLen as libc::c_uint == 0 as libc::c_uint && sbData.is_null() {
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
+        } else if sbLen as core::ffi::c_uint == 0 as core::ffi::c_uint && sbData.is_null() {
+            retVal = 0 as core::ffi::c_int
         } else {
-            retVal = -(2 as libc::c_int)
+            retVal = -(2 as core::ffi::c_int)
         }
     }
     return retVal;
@@ -297,13 +297,13 @@ pub unsafe extern "C" fn rlAppendDummy(
 ) -> rlReturnVal_t {
     let mut indx: rlUInt8_t = 0;
     /* In the given array fill dummy byte for the requested length */
-    indx = 0 as libc::c_uint as rlUInt8_t;
-    while (indx as libc::c_int) < dummyLen as libc::c_int {
+    indx = 0 as core::ffi::c_uint as rlUInt8_t;
+    while (indx as core::ffi::c_int) < dummyLen as core::ffi::c_int {
         /* fill dummy byte */
-        *rhcpPayload.offset(indx as isize) = 0xff as libc::c_uint as rlUInt8_t;
+        *rhcpPayload.offset(indx as isize) = 0xff as core::ffi::c_uint as rlUInt8_t;
         indx = indx.wrapping_add(1)
     }
-    return 0 as libc::c_int;
+    return 0 as core::ffi::c_int;
 }
 /* * @fn rlReturnVal_t rlGetSubBlock(rlUInt8_t rhcpPayload[],
 *                 rlUInt16_t* sbId, rlUInt16_t* sbLen, rlUInt8_t* sbData)
@@ -332,7 +332,7 @@ pub unsafe extern "C" fn rlGetSubBlock(
     /* check for NULL prointer for all input parameters */
     if rhcpPayload.is_null() || sbcId.is_null() || sbLen.is_null() || sbData.is_null() {
         /* set error code */
-        retVal = -(9 as libc::c_int)
+        retVal = -(9 as core::ffi::c_int)
     } else {
         /* Get SB Id */
         /*AR_CODE_REVIEW MR:R.11.2 <APPROVED> "The Payload SbId is of type UINT16,
@@ -341,7 +341,7 @@ pub unsafe extern "C" fn rlGetSubBlock(
         /*LDRA_INSPECTED 94 S */
         /*LDRA_INSPECTED 95 S */
         /*LDRA_INSPECTED 87 S */
-        *sbcId = *(rhcpPayload.offset(0 as libc::c_uint as isize) as *mut rlUInt16_t);
+        *sbcId = *(rhcpPayload.offset(0 as core::ffi::c_uint as isize) as *mut rlUInt16_t);
         /* Get SB Len */
         /*AR_CODE_REVIEW MR:R.11.2 <APPROVED> "The Payload SbLen is of type UINT16,
          * so pointer conversion type to UINT16*
@@ -349,39 +349,40 @@ pub unsafe extern "C" fn rlGetSubBlock(
         /*LDRA_INSPECTED 94 S */
         /*LDRA_INSPECTED 95 S */
         /*LDRA_INSPECTED 87 S */
-        *sbLen = *(rhcpPayload.offset((0 as libc::c_uint).wrapping_add(2 as libc::c_uint) as isize)
+        *sbLen = *(rhcpPayload
+            .offset((0 as core::ffi::c_uint).wrapping_add(2 as core::ffi::c_uint) as isize)
             as *mut rlUInt16_t);
         /* check if sub-block length is beyond defined limit */
-        if *sbLen as libc::c_uint
-            > (256 as libc::c_uint).wrapping_sub(
-                (4 as libc::c_uint)
-                    .wrapping_add(12 as libc::c_uint)
-                    .wrapping_add(8 as libc::c_uint),
+        if *sbLen as core::ffi::c_uint
+            > (256 as core::ffi::c_uint).wrapping_sub(
+                (4 as core::ffi::c_uint)
+                    .wrapping_add(12 as core::ffi::c_uint)
+                    .wrapping_add(8 as core::ffi::c_uint),
             )
         {
             /* set error code */
-            retVal = -(9 as libc::c_int)
+            retVal = -(9 as core::ffi::c_int)
         } else {
             payloadBuf = &mut *rhcpPayload.offset(
-                (0 as libc::c_uint)
-                    .wrapping_add(2 as libc::c_uint)
-                    .wrapping_add(2 as libc::c_uint) as isize,
+                (0 as core::ffi::c_uint)
+                    .wrapping_add(2 as core::ffi::c_uint)
+                    .wrapping_add(2 as core::ffi::c_uint) as isize,
             ) as *mut rlUInt8_t;
             /* Get SB Payload */
-            if *sbLen as libc::c_uint > 0 as libc::c_uint
+            if *sbLen as core::ffi::c_uint > 0 as core::ffi::c_uint
                 && !sbData.is_null()
                 && !payloadBuf.is_null()
             {
                 /* copy input payload to sub-block data buffer */
                 memcpy(
-                    sbData as *mut libc::c_void,
-                    payloadBuf as *const libc::c_void,
-                    (*sbLen as libc::c_uint)
-                        .wrapping_sub((2 as libc::c_uint).wrapping_add(2 as libc::c_uint))
+                    sbData as *mut core::ffi::c_void,
+                    payloadBuf as *const core::ffi::c_void,
+                    (*sbLen as core::ffi::c_uint)
+                        .wrapping_sub((2 as core::ffi::c_uint).wrapping_add(2 as core::ffi::c_uint))
                         as _,
                 );
             }
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         }
     }
     return retVal;
@@ -410,7 +411,7 @@ pub unsafe extern "C" fn rlGetSubBlockId(
     /*LDRA_INSPECTED 94 S */
     /*LDRA_INSPECTED 95 S */
     /*LDRA_INSPECTED 87 S */
-    *sbcId = *(rhcpPayload.offset(0 as libc::c_uint as isize) as *mut rlUInt16_t);
+    *sbcId = *(rhcpPayload.offset(0 as core::ffi::c_uint as isize) as *mut rlUInt16_t);
 }
 /* ***************************************************************************************
  * FileName     : rl_controller.h
@@ -488,7 +489,8 @@ pub unsafe extern "C" fn rlGetSubBlockLen(
     /*LDRA_INSPECTED 94 S */
     /*LDRA_INSPECTED 95 S */
     /*LDRA_INSPECTED 87 S */
-    *sbcLen = *(rhcpPayload.offset((0 as libc::c_uint).wrapping_add(2 as libc::c_uint) as isize)
+    *sbcLen = *(rhcpPayload
+        .offset((0 as core::ffi::c_uint).wrapping_add(2 as core::ffi::c_uint) as isize)
         as *mut rlUInt16_t);
 }
 /*

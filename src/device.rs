@@ -7,8 +7,9 @@
     unused_assignments,
     unused_mut
 )]
-use c2rust_bitfields::BitfieldStruct;
 
+use c2rust_bitfields::BitfieldStruct;
+use rtt_target::{rprintln as println};
 use crate::driver::{
     rlClientCbs, rlDriverAddDevice, rlDriverCmdInvoke, rlDriverConfigureAckTimeout,
     rlDriverConfigureCrc, rlDriverConstructInMsg, rlDriverDeInit, rlDriverExecuteGetApi,
@@ -17,15 +18,15 @@ use crate::driver::{
     rlDriverSetRetryCount, rlPayloadSb,
 };
 
-pub type rlUInt8_t = libc::c_uchar;
-pub type rlUInt16_t = libc::c_ushort;
-pub type rlUInt32_t = libc::c_uint;
-pub type rlInt8_t = libc::c_char;
-pub type rlInt32_t = libc::c_int;
-pub type rlComIfHdl_t = *mut libc::c_void;
-pub type rlOsiMsgQHdl_t = *mut libc::c_void;
-pub type rlOsiSemHdl_t = *mut libc::c_void;
-pub type rlOsiMutexHdl_t = *mut libc::c_void;
+pub type rlUInt8_t = core::ffi::c_uchar;
+pub type rlUInt16_t = core::ffi::c_ushort;
+pub type rlUInt32_t = core::ffi::c_uint;
+pub type rlInt8_t = core::ffi::c_char;
+pub type rlInt32_t = core::ffi::c_int;
+pub type rlComIfHdl_t = *mut core::ffi::c_void;
+pub type rlOsiMsgQHdl_t = *mut core::ffi::c_void;
+pub type rlOsiSemHdl_t = *mut core::ffi::c_void;
+pub type rlOsiMutexHdl_t = *mut core::ffi::c_void;
 /* ***************************************************************************************
  * FileName     : rl_datatypes.h
  *
@@ -144,12 +145,12 @@ pub type rlCrcType_t = rlUInt8_t;
 /* ! \brief
 * mmWaveLink Spawn Task Function
 */
-pub type RL_P_OSI_SPAWN_ENTRY = Option<unsafe extern "C" fn(_: *const libc::c_void) -> ()>;
+pub type RL_P_OSI_SPAWN_ENTRY = Option<unsafe extern "C" fn(_: *const core::ffi::c_void) -> ()>;
 /* ! \brief
 * mmWaveLink Event Handler callback
 */
 pub type RL_P_EVENT_HANDLER =
-    Option<unsafe extern "C" fn(_: rlUInt8_t, _: *mut libc::c_void) -> ()>;
+    Option<unsafe extern "C" fn(_: rlUInt8_t, _: *mut core::ffi::c_void) -> ()>;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct rlComIfCbs {
@@ -308,7 +309,7 @@ pub struct rlOsiMsgQCbs {
     pub rlOsiSpawn: Option<
         unsafe extern "C" fn(
             _: RL_P_OSI_SPAWN_ENTRY,
-            _: *const libc::c_void,
+            _: *const core::ffi::c_void,
             _: rlUInt32_t,
         ) -> rlInt32_t,
     >,
@@ -478,7 +479,7 @@ pub struct rlDeviceCtrlCbs {
         unsafe extern "C" fn(
             _: rlUInt8_t,
             _: RL_P_EVENT_HANDLER,
-            _: *mut libc::c_void,
+            _: *mut core::ffi::c_void,
         ) -> rlInt32_t,
     >,
 }
@@ -1543,32 +1544,36 @@ pub unsafe extern "C" fn rlDevicePowerOn(
     mut deviceMap: rlUInt8_t,
     mut clientCb: rlClientCbs,
 ) -> rlReturnVal_t {
+    println!("PowerOn from inside SDK");
     let mut retVal: rlReturnVal_t = 0;
-    let mut index: rlUInt8_t = 0 as libc::c_uint as rlUInt8_t;
+    let mut index: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
     /* get rlDriver global structure pointer */
     let mut rlDrvData = rlDriverGetHandle();
     /* if driver is already initialized */
-    if !rlDrvData.is_null() && (*rlDrvData).isDriverInitialized as libc::c_uint == 1 as libc::c_uint
+    if !rlDrvData.is_null()
+        && (*rlDrvData).isDriverInitialized as core::ffi::c_uint == 1 as core::ffi::c_uint
     {
         /* DeInitialize Device */
         retVal = rlDevicePowerOff()
     } else {
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     }
     /* if there is no error found from above conditioning then go ahead and poweron
     mmwavelink & device */
-    if retVal == 0 as libc::c_int {
+    if retVal == 0 as core::ffi::c_int {
         /* Initialize Host Communication Protocol Driver */
-        if rlDriverInit(deviceMap, clientCb) < 0 as libc::c_int {
+        if rlDriverInit(deviceMap, clientCb) < 0 as core::ffi::c_int {
             /* if driver Init failed then set return error code */
-            retVal += -(4 as libc::c_int)
+            println!("rlDriverInit Failed");
+            retVal += -(4 as core::ffi::c_int)
         } else {
             loop
             /* Power up mmwave Device */
             /* loop for all devices connected to device/Host */
             {
-                if deviceMap as libc::c_uint & (1 as libc::c_uint) << index as libc::c_int
-                    != 0 as libc::c_uint
+                if deviceMap as core::ffi::c_uint
+                    & (1 as core::ffi::c_uint) << index as core::ffi::c_int
+                    != 0 as core::ffi::c_uint
                 {
                     /* Enable the 12xx device where it will power up the device and read
                     first Async Event */
@@ -1576,22 +1581,22 @@ pub unsafe extern "C" fn rlDevicePowerOn(
                         .devCtrlCb
                         .rlDeviceEnable
                         .expect("non-null function pointer")(index)
-                        < 0 as libc::c_int
+                        < 0 as core::ffi::c_int
                     {
                         /* set return error code */
-                        retVal += -(4 as libc::c_int);
+                        retVal += -(4 as core::ffi::c_int);
                         /* if device enable is failed the de-init mmwavelink driver */
                         rlDriverDeInit();
                     }
                     /* Reset device Index in DeviceMap for which device has been enabled */
-                    deviceMap = (deviceMap as libc::c_uint
-                        & !((1 as libc::c_uint) << index as libc::c_int))
+                    deviceMap = (deviceMap as core::ffi::c_uint
+                        & !((1 as core::ffi::c_uint) << index as core::ffi::c_int))
                         as rlUInt8_t
                 }
                 /* increment device index */
                 index = index.wrapping_add(1);
-                if !(deviceMap as libc::c_uint != 0 as libc::c_uint
-                    && (index as libc::c_uint) < 4 as libc::c_uint)
+                if !(deviceMap as core::ffi::c_uint != 0 as core::ffi::c_uint
+                    && (index as core::ffi::c_uint) < 4 as core::ffi::c_uint)
                 {
                     break;
                 }
@@ -1636,20 +1641,21 @@ pub unsafe extern "C" fn rlDeviceAddDevices(mut deviceMap: rlUInt8_t) -> rlRetur
 /* Requirements : AUTORADAR_REQ-757 */
 #[no_mangle]
 pub unsafe extern "C" fn rlDeviceRemoveDevices(mut deviceMap: rlUInt8_t) -> rlReturnVal_t {
-    let mut retVal: rlReturnVal_t = 0 as libc::c_int;
-    let mut index: rlUInt8_t = 0 as libc::c_uint as rlUInt8_t;
+    let mut retVal: rlReturnVal_t = 0 as core::ffi::c_int;
+    let mut index: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
     /* get rlDriver global structure pointer */
     let mut rlDrvData = rlDriverGetHandle();
     /* if driver is already initialized and deviceDisable API is not NULL */
     if !rlDrvData.is_null()
-        && (*rlDrvData).isDriverInitialized as libc::c_uint == 1 as libc::c_uint
+        && (*rlDrvData).isDriverInitialized as core::ffi::c_uint == 1 as core::ffi::c_uint
         && (*rlDrvData).clientCtx.devCtrlCb.rlDeviceDisable.is_some()
     {
         let mut lclDeviceMap: rlUInt8_t = deviceMap;
         loop {
             /* loop for device index connected to device/Host */
-            if lclDeviceMap as libc::c_uint & (1 as libc::c_uint) << index as libc::c_int
-                != 0 as libc::c_uint
+            if lclDeviceMap as core::ffi::c_uint
+                & (1 as core::ffi::c_uint) << index as core::ffi::c_int
+                != 0 as core::ffi::c_uint
             {
                 /* Enable the 12xx device where it will power up the
                  * device and read first Async Event
@@ -1659,20 +1665,20 @@ pub unsafe extern "C" fn rlDeviceRemoveDevices(mut deviceMap: rlUInt8_t) -> rlRe
                     .devCtrlCb
                     .rlDeviceDisable
                     .expect("non-null function pointer")(index)
-                    < 0 as libc::c_int
+                    < 0 as core::ffi::c_int
                 {
                     /* Device Power Off Failed */
-                    retVal += -(4 as libc::c_int)
+                    retVal += -(4 as core::ffi::c_int)
                 }
                 /* Reset device Index in DeviceMap for which device has been disabled */
-                lclDeviceMap = (lclDeviceMap as libc::c_uint
-                    & !((1 as libc::c_uint) << index as libc::c_int))
+                lclDeviceMap = (lclDeviceMap as core::ffi::c_uint
+                    & !((1 as core::ffi::c_uint) << index as core::ffi::c_int))
                     as rlUInt8_t
             }
             /* increment device index */
             index = index.wrapping_add(1);
-            if !(lclDeviceMap as libc::c_uint != 0 as libc::c_uint
-                && (index as libc::c_uint) < 4 as libc::c_uint)
+            if !(lclDeviceMap as core::ffi::c_uint != 0 as core::ffi::c_uint
+                && (index as core::ffi::c_uint) < 4 as core::ffi::c_uint)
             {
                 break;
             }
@@ -1681,7 +1687,7 @@ pub unsafe extern "C" fn rlDeviceRemoveDevices(mut deviceMap: rlUInt8_t) -> rlRe
         retVal += rlDriverRemoveDevices(deviceMap)
     } else {
         /* set return error code */
-        retVal += -(3 as libc::c_int)
+        retVal += -(3 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -1697,13 +1703,13 @@ pub unsafe extern "C" fn rlDeviceRemoveDevices(mut deviceMap: rlUInt8_t) -> rlRe
 /* Requirements : AUTORADAR_REQ-711 */
 #[no_mangle]
 pub unsafe extern "C" fn rlDevicePowerOff() -> rlReturnVal_t {
-    let mut retVal: rlReturnVal_t = 0 as libc::c_int;
-    let mut index: rlUInt8_t = 0 as libc::c_uint as rlUInt8_t;
+    let mut retVal: rlReturnVal_t = 0 as core::ffi::c_int;
+    let mut index: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
     /* get rlDriver global structure pointer */
     let mut rlDrvData = rlDriverGetHandle();
     /* if driver is already initialized and deviceDisable API is not NULL */
     if !rlDrvData.is_null()
-        && (*rlDrvData).isDriverInitialized as libc::c_uint == 1 as libc::c_uint
+        && (*rlDrvData).isDriverInitialized as core::ffi::c_uint == 1 as core::ffi::c_uint
         && (*rlDrvData).clientCtx.devCtrlCb.rlDeviceDisable.is_some()
     {
         let mut deviceMap: rlUInt8_t = (*rlDrvData).deviceMap;
@@ -1711,8 +1717,9 @@ pub unsafe extern "C" fn rlDevicePowerOff() -> rlReturnVal_t {
         /* disable all connected devices */
         /* if device Index is valid out of deviceMap */
         {
-            if deviceMap as libc::c_uint & (1 as libc::c_uint) << index as libc::c_int
-                != 0 as libc::c_uint
+            if deviceMap as core::ffi::c_uint
+                & (1 as core::ffi::c_uint) << index as core::ffi::c_int
+                != 0 as core::ffi::c_uint
             {
                 /* Enable the 12xx device where it will power up the
                  * device and read first Async Event
@@ -1722,20 +1729,20 @@ pub unsafe extern "C" fn rlDevicePowerOff() -> rlReturnVal_t {
                     .devCtrlCb
                     .rlDeviceDisable
                     .expect("non-null function pointer")(index)
-                    < 0 as libc::c_int
+                    < 0 as core::ffi::c_int
                 {
                     /* Device Power Off Failed */
-                    retVal += -(4 as libc::c_int)
+                    retVal += -(4 as core::ffi::c_int)
                 }
                 /* Reset device Index in DeviceMap for which device has been disabled */
-                deviceMap = (deviceMap as libc::c_uint
-                    & !((1 as libc::c_uint) << index as libc::c_int))
+                deviceMap = (deviceMap as core::ffi::c_uint
+                    & !((1 as core::ffi::c_uint) << index as core::ffi::c_int))
                     as rlUInt8_t
             }
             /* increment device index */
             index = index.wrapping_add(1);
-            if !(deviceMap as libc::c_uint != 0 as libc::c_uint
-                || (index as libc::c_uint) < 4 as libc::c_uint)
+            if !(deviceMap as core::ffi::c_uint != 0 as core::ffi::c_uint
+                || (index as core::ffi::c_uint) < 4 as core::ffi::c_uint)
             {
                 break;
             }
@@ -1744,7 +1751,7 @@ pub unsafe extern "C" fn rlDevicePowerOff() -> rlReturnVal_t {
         retVal += rlDriverDeInit()
     } else {
         /* set return error code */
-        retVal += -(3 as libc::c_int)
+        retVal += -(3 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -1763,17 +1770,17 @@ pub unsafe extern "C" fn rlDevicePowerOff() -> rlReturnVal_t {
 pub unsafe extern "C" fn rlDeviceRfStart(mut deviceMap: rlUInt8_t) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int {
         /* set return error code */
-        retVal = -(2 as libc::c_int)
+        retVal = -(2 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x200 as libc::c_uint as rlUInt16_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0x200 as core::ffi::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
             0 as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
         )
     }
     return retVal;
@@ -1801,14 +1808,14 @@ pub unsafe extern "C" fn rlDeviceFileDownload(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* LDRA waiver   8 D - DD data flow anomalies found- */
         /* Initialize in-message structure to zero */
@@ -1816,7 +1823,7 @@ pub unsafe extern "C" fn rlDeviceFileDownload(
             let mut init = rlDriverMsg {
                 opcode: {
                     let mut init = rlDriverOpcode {
-                        dir: 0 as libc::c_int as rlUInt8_t,
+                        dir: 0 as core::ffi::c_int as rlUInt8_t,
                         msgType: 0,
                         msgId: 0,
                         nsbc: 0,
@@ -1833,7 +1840,7 @@ pub unsafe extern "C" fn rlDeviceFileDownload(
             let mut init = rlDriverMsg {
                 opcode: {
                     let mut init = rlDriverOpcode {
-                        dir: 0 as libc::c_int as rlUInt8_t,
+                        dir: 0 as core::ffi::c_int as rlUInt8_t,
                         msgType: 0,
                         msgId: 0,
                         nsbc: 0,
@@ -1848,7 +1855,7 @@ pub unsafe extern "C" fn rlDeviceFileDownload(
         /* Initialize in-payload sub-block structure to zero */
         let mut inPayloadSb = {
             let mut init = rlPayloadSb {
-                sbid: 0 as libc::c_int as rlUInt16_t,
+                sbid: 0 as core::ffi::c_int as rlUInt16_t,
                 len: 0,
                 pSblkData: 0 as *mut rlUInt8_t,
             };
@@ -1856,7 +1863,7 @@ pub unsafe extern "C" fn rlDeviceFileDownload(
         };
         /* Construct command packet */
         rlDriverConstructInMsg(
-            0x204 as libc::c_uint as rlUInt16_t,
+            0x204 as core::ffi::c_uint as rlUInt16_t,
             &mut inMsg,
             &mut inPayloadSb,
         );
@@ -1866,13 +1873,13 @@ pub unsafe extern "C" fn rlDeviceFileDownload(
         /* AR_CODE_REVIEW MR:R.11.1  <APPROVED> "conversion required." */
         /*LDRA_INSPECTED 95 S */
         rlDriverFillPayload(
-            0x204 as libc::c_uint as rlUInt16_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0x204 as core::ffi::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
             &mut inPayloadSb,
             &mut *(*data)
                 .fData
                 .as_mut_ptr()
-                .offset(0 as libc::c_uint as isize) as *mut rlUInt16_t
+                .offset(0 as core::ffi::c_uint as isize) as *mut rlUInt16_t
                 as *mut rlUInt8_t,
             (*data).chunkLen as rlUInt16_t,
         );
@@ -1903,20 +1910,20 @@ pub unsafe extern "C" fn rlDeviceGetMssVersion(
     /* check for NULL pointer */
     if data.is_null() {
         /* set error code if data pointer is passed NULL */
-        retVal = -(14 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(14 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x207 as libc::c_uint as rlUInt16_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0x207 as core::ffi::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
         )
     }
     return retVal;
@@ -1940,15 +1947,15 @@ pub unsafe extern "C" fn rlDeviceGetRfVersion(
     /* check for NULL pointer */
     if data.is_null() {
         /* set error code if data pointer is passed NULL */
-        retVal = -(14 as libc::c_int)
+        retVal = -(14 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x11 as libc::c_uint as rlUInt16_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0x11 as core::ffi::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
         )
     }
     return retVal;
@@ -1972,23 +1979,23 @@ pub unsafe extern "C" fn rlDeviceGetVersion(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code */
-        retVal = -(2 as libc::c_int)
+        retVal = -(2 as core::ffi::c_int)
     } else {
         /* If mmWaveLink is runing on ext host */
-        if 0 as libc::c_uint == rlDriverGetPlatformId() as libc::c_uint {
+        if 0 as core::ffi::c_uint == rlDriverGetPlatformId() as core::ffi::c_uint {
             /* get mmwave MSS ROM or Application version */
             retVal = rlDeviceGetMssVersion(deviceMap, &mut (*data).master)
         } else {
             /* if mmwavelink is not running on Host then no need to get MSS version */
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         }
-        if retVal == 0 as libc::c_int {
+        if retVal == 0 as core::ffi::c_int {
             /* get RF (RadarSS) version */
             retVal += rlDeviceGetRfVersion(deviceMap, &mut (*data).rf)
         }
-        if retVal == 0 as libc::c_int {
+        if retVal == 0 as core::ffi::c_int {
             /* get mmwavelink library version */
             retVal += rlDeviceGetMmWaveLinkVersion(&mut (*data).mmWaveLink)
         }
@@ -2014,24 +2021,24 @@ pub unsafe extern "C" fn rlDeviceGetMmWaveLinkVersion(
     if !data.is_null() {
         /* mmWaveLink Version */
         /* mmWaveLink SW Major verison */
-        (*data).major = 1 as libc::c_uint as rlUInt8_t;
+        (*data).major = 1 as core::ffi::c_uint as rlUInt8_t;
         /* mmWaveLink SW Minor verison */
-        (*data).minor = 2 as libc::c_uint as rlUInt8_t;
+        (*data).minor = 2 as core::ffi::c_uint as rlUInt8_t;
         /* mmWaveLink SW Build verison */
-        (*data).build = 6 as libc::c_uint as rlUInt8_t;
+        (*data).build = 6 as core::ffi::c_uint as rlUInt8_t;
         /* mmWaveLink SW Debug verison */
-        (*data).debug = 6 as libc::c_uint as rlUInt8_t;
+        (*data).debug = 6 as core::ffi::c_uint as rlUInt8_t;
         /* mmWaveLink SW Release Year */
-        (*data).year = 20 as libc::c_uint as rlUInt8_t;
+        (*data).year = 20 as core::ffi::c_uint as rlUInt8_t;
         /* mmWaveLink SW Release Month */
-        (*data).month = 8 as libc::c_uint as rlUInt8_t;
+        (*data).month = 8 as core::ffi::c_uint as rlUInt8_t;
         /* mmWaveLink SW Release date */
-        (*data).day = 27 as libc::c_uint as rlUInt8_t;
+        (*data).day = 27 as core::ffi::c_uint as rlUInt8_t;
         /* Set error code */
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     } else {
         /* set error code */
-        retVal = -(2 as libc::c_int)
+        retVal = -(2 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -2055,22 +2062,22 @@ pub unsafe extern "C" fn rlDeviceSetDataFmtConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0x1 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0x1 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlDevDataFmtCfg_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlDevDataFmtCfg_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2096,22 +2103,22 @@ pub unsafe extern "C" fn rlDeviceGetDataFmtConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x203 as libc::c_uint as rlUInt16_t,
-            0x1 as libc::c_uint as rlUInt16_t,
+            0x203 as core::ffi::c_uint as rlUInt16_t,
+            0x1 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
         )
     }
     return retVal;
@@ -2136,22 +2143,22 @@ pub unsafe extern "C" fn rlDeviceSetDataPathConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0x2 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0x2 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlDevDataPathCfg_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlDevDataPathCfg_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2177,22 +2184,22 @@ pub unsafe extern "C" fn rlDeviceGetDataPathConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x203 as libc::c_uint as rlUInt16_t,
-            0x2 as libc::c_uint as rlUInt16_t,
+            0x203 as core::ffi::c_uint as rlUInt16_t,
+            0x2 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
         )
     }
     return retVal;
@@ -2217,22 +2224,22 @@ pub unsafe extern "C" fn rlDeviceSetLaneConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0x3 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0x3 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlDevLaneEnable_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlDevLaneEnable_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2258,22 +2265,22 @@ pub unsafe extern "C" fn rlDeviceGetLaneConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x203 as libc::c_uint as rlUInt16_t,
-            0x3 as libc::c_uint as rlUInt16_t,
+            0x203 as core::ffi::c_uint as rlUInt16_t,
+            0x3 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
         )
     }
     return retVal;
@@ -2299,22 +2306,22 @@ pub unsafe extern "C" fn rlDeviceSetDataPathClkConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0x4 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0x4 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlDevDataPathClkCfg_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlDevDataPathClkCfg_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2340,22 +2347,22 @@ pub unsafe extern "C" fn rlDeviceGetDataPathClkConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x203 as libc::c_uint as rlUInt16_t,
-            0x4 as libc::c_uint as rlUInt16_t,
+            0x203 as core::ffi::c_uint as rlUInt16_t,
+            0x4 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
         )
     }
     return retVal;
@@ -2380,22 +2387,22 @@ pub unsafe extern "C" fn rlDeviceSetLvdsLaneConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0x5 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0x5 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlDevLvdsLaneCfg_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlDevLvdsLaneCfg_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2421,22 +2428,22 @@ pub unsafe extern "C" fn rlDeviceGetLvdsLaneConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x203 as libc::c_uint as rlUInt16_t,
-            0x5 as libc::c_uint as rlUInt16_t,
+            0x203 as core::ffi::c_uint as rlUInt16_t,
+            0x5 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
         )
     }
     return retVal;
@@ -2466,22 +2473,23 @@ pub unsafe extern "C" fn rlDeviceSetContStreamingModeConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0x6 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0x6 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlDevContStreamingModeCfg_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlDevContStreamingModeCfg_t>() as core::ffi::c_ulong
+                as rlUInt16_t,
         )
     }
     return retVal;
@@ -2508,22 +2516,22 @@ pub unsafe extern "C" fn rlDeviceGetContStreamingModeConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x203 as libc::c_uint as rlUInt16_t,
-            0x6 as libc::c_uint as rlUInt16_t,
+            0x203 as core::ffi::c_uint as rlUInt16_t,
+            0x6 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
         )
     }
     return retVal;
@@ -2548,22 +2556,22 @@ pub unsafe extern "C" fn rlDeviceSetCsi2Config(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0x7 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0x7 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlDevCsi2Cfg_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlDevCsi2Cfg_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2589,22 +2597,22 @@ pub unsafe extern "C" fn rlDeviceGetCsi2Config(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x203 as libc::c_uint as rlUInt16_t,
-            0x7 as libc::c_uint as rlUInt16_t,
+            0x203 as core::ffi::c_uint as rlUInt16_t,
+            0x7 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
         )
     }
     return retVal;
@@ -2646,7 +2654,7 @@ pub unsafe extern "C" fn rlDeviceSetHsiConfig(
         let mut init = rlDriverMsg {
             opcode: {
                 let mut init = rlDriverOpcode {
-                    dir: 0 as libc::c_int as rlUInt8_t,
+                    dir: 0 as core::ffi::c_int as rlUInt8_t,
                     msgType: 0,
                     msgId: 0,
                     nsbc: 0,
@@ -2658,12 +2666,12 @@ pub unsafe extern "C" fn rlDeviceSetHsiConfig(
         };
         init
     };
-    let mut sbcCnt: rlUInt16_t = 0 as libc::c_uint as rlUInt16_t;
+    let mut sbcCnt: rlUInt16_t = 0 as core::ffi::c_uint as rlUInt16_t;
     /* Initialize Command and Response Sub Blocks */
     let mut inPayloadSb: [rlPayloadSb; 3] = [
         {
             let mut init = rlPayloadSb {
-                sbid: 0 as libc::c_int as rlUInt16_t,
+                sbid: 0 as core::ffi::c_int as rlUInt16_t,
                 len: 0,
                 pSblkData: 0 as *mut rlUInt8_t,
             };
@@ -2681,19 +2689,19 @@ pub unsafe extern "C" fn rlDeviceSetHsiConfig(
         },
     ];
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
+        retVal = -(2 as core::ffi::c_int)
     } else {
         /* Data Format config SubBlock */
         if !(*data).datafmt.is_null() {
             /* Fill in-message Payload */
             rlDriverFillPayload(
-                0x202 as libc::c_uint as rlUInt16_t,
-                0x1 as libc::c_uint as rlUInt16_t,
+                0x202 as core::ffi::c_uint as rlUInt16_t,
+                0x1 as core::ffi::c_uint as rlUInt16_t,
                 &mut *inPayloadSb.as_mut_ptr().offset(sbcCnt as isize),
                 (*data).datafmt as *mut rlUInt8_t,
-                ::core::mem::size_of::<rlDevDataFmtCfg_t>() as libc::c_ulong as rlUInt16_t,
+                ::core::mem::size_of::<rlDevDataFmtCfg_t>() as core::ffi::c_ulong as rlUInt16_t,
             );
             /* increament Sub-block count */
             sbcCnt = sbcCnt.wrapping_add(1)
@@ -2702,11 +2710,11 @@ pub unsafe extern "C" fn rlDeviceSetHsiConfig(
         if !(*data).dataPath.is_null() {
             /* Fill in-message Payload */
             rlDriverFillPayload(
-                0x202 as libc::c_uint as rlUInt16_t,
-                0x2 as libc::c_uint as rlUInt16_t,
+                0x202 as core::ffi::c_uint as rlUInt16_t,
+                0x2 as core::ffi::c_uint as rlUInt16_t,
                 &mut *inPayloadSb.as_mut_ptr().offset(sbcCnt as isize),
                 (*data).dataPath as *mut rlUInt8_t,
-                ::core::mem::size_of::<rlDevDataPathCfg_t>() as libc::c_ulong as rlUInt16_t,
+                ::core::mem::size_of::<rlDevDataPathCfg_t>() as core::ffi::c_ulong as rlUInt16_t,
             );
             /* increament Sub-block count */
             sbcCnt = sbcCnt.wrapping_add(1)
@@ -2715,29 +2723,31 @@ pub unsafe extern "C" fn rlDeviceSetHsiConfig(
         if !(*data).dataPathClk.is_null() {
             /* Fill in-message Payload */
             rlDriverFillPayload(
-                0x202 as libc::c_uint as rlUInt16_t,
-                0x4 as libc::c_uint as rlUInt16_t,
+                0x202 as core::ffi::c_uint as rlUInt16_t,
+                0x4 as core::ffi::c_uint as rlUInt16_t,
                 &mut *inPayloadSb.as_mut_ptr().offset(sbcCnt as isize),
                 (*data).dataPathClk as *mut rlUInt8_t,
-                ::core::mem::size_of::<rlDevDataPathClkCfg_t>() as libc::c_ulong as rlUInt16_t,
+                ::core::mem::size_of::<rlDevDataPathClkCfg_t>() as core::ffi::c_ulong as rlUInt16_t,
             );
             /* increament Sub-block count */
             sbcCnt = sbcCnt.wrapping_add(1)
         }
         /* Construct command packet */
         rlDriverConstructInMsg(
-            0x202 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
             &mut inMsg,
-            &mut *inPayloadSb.as_mut_ptr().offset(0 as libc::c_uint as isize),
+            &mut *inPayloadSb
+                .as_mut_ptr()
+                .offset(0 as core::ffi::c_uint as isize),
         );
-        if sbcCnt as libc::c_uint > 0 as libc::c_uint {
+        if sbcCnt as core::ffi::c_uint > 0 as core::ffi::c_uint {
             /* setting num of sub-block to inMsg */
             inMsg.opcode.nsbc = sbcCnt;
             /* Send Command to mmWave Radar Device */
             retVal = rlDriverCmdInvoke(deviceMap, inMsg, &mut outMsg)
         } else {
             /* set error code if application doesn't pass any subBlock data */
-            retVal = -(2 as libc::c_int)
+            retVal = -(2 as core::ffi::c_int)
         }
     }
     return retVal;
@@ -2762,17 +2772,17 @@ pub unsafe extern "C" fn rlDeviceSetHsiClk(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
+        retVal = -(2 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x4 as libc::c_uint as rlUInt16_t,
-            0x5 as libc::c_uint as rlUInt16_t,
+            0x4 as core::ffi::c_uint as rlUInt16_t,
+            0x5 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlDevHsiClk_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlDevHsiClk_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2798,22 +2808,22 @@ pub unsafe extern "C" fn rlDeviceMcuClkConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlMcuClkCfg_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlMcuClkCfg_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2838,22 +2848,22 @@ pub unsafe extern "C" fn rlDevicePmicClkConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0x8 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0x8 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlPmicClkCfg_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlPmicClkCfg_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2888,22 +2898,22 @@ pub unsafe extern "C" fn rlDeviceLatentFaultTests(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0xa as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0xa as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rllatentFault_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rllatentFault_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2928,22 +2938,22 @@ pub unsafe extern "C" fn rlDeviceEnablePeriodicTests(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0x9 as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0x9 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlperiodicTest_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlperiodicTest_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -2969,22 +2979,22 @@ pub unsafe extern "C" fn rlDeviceSetTestPatternConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0xb as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0xb as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rltestPattern_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rltestPattern_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -3010,22 +3020,22 @@ pub unsafe extern "C" fn rlDeviceSetMiscConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteSetApi(
             deviceMap,
-            0x202 as libc::c_uint as rlUInt16_t,
-            0xc as libc::c_uint as rlUInt16_t,
+            0x202 as core::ffi::c_uint as rlUInt16_t,
+            0xc as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlDevMiscCfg_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlDevMiscCfg_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -3050,22 +3060,22 @@ pub unsafe extern "C" fn rlDeviceGetCpuFault(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x207 as libc::c_uint as rlUInt16_t,
-            0x1 as libc::c_uint as rlUInt16_t,
+            0x207 as core::ffi::c_uint as rlUInt16_t,
+            0x1 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlCpuFault_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlCpuFault_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -3090,22 +3100,22 @@ pub unsafe extern "C" fn rlDeviceGetEsmFault(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* check if deviceIndex is out of defined value */
-    if rlDriverIsDeviceMapValid(deviceMap) != 0 as libc::c_int || data.is_null() {
+    if rlDriverIsDeviceMapValid(deviceMap) != 0 as core::ffi::c_int || data.is_null() {
         /* set error code if DeviceMAP is invalid or data pointer is null */
-        retVal = -(2 as libc::c_int)
-    } else if 0 as libc::c_uint != rlDriverGetPlatformId() as libc::c_uint {
+        retVal = -(2 as core::ffi::c_int)
+    } else if 0 as core::ffi::c_uint != rlDriverGetPlatformId() as core::ffi::c_uint {
         /* This API is valid only when mmWaveLink instance is running on
         External Host Processor */
         /* set error code of Platform is not set to HOST */
-        retVal = -(12 as libc::c_int)
+        retVal = -(12 as core::ffi::c_int)
     } else {
         /* Package the command with given data and send it to device */
         retVal = rlDriverExecuteGetApi(
             deviceMap,
-            0x207 as libc::c_uint as rlUInt16_t,
-            0x2 as libc::c_uint as rlUInt16_t,
+            0x207 as core::ffi::c_uint as rlUInt16_t,
+            0x2 as core::ffi::c_uint as rlUInt16_t,
             data as *mut rlUInt8_t,
-            ::core::mem::size_of::<rlMssEsmFault_t>() as libc::c_ulong as rlUInt16_t,
+            ::core::mem::size_of::<rlMssEsmFault_t>() as core::ffi::c_ulong as rlUInt16_t,
         )
     }
     return retVal;
@@ -3211,7 +3221,7 @@ Close the Doxygen group.
  */
 /*data Path(LVDS/CSI2) configuration Functions */
 #[no_mangle]
-pub unsafe extern "C" fn sanity_echo(mut v: libc::c_int) -> libc::c_int {
+pub unsafe extern "C" fn sanity_echo(mut v: core::ffi::c_int) -> core::ffi::c_int {
     return v;
 }
 /*

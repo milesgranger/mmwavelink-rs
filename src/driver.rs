@@ -9,7 +9,24 @@
 )]
 
 use c2rust_bitfields::BitfieldStruct;
-use libc::{memcpy, memset};
+
+pub unsafe extern "C" fn memcpy(
+    dest: *mut core::ffi::c_void,
+    src: *const core::ffi::c_void,
+    n: usize,
+) -> *mut core::ffi::c_void {
+    core::ptr::copy_nonoverlapping(src, dest, n);
+    dest
+}
+
+pub unsafe extern "C" fn memset(
+    dest: *mut core::ffi::c_void,
+    c: core::ffi::c_int,
+    n: usize,
+) -> *mut core::ffi::c_void {
+    // TODO: Rust impl of memset (if needed?)
+    dest
+}
 
 use crate::controller::{
     rlAppendDummy, rlAppendSubBlock, rlGetSubBlock, rlGetSubBlockId, rlGetSubBlockLen,
@@ -74,27 +91,27 @@ use crate::controller::{
 /* ! \brief
  * Standard C data types typedef
  */
-pub type rlUInt8_t = libc::c_uchar;
-pub type rlUInt16_t = libc::c_ushort;
-pub type rlUInt32_t = libc::c_uint;
-pub type rlInt8_t = libc::c_char;
-pub type rlInt32_t = libc::c_int;
+pub type rlUInt8_t = core::ffi::c_uchar;
+pub type rlUInt16_t = core::ffi::c_ushort;
+pub type rlUInt32_t = core::ffi::c_uint;
+pub type rlInt8_t = core::ffi::c_char;
+pub type rlInt32_t = core::ffi::c_int;
 /* ! \brief
 * Communication Interface Handle
 */
-pub type rlComIfHdl_t = *mut libc::c_void;
+pub type rlComIfHdl_t = *mut core::ffi::c_void;
 /* ! \brief
 * OS Message Queue Object Handle
 */
-pub type rlOsiMsgQHdl_t = *mut libc::c_void;
+pub type rlOsiMsgQHdl_t = *mut core::ffi::c_void;
 /* ! \brief
 * OS Semaphore Object Handle
 */
-pub type rlOsiSemHdl_t = *mut libc::c_void;
+pub type rlOsiSemHdl_t = *mut core::ffi::c_void;
 /* ! \brief
 * OS Mutex Object Handle
 */
-pub type rlOsiMutexHdl_t = *mut libc::c_void;
+pub type rlOsiMutexHdl_t = *mut core::ffi::c_void;
 /* ! \brief
 * OS Time data type
 */
@@ -919,12 +936,12 @@ pub type rlCrcType_t = rlUInt8_t;
 /* ! \brief
 * mmWaveLink Spawn Task Function
 */
-pub type RL_P_OSI_SPAWN_ENTRY = Option<unsafe extern "C" fn(_: *const libc::c_void) -> ()>;
+pub type RL_P_OSI_SPAWN_ENTRY = Option<unsafe extern "C" fn(_: *const core::ffi::c_void) -> ()>;
 /* ! \brief
 * mmWaveLink Event Handler callback
 */
 pub type RL_P_EVENT_HANDLER =
-    Option<unsafe extern "C" fn(_: rlUInt8_t, _: *mut libc::c_void) -> ()>;
+    Option<unsafe extern "C" fn(_: rlUInt8_t, _: *mut core::ffi::c_void) -> ()>;
 /* ! \brief
 * Communication interface(SPI, MailBox, UART etc) callback functions
 */
@@ -978,7 +995,7 @@ pub struct rlOsiMsgQCbs {
     pub rlOsiSpawn: Option<
         unsafe extern "C" fn(
             _: RL_P_OSI_SPAWN_ENTRY,
-            _: *const libc::c_void,
+            _: *const core::ffi::c_void,
             _: rlUInt32_t,
         ) -> rlInt32_t,
     >,
@@ -1061,7 +1078,7 @@ pub struct rlDeviceCtrlCbs {
         unsafe extern "C" fn(
             _: rlUInt8_t,
             _: RL_P_EVENT_HANDLER,
-            _: *mut libc::c_void,
+            _: *mut core::ffi::c_void,
         ) -> rlInt32_t,
     >,
 }
@@ -1327,7 +1344,7 @@ pub type rlSyncHeader_t = rlSyncHeader;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub union rlReadBuf {
-    pub tempBuf: [rlUInt8_t; 16],
+    pub tempBuf: core::mem::ManuallyDrop<[rlUInt8_t; 16]>,
     pub syncHeader: rlSyncHeader_t,
 }
 /* *
@@ -1466,12 +1483,12 @@ static mut rl_driverData: rlDriverData_t = {
         rxDoneCnt: [0; 4],
         cmdSeqNum: [0; 4],
         commDevIdx: rlComDevInx_t {
-            comIfHdl: [0 as *const libc::c_void as *mut libc::c_void; 4],
+            comIfHdl: [0 as *const core::ffi::c_void as *mut core::ffi::c_void; 4],
             rlDevIndex: [0; 4],
         },
-        globalMutex: 0 as *const libc::c_void as *mut libc::c_void,
-        cmdSem: 0 as *const libc::c_void as *mut libc::c_void,
-        spawnQueue: 0 as *const libc::c_void as *mut libc::c_void,
+        globalMutex: 0 as *const core::ffi::c_void as *mut core::ffi::c_void,
+        cmdSem: 0 as *const core::ffi::c_void as *mut core::ffi::c_void,
+        spawnQueue: 0 as *const core::ffi::c_void as *mut core::ffi::c_void,
         clientCtx: rlClientCbs_t {
             comIfCb: rlComIfCbs_t {
                 rlComIfOpen: None,
@@ -1534,7 +1551,7 @@ pub static mut rl_txMsg: rlRhcpMsg_t = {
     let mut init = rlRhcpMsg {
         syncPattern: {
             let mut init = rlSyncPattern {
-                sync1: 0 as libc::c_int as rlUInt16_t,
+                sync1: 0 as core::ffi::c_int as rlUInt16_t,
                 sync2: 0,
             };
             init
@@ -1560,7 +1577,7 @@ pub static mut rl_rxMsg: rlRhcpMsg_t = {
     let mut init = rlRhcpMsg {
         syncPattern: {
             let mut init = rlSyncPattern {
-                sync1: 0 as libc::c_int as rlUInt16_t,
+                sync1: 0 as core::ffi::c_int as rlUInt16_t,
                 sync2: 0,
             };
             init
@@ -1599,15 +1616,15 @@ pub static mut rl_rxMsg: rlRhcpMsg_t = {
 pub unsafe extern "C" fn rlDriverShiftDWord(mut buf: *mut rlUInt8_t) {
     let mut shiftIdx: rlUInt8_t = 0;
     /* shift each byte in recevied byte array */
-    shiftIdx = 0 as libc::c_uint as rlUInt8_t;
-    while (shiftIdx as libc::c_uint) < 7 as libc::c_uint {
+    shiftIdx = 0 as core::ffi::c_uint as rlUInt8_t;
+    while (shiftIdx as core::ffi::c_uint) < 7 as core::ffi::c_uint {
         /* overwritting each data byte with next data byte of array */
-        *buf.offset(shiftIdx as isize) =
-            *buf.offset((shiftIdx as libc::c_uint).wrapping_add(1 as libc::c_uint) as isize);
+        *buf.offset(shiftIdx as isize) = *buf
+            .offset((shiftIdx as core::ffi::c_uint).wrapping_add(1 as core::ffi::c_uint) as isize);
         shiftIdx = shiftIdx.wrapping_add(1)
     }
     /* set last byte to zero */
-    *buf.offset(7 as libc::c_uint as isize) = 0 as libc::c_uint as rlUInt8_t;
+    *buf.offset(7 as core::ffi::c_uint as isize) = 0 as core::ffi::c_uint as rlUInt8_t;
 }
 /* * @fn rlReturnVal_t rlDriverCalCRC(rlUInt8_t* data, rlUInt16_t dataLen,
 *                      rlUInt8_t crcType, rlUInt8_t crc[RL_CRC_LEN_MAX])
@@ -1643,11 +1660,11 @@ pub unsafe extern "C" fn rlDriverCalCRC(
             data,
             dataLen as rlUInt32_t,
             crcType,
-            &mut *crc.offset(0 as libc::c_uint as isize),
+            &mut *crc.offset(0 as core::ffi::c_uint as isize),
         )
     } else {
         /* set error code if CRC compute API is not set by Application */
-        retVal = -(15 as libc::c_int)
+        retVal = -(15 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -1676,9 +1693,9 @@ pub unsafe extern "C" fn rlDriverVerifyCRC(
 ) -> rlReturnVal_t {
     let mut indx: rlUInt8_t = 0;
     let mut crcByte: [rlUInt8_t; 8] = [0; 8];
-    let mut retVal: rlReturnVal_t = 0 as libc::c_int;
+    let mut retVal: rlReturnVal_t = 0 as core::ffi::c_int;
     /* compute CRC on given data */
-    if 0 as libc::c_int
+    if 0 as core::ffi::c_int
         != rl_driverData
             .clientCtx
             .crcCb
@@ -1687,18 +1704,21 @@ pub unsafe extern "C" fn rlDriverVerifyCRC(
             data,
             dataLen as rlUInt32_t,
             crcType,
-            &mut *crcByte.as_mut_ptr().offset(0 as libc::c_uint as isize),
+            &mut *crcByte.as_mut_ptr().offset(0 as core::ffi::c_uint as isize),
         )
     {
         /* set error code if CRC callback returns non-zero */
-        retVal += -(4 as libc::c_int)
+        retVal += -(4 as core::ffi::c_int)
     } else {
         /* compare computed and received CRC value */
-        indx = 0 as libc::c_uint as rlUInt8_t;
-        while (indx as libc::c_uint) < (2 as libc::c_uint) << crcType as libc::c_int {
-            if crcByte[indx as usize] as libc::c_int != *crc.offset(indx as isize) as libc::c_int {
+        indx = 0 as core::ffi::c_uint as rlUInt8_t;
+        while (indx as core::ffi::c_uint) < (2 as core::ffi::c_uint) << crcType as core::ffi::c_int
+        {
+            if crcByte[indx as usize] as core::ffi::c_int
+                != *crc.offset(indx as isize) as core::ffi::c_int
+            {
                 /* set error code if computed and received CRC value mismatched */
-                retVal += -(6 as libc::c_int);
+                retVal += -(6 as core::ffi::c_int);
                 break;
             } else {
                 indx = indx.wrapping_add(1)
@@ -1728,45 +1748,47 @@ pub unsafe extern "C" fn rlDriverCalChkSum(
     mut checksum: *mut rlUInt16_t,
 ) -> rlReturnVal_t {
     /* TBD - MISRA compliant Checksum code */
-    let mut checkSumVal: rlUInt32_t = 0 as libc::c_uint;
+    let mut checkSumVal: rlUInt32_t = 0 as core::ffi::c_uint;
     let mut localGenHdr: *mut rlUInt8_t = hdrData as *mut rlUInt8_t;
     let mut retVal: rlReturnVal_t = 0;
     /* if received data pointer is not NULL */
     if !localGenHdr.is_null() {
         /* if length is 2 or more bytes     */
-        while len as libc::c_uint > 1 as libc::c_uint {
+        while len as core::ffi::c_uint > 1 as core::ffi::c_uint {
             /* AR_CODE_REVIEW MR:R.11.2 <APPROVED> "Pointer conversion
              * from data array
              * to calculate Checksum" */
             /*LDRA_INSPECTED 94 S */
             /*LDRA_INSPECTED 95 S */
-            checkSumVal = (checkSumVal as libc::c_uint)
-                .wrapping_add(*(localGenHdr as *mut rlUInt16_t) as libc::c_uint)
+            checkSumVal = (checkSumVal as core::ffi::c_uint)
+                .wrapping_add(*(localGenHdr as *mut rlUInt16_t) as core::ffi::c_uint)
                 as rlUInt32_t as rlUInt32_t;
-            localGenHdr = localGenHdr.offset(2 as libc::c_uint as isize);
+            localGenHdr = localGenHdr.offset(2 as core::ffi::c_uint as isize);
             /* If high order bit set, fold */
-            if checkSumVal & 0x80000000 as libc::c_uint != 0 as libc::c_uint {
-                checkSumVal = (checkSumVal & 0xffff as libc::c_uint)
-                    .wrapping_add(checkSumVal >> 16 as libc::c_uint)
+            if checkSumVal & 0x80000000 as core::ffi::c_uint != 0 as core::ffi::c_uint {
+                checkSumVal = (checkSumVal & 0xffff as core::ffi::c_uint)
+                    .wrapping_add(checkSumVal >> 16 as core::ffi::c_uint)
             }
             /* decrement length by 2 as checkSum is calculated on each 2 bytes */
-            len = (len as libc::c_uint).wrapping_sub(2 as libc::c_uint) as rlUInt8_t as rlUInt8_t
+            len = (len as core::ffi::c_uint).wrapping_sub(2 as core::ffi::c_uint) as rlUInt8_t
+                as rlUInt8_t
         }
         /* Take care of left over byte */
-        if len as libc::c_uint > 0 as libc::c_uint {
-            checkSumVal = (checkSumVal as libc::c_uint).wrapping_add(*localGenHdr as rlUInt32_t)
-                as rlUInt32_t as rlUInt32_t
+        if len as core::ffi::c_uint > 0 as core::ffi::c_uint {
+            checkSumVal = (checkSumVal as core::ffi::c_uint)
+                .wrapping_add(*localGenHdr as rlUInt32_t) as rlUInt32_t
+                as rlUInt32_t
         }
         /* Add all half words to calcuated SUM */
-        while checkSumVal >> 16 as libc::c_uint != 0 as libc::c_uint {
-            checkSumVal = (checkSumVal & 0xffff as libc::c_uint)
-                .wrapping_add(checkSumVal >> 16 as libc::c_uint)
+        while checkSumVal >> 16 as core::ffi::c_uint != 0 as core::ffi::c_uint {
+            checkSumVal = (checkSumVal & 0xffff as core::ffi::c_uint)
+                .wrapping_add(checkSumVal >> 16 as core::ffi::c_uint)
         }
         /* Calculate Checksum as compliment of the SUM */
         *checksum = !checkSumVal as rlUInt16_t;
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     } else {
-        retVal = -(9 as libc::c_int)
+        retVal = -(9 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -1784,26 +1806,26 @@ pub unsafe extern "C" fn rlDriverCalChkSum(
 #[no_mangle]
 pub unsafe extern "C" fn rlDriverValidateHdr(mut protHdr: rlProtHeader_t) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
-    let mut checkSum: rlUInt16_t = 0 as libc::c_uint as rlUInt16_t;
+    let mut checkSum: rlUInt16_t = 0 as core::ffi::c_uint as rlUInt16_t;
     /* Calculate checksum*/
     /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Checksum is getting updated in called function" */
     /*LDRA_INSPECTED 8 D */
-    if 0 as libc::c_int
+    if 0 as core::ffi::c_int
         != rlDriverCalChkSum(
             &mut protHdr,
-            (12 as libc::c_uint).wrapping_sub(2 as libc::c_uint) as rlUInt8_t,
+            (12 as core::ffi::c_uint).wrapping_sub(2 as core::ffi::c_uint) as rlUInt8_t,
             &mut checkSum,
         )
     {
         /* Set error code if checksum callback returns non-zero value */
-        retVal = -(4 as libc::c_int)
-    } else if protHdr.chksum as libc::c_int != checkSum as libc::c_int {
+        retVal = -(4 as core::ffi::c_int)
+    } else if protHdr.chksum as core::ffi::c_int != checkSum as core::ffi::c_int {
         /* Compare calcualted and received checksum*/
         /* Checksum doesn't match, return error*/
-        retVal = -(7 as libc::c_int)
+        retVal = -(7 as core::ffi::c_int)
     } else {
         /* checksum successfully matched */
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     }
     return retVal;
 }
@@ -1826,46 +1848,48 @@ pub unsafe extern "C" fn rlDeviceIdentifyCmdDir(
 ) -> rlUInt8_t {
     let mut cmdDir: rlUInt8_t = 0;
     /* if MsgId is for radarSS */
-    if (0 as libc::c_uint) < msgId as libc::c_uint && 0x80 as libc::c_uint > msgId as libc::c_uint {
+    if (0 as core::ffi::c_uint) < msgId as core::ffi::c_uint
+        && 0x80 as core::ffi::c_uint > msgId as core::ffi::c_uint
+    {
         /* if mmWaveLink is running on MSS */
-        if 0x1 as libc::c_uint == platform as libc::c_uint {
-            cmdDir = 0x8 as libc::c_uint as rlUInt8_t
-        } else if 0 as libc::c_uint == platform as libc::c_uint {
-            cmdDir = 0x1 as libc::c_uint as rlUInt8_t
+        if 0x1 as core::ffi::c_uint == platform as core::ffi::c_uint {
+            cmdDir = 0x8 as core::ffi::c_uint as rlUInt8_t
+        } else if 0 as core::ffi::c_uint == platform as core::ffi::c_uint {
+            cmdDir = 0x1 as core::ffi::c_uint as rlUInt8_t
         } else {
             /* if mmWaveLink is running on Host */
             /* if mmWaveLink is running on DSS */
-            cmdDir = 0xa as libc::c_uint as rlUInt8_t
+            cmdDir = 0xa as core::ffi::c_uint as rlUInt8_t
         }
-    } else if 0x200 as libc::c_uint <= msgId as libc::c_uint
-        && 0x280 as libc::c_uint > msgId as libc::c_uint
+    } else if 0x200 as core::ffi::c_uint <= msgId as core::ffi::c_uint
+        && 0x280 as core::ffi::c_uint > msgId as core::ffi::c_uint
     {
         /* if MsgId is for MSS */
         /* if mmWaveLink is running on Host */
-        if 0 as libc::c_uint == platform as libc::c_uint {
+        if 0 as core::ffi::c_uint == platform as core::ffi::c_uint {
             /* MsgId for MSS need not send to MSS itself */
-            cmdDir = 0x5 as libc::c_uint as rlUInt8_t
+            cmdDir = 0x5 as core::ffi::c_uint as rlUInt8_t
         } else {
             /* If MSS wants to configure these MsgID to DSS */
-            cmdDir = 0xb as libc::c_uint as rlUInt8_t
+            cmdDir = 0xb as core::ffi::c_uint as rlUInt8_t
         }
-    } else if 0x100 as libc::c_uint <= msgId as libc::c_uint
-        && 0x180 as libc::c_uint > msgId as libc::c_uint
+    } else if 0x100 as core::ffi::c_uint <= msgId as core::ffi::c_uint
+        && 0x180 as core::ffi::c_uint > msgId as core::ffi::c_uint
     {
         /* if msgId is for DSS */
         /* MsgId for DSS need not send to DSS itself */
         /* if mmWaveLink is running on MSS */
-        if 0x1 as libc::c_uint == platform as libc::c_uint {
+        if 0x1 as core::ffi::c_uint == platform as core::ffi::c_uint {
             /* set direction MSS_TO_DSS */
-            cmdDir = 0xb as libc::c_uint as rlUInt8_t
+            cmdDir = 0xb as core::ffi::c_uint as rlUInt8_t
         } else {
             /* if mmWaveLink is running on Host */
             /* set direction HOST_TO_DSS */
-            cmdDir = 0x3 as libc::c_uint as rlUInt8_t
+            cmdDir = 0x3 as core::ffi::c_uint as rlUInt8_t
         }
     } else {
         /* set direction INVALID */
-        cmdDir = 0 as libc::c_uint as rlUInt8_t
+        cmdDir = 0 as core::ffi::c_uint as rlUInt8_t
     }
     return cmdDir;
 }
@@ -1892,19 +1916,19 @@ pub unsafe extern "C" fn rlDriverAsyncEventHandler(
     mut payloadLen: rlUInt16_t,
 ) -> rlReturnVal_t {
     let mut indx: rlUInt16_t = 0;
-    let mut sbLen: rlUInt16_t = 0 as libc::c_uint as rlUInt16_t;
-    let mut sbcId: rlUInt16_t = 0 as libc::c_uint as rlUInt16_t;
-    let mut recSbsLen: rlUInt16_t = 0 as libc::c_uint as rlUInt16_t;
-    let mut retVal: rlReturnVal_t = 0 as libc::c_int;
+    let mut sbLen: rlUInt16_t = 0 as core::ffi::c_uint as rlUInt16_t;
+    let mut sbcId: rlUInt16_t = 0 as core::ffi::c_uint as rlUInt16_t;
+    let mut recSbsLen: rlUInt16_t = 0 as core::ffi::c_uint as rlUInt16_t;
+    let mut retVal: rlReturnVal_t = 0 as core::ffi::c_int;
     let mut payldAddr: *mut rlUInt8_t = payload;
     /* Lood for all the Events Sub Block and call event handler */
-    indx = 0 as libc::c_uint as rlUInt16_t;
-    while (indx as libc::c_int) < nsbc as libc::c_int {
+    indx = 0 as core::ffi::c_uint as rlUInt16_t;
+    while (indx as core::ffi::c_int) < nsbc as core::ffi::c_int {
         /* check for payload pointer for NULL */
-        if payldAddr.is_null() || recSbsLen as libc::c_int > payloadLen as libc::c_int {
+        if payldAddr.is_null() || recSbsLen as core::ffi::c_int > payloadLen as core::ffi::c_int {
             /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Error value set on top of default value" */
             /*LDRA_INSPECTED 8 D */
-            retVal = -(9 as libc::c_int);
+            retVal = -(9 as core::ffi::c_int);
             break;
         } else {
             /* Read Sub Block Id */
@@ -1924,19 +1948,20 @@ pub unsafe extern "C" fn rlDriverAsyncEventHandler(
                     .expect("non-null function pointer")(
                     devIndex,
                     sbcId,
-                    (sbLen as libc::c_uint)
-                        .wrapping_sub((2 as libc::c_uint).wrapping_add(2 as libc::c_uint))
+                    (sbLen as core::ffi::c_uint)
+                        .wrapping_sub((2 as core::ffi::c_uint).wrapping_add(2 as core::ffi::c_uint))
                         as rlUInt16_t,
                     payldAddr.offset(
-                        (0 as libc::c_uint)
-                            .wrapping_add(2 as libc::c_uint)
-                            .wrapping_add(2 as libc::c_uint) as isize,
+                        (0 as core::ffi::c_uint)
+                            .wrapping_add(2 as core::ffi::c_uint)
+                            .wrapping_add(2 as core::ffi::c_uint) as isize,
                     ),
                 );
                 /* Increase received payload length*/
-                recSbsLen = (recSbsLen as libc::c_int + sbLen as libc::c_int) as rlUInt16_t;
+                recSbsLen =
+                    (recSbsLen as core::ffi::c_int + sbLen as core::ffi::c_int) as rlUInt16_t;
                 /* increment payload address */
-                payldAddr = payldAddr.offset(sbLen as libc::c_int as isize)
+                payldAddr = payldAddr.offset(sbLen as core::ffi::c_int as isize)
             }
             indx = indx.wrapping_add(1)
         }
@@ -1959,7 +1984,7 @@ pub unsafe extern "C" fn rlDriverAsyncEventHandler(
 #[no_mangle]
 pub unsafe extern "C" fn rlDriverHostIrqHandler(
     mut deviceIndex: rlUInt8_t,
-    mut pValue: *mut libc::c_void,
+    mut pValue: *mut core::ffi::c_void,
 ) {
     let mut tempVar: rlUInt8_t = 0;
     /* get rlDriver global structure pointer */
@@ -1975,7 +2000,7 @@ pub unsafe extern "C" fn rlDriverHostIrqHandler(
         .devCtrlCb
         .rlDeviceMaskHostIrq
         .is_some()
-        && 0 as *mut libc::c_void != (*rlDrvData).commDevIdx.comIfHdl[deviceIndex as usize]
+        && 0 as *mut core::ffi::c_void != (*rlDrvData).commDevIdx.comIfHdl[deviceIndex as usize]
     {
         /* Mask Host IRQ */
         (*rlDrvData)
@@ -1991,16 +2016,16 @@ pub unsafe extern "C" fn rlDriverHostIrqHandler(
     /*LDRA_INSPECTED 105 D */
     ::core::ptr::write_volatile(
         &mut (*rlDrvData).rxIrqCnt[deviceIndex as usize] as *mut rlUInt8_t,
-        ((*rlDrvData).rxIrqCnt[deviceIndex as usize] as libc::c_uint)
-            .wrapping_add(1 as libc::c_uint) as rlUInt8_t,
+        ((*rlDrvData).rxIrqCnt[deviceIndex as usize] as core::ffi::c_uint)
+            .wrapping_add(1 as core::ffi::c_uint) as rlUInt8_t,
     );
     /* store deviceIndex in Global */
     (*rlDrvData).commDevIdx.rlDevIndex[deviceIndex as usize] = deviceIndex;
-    tempVar = ((*rlDrvData).isCmdRespWaited[deviceIndex as usize] as libc::c_int
-        | (*rlDrvData).isRespWriteWaited[deviceIndex as usize] as libc::c_int)
+    tempVar = ((*rlDrvData).isCmdRespWaited[deviceIndex as usize] as core::ffi::c_int
+        | (*rlDrvData).isRespWriteWaited[deviceIndex as usize] as core::ffi::c_int)
         as rlUInt8_t;
     /* Check if command transaction is in progress*/
-    if 1 as libc::c_uint as rlUInt8_t as libc::c_int == tempVar as libc::c_int {
+    if 1 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int == tempVar as core::ffi::c_int {
         /* Release command response wait semaphore to unblock command thread*/
         (*rlDrvData)
             .clientCtx
@@ -2018,18 +2043,19 @@ pub unsafe extern "C" fn rlDriverHostIrqHandler(
             .rlOsiSpawn
             .expect("non-null function pointer")(
             ::core::mem::transmute::<
-                Option<unsafe extern "C" fn(_: *const libc::c_void) -> rlReturnVal_t>,
+                Option<unsafe extern "C" fn(_: *const core::ffi::c_void) -> rlReturnVal_t>,
                 RL_P_OSI_SPAWN_ENTRY,
             >(Some(
                 rlDriverMsgReadSpawnCtx
-                    as unsafe extern "C" fn(_: *const libc::c_void) -> rlReturnVal_t,
+                    as unsafe extern "C" fn(_: *const core::ffi::c_void) -> rlReturnVal_t,
             )),
             &mut *(*rlDrvData)
                 .commDevIdx
                 .rlDevIndex
                 .as_mut_ptr()
-                .offset(deviceIndex as isize) as *mut rlUInt8_t as *const libc::c_void,
-            0 as libc::c_int as rlUInt32_t,
+                .offset(deviceIndex as isize) as *mut rlUInt8_t
+                as *const core::ffi::c_void,
+            0 as core::ffi::c_int as rlUInt32_t,
         );
     };
 }
@@ -2059,14 +2085,14 @@ pub unsafe extern "C" fn rlDriverProcRdMsg(
     /*LDRA_INSPECTED 45 D */
     ::core::ptr::write_volatile(
         &mut (*rlDrvData).rxDoneCnt[devIdx as usize] as *mut rlUInt8_t,
-        ((*rlDrvData).rxDoneCnt[devIdx as usize] as libc::c_uint).wrapping_add(1 as libc::c_uint)
-            as rlUInt8_t,
+        ((*rlDrvData).rxDoneCnt[devIdx as usize] as core::ffi::c_uint)
+            .wrapping_add(1 as core::ffi::c_uint) as rlUInt8_t,
     );
     /* Check received message class*/
-    match (*rlDrvData).funcParams.rxMsgClass as libc::c_int {
+    match (*rlDrvData).funcParams.rxMsgClass as core::ffi::c_int {
         3 => {
             /* If CRC check passed then only parse Async Event */
-            if inVal == 0 as libc::c_int {
+            if inVal == 0 as core::ffi::c_int {
                 /* parse received Async Event Message */
                 /*LDRA_INSPECTED 95 S */
                 retVal = rlDriverAsyncEventHandler(
@@ -2078,26 +2104,29 @@ pub unsafe extern "C" fn rlDriverProcRdMsg(
                         .evtMsg
                         .payload
                         .as_mut_ptr()
-                        .offset(0 as libc::c_int as isize) as *mut rlUInt8_t,
-                    ((*rlDrvData).funcParams.asyncEvt.evtMsg.hdr.len as libc::c_uint)
-                        .wrapping_sub(12 as libc::c_uint) as rlUInt16_t,
+                        .offset(0 as core::ffi::c_int as isize)
+                        as *mut rlUInt8_t,
+                    ((*rlDrvData).funcParams.asyncEvt.evtMsg.hdr.len as core::ffi::c_uint)
+                        .wrapping_sub(12 as core::ffi::c_uint) as rlUInt16_t,
                 )
             } else {
                 let mut errPayload: [rlUInt16_t; 8] = [0; 8];
                 /* Generate local payload containing [SBID+SBLEN+error value] */
-                errPayload[0 as libc::c_int as usize] = (0x380 as libc::c_uint)
-                    .wrapping_mul(32 as libc::c_uint)
-                    .wrapping_add(0 as libc::c_uint)
+                errPayload[0 as core::ffi::c_int as usize] = (0x380 as core::ffi::c_uint)
+                    .wrapping_mul(32 as core::ffi::c_uint)
+                    .wrapping_add(0 as core::ffi::c_uint)
                     as rlUInt16_t;
-                errPayload[1 as libc::c_int as usize] = (2 as libc::c_uint)
-                    .wrapping_add(2 as libc::c_uint)
-                    .wrapping_add(4 as libc::c_uint)
+                errPayload[1 as core::ffi::c_int as usize] = (2 as core::ffi::c_uint)
+                    .wrapping_add(2 as core::ffi::c_uint)
+                    .wrapping_add(4 as core::ffi::c_uint)
                     as rlUInt16_t;
                 /* Copy last return value[error] to payload of this async event msg */
                 memcpy(
-                    &mut *errPayload.as_mut_ptr().offset(2 as libc::c_int as isize)
-                        as *mut rlUInt16_t as *mut libc::c_void,
-                    &mut inVal as *mut rlReturnVal_t as *mut rlUInt8_t as *const libc::c_void,
+                    &mut *errPayload
+                        .as_mut_ptr()
+                        .offset(2 as core::ffi::c_int as isize)
+                        as *mut rlUInt16_t as *mut core::ffi::c_void,
+                    &mut inVal as *mut rlReturnVal_t as *mut rlUInt8_t as *const core::ffi::c_void,
                     ::core::mem::size_of::<rlReturnVal_t>() as _,
                 );
                 /* Send error Async Event message to application containing error value */
@@ -2106,22 +2135,24 @@ pub unsafe extern "C" fn rlDriverProcRdMsg(
                 /*LDRA_INSPECTED 458 S */
                 retVal = rlDriverAsyncEventHandler(
                     devIdx,
-                    1 as libc::c_uint as rlUInt16_t,
-                    &mut *errPayload.as_mut_ptr().offset(0 as libc::c_int as isize)
+                    1 as core::ffi::c_uint as rlUInt16_t,
+                    &mut *errPayload
+                        .as_mut_ptr()
+                        .offset(0 as core::ffi::c_int as isize)
                         as *mut rlUInt16_t as *mut rlUInt8_t,
-                    (2 as libc::c_uint)
-                        .wrapping_add(2 as libc::c_uint)
-                        .wrapping_add(4 as libc::c_uint) as rlUInt16_t,
+                    (2 as core::ffi::c_uint)
+                        .wrapping_add(2 as core::ffi::c_uint)
+                        .wrapping_add(4 as core::ffi::c_uint) as rlUInt16_t,
                 )
             }
         }
         2 => {
             /* These types are legal in this context. Do nothing */
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         }
         1 => {
             /* Command response is illegal in this context. */
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         }
         0 | 4 => {
             /* if mmWaveLink is running on MSS/DSS and receives command from other Core/HOST */
@@ -2136,15 +2167,15 @@ pub unsafe extern "C" fn rlDriverProcRdMsg(
                     (*rlDrvData).funcParams.rxMsgClass, inVal
                 );
             }
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         }
         5 => {
             /* do nothing */
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         }
         _ => {
             /* set error code */
-            retVal = -(1 as libc::c_int)
+            retVal = -(1 as core::ffi::c_int)
         }
     }
     return retVal;
@@ -2161,7 +2192,9 @@ pub unsafe extern "C" fn rlDriverProcRdMsg(
 /* DesignId :  */
 /* Requirements : AUTORADAR_REQ-782 */
 #[no_mangle]
-pub unsafe extern "C" fn rlDriverMsgReadSpawnCtx(mut pValue: *const libc::c_void) -> rlReturnVal_t {
+pub unsafe extern "C" fn rlDriverMsgReadSpawnCtx(
+    mut pValue: *const core::ffi::c_void,
+) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     let mut msgRdRetVal: rlReturnVal_t = 0;
     let mut deviceIndex: rlUInt8_t = 0;
@@ -2170,9 +2203,9 @@ pub unsafe extern "C" fn rlDriverMsgReadSpawnCtx(mut pValue: *const libc::c_void
     /* get rlDriver global structure pointer */
     let mut rlDrvData: *mut rlDriverData_t = rlDriverGetHandle();
     /* check for NULL pointer */
-    if pValue == 0 as *mut libc::c_void {
+    if pValue == 0 as *mut core::ffi::c_void {
         /* No Argument Passed */
-        deviceIndex = 0 as libc::c_uint as rlUInt8_t
+        deviceIndex = 0 as core::ffi::c_uint as rlUInt8_t
     } else {
         /* argument passed is Device Index */
         deviceIndex = *(pValue as *const rlUInt8_t)
@@ -2182,7 +2215,7 @@ pub unsafe extern "C" fn rlDriverMsgReadSpawnCtx(mut pValue: *const libc::c_void
     /* AR_CODE_REVIEW MR:D.4.1,D.4.14 <APPROVED> "rlDrvData is pointer to a global strcture,
     can't be NULL" */
     /*LDRA_INSPECTED 45 D */
-    if 0 as libc::c_int
+    if 0 as core::ffi::c_int
         != (*rlDrvData)
             .clientCtx
             .osiCb
@@ -2190,23 +2223,23 @@ pub unsafe extern "C" fn rlDriverMsgReadSpawnCtx(mut pValue: *const libc::c_void
             .rlOsiMutexLock
             .expect("non-null function pointer")(
             &mut (*rlDrvData).globalMutex,
-            0xffff as libc::c_uint,
+            0xffff as core::ffi::c_uint,
         )
     {
         let mut errPayload: [rlUInt16_t; 8] = [0; 8];
         let mut inVal: rlReturnVal_t = 0;
         let mut ptrData: *mut rlReturnVal_t = 0 as *mut rlReturnVal_t;
         /* Generate local payload containing [SBID+SBLEN+error value] */
-        errPayload[0 as libc::c_int as usize] = (0x380 as libc::c_uint)
-            .wrapping_mul(32 as libc::c_uint)
-            .wrapping_add(0x1 as libc::c_uint)
+        errPayload[0 as core::ffi::c_int as usize] = (0x380 as core::ffi::c_uint)
+            .wrapping_mul(32 as core::ffi::c_uint)
+            .wrapping_add(0x1 as core::ffi::c_uint)
             as rlUInt16_t;
-        errPayload[1 as libc::c_int as usize] = (2 as libc::c_uint)
-            .wrapping_add(2 as libc::c_uint)
-            .wrapping_add(4 as libc::c_uint)
+        errPayload[1 as core::ffi::c_int as usize] = (2 as core::ffi::c_uint)
+            .wrapping_add(2 as core::ffi::c_uint)
+            .wrapping_add(4 as core::ffi::c_uint)
             as rlUInt16_t;
         /* If MutexLock returns non-zero then treat this as error and set error code to inVal */
-        inVal = -(10 as libc::c_int);
+        inVal = -(10 as core::ffi::c_int);
         ptrData = &mut inVal;
         if !ptrData.is_null() {
             /* Copy last return value[error] to payload of this async event msg */
@@ -2214,9 +2247,11 @@ pub unsafe extern "C" fn rlDriverMsgReadSpawnCtx(mut pValue: *const libc::c_void
             LDRA tool issue." */
             /*LDRA_INSPECTED 140 D */
             memcpy(
-                &mut *errPayload.as_mut_ptr().offset(2 as libc::c_int as isize) as *mut rlUInt16_t
-                    as *mut libc::c_void,
-                ptrData as *mut libc::c_void,
+                &mut *errPayload
+                    .as_mut_ptr()
+                    .offset(2 as core::ffi::c_int as isize) as *mut rlUInt16_t
+                    as *mut core::ffi::c_void,
+                ptrData as *mut core::ffi::c_void,
                 ::core::mem::size_of::<rlReturnVal_t>() as _,
             );
         }
@@ -2226,12 +2261,14 @@ pub unsafe extern "C" fn rlDriverMsgReadSpawnCtx(mut pValue: *const libc::c_void
         /*LDRA_INSPECTED 458 S */
         retVal = rlDriverAsyncEventHandler(
             deviceIndex,
-            1 as libc::c_uint as rlUInt16_t,
-            &mut *errPayload.as_mut_ptr().offset(0 as libc::c_int as isize) as *mut rlUInt16_t
+            1 as core::ffi::c_uint as rlUInt16_t,
+            &mut *errPayload
+                .as_mut_ptr()
+                .offset(0 as core::ffi::c_int as isize) as *mut rlUInt16_t
                 as *mut rlUInt8_t,
-            (2 as libc::c_uint)
-                .wrapping_add(2 as libc::c_uint)
-                .wrapping_add(4 as libc::c_uint) as rlUInt16_t,
+            (2 as core::ffi::c_uint)
+                .wrapping_add(2 as core::ffi::c_uint)
+                .wrapping_add(4 as core::ffi::c_uint) as rlUInt16_t,
         )
     } else {
         /* Messages might have been read by CmdResp context. Therefore after getting LockObj,
@@ -2239,14 +2276,14 @@ pub unsafe extern "C" fn rlDriverMsgReadSpawnCtx(mut pValue: *const libc::c_void
         lclRxIrqCnt = (*rlDrvData).rxIrqCnt[deviceIndex as usize];
         lclRxDoneCnt = (*rlDrvData).rxDoneCnt[deviceIndex as usize];
         /* unlock Mutex if all Received IRQ are handled i.e. DONE */
-        if lclRxIrqCnt as libc::c_int == lclRxDoneCnt as libc::c_int {
+        if lclRxIrqCnt as core::ffi::c_int == lclRxDoneCnt as core::ffi::c_int {
             (*rlDrvData)
                 .clientCtx
                 .osiCb
                 .mutex
                 .rlOsiMutexUnLock
                 .expect("non-null function pointer")(&mut (*rlDrvData).globalMutex);
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         } else {
             /* Receive data over communication channel*/
             /* AR_CODE_REVIEW MR:D.4.7,R.17.7 <APPROVED> "variable is used in next function
@@ -2296,24 +2333,26 @@ pub unsafe extern "C" fn rlDriverMsgCmdReply(
         )
         .wrapping_add(1),
     );
-    if 0 as libc::c_int != retStatus {
+    if 0 as core::ffi::c_int != retStatus {
         /* If Async event message has some issue then notify to the
          * application with the error value */
-        if 0x3 as libc::c_uint == (*rlDrvData).funcParams.rxMsgClass as libc::c_uint {
+        if 0x3 as core::ffi::c_uint == (*rlDrvData).funcParams.rxMsgClass as core::ffi::c_uint {
             let mut errPayload: [rlUInt16_t; 8] = [0; 8];
             /* Generate local payload with [SBID+SBLEN+Error_value] */
-            errPayload[0 as libc::c_int as usize] = (0x380 as libc::c_uint)
-                .wrapping_mul(32 as libc::c_uint)
-                .wrapping_add(0 as libc::c_uint)
+            errPayload[0 as core::ffi::c_int as usize] = (0x380 as core::ffi::c_uint)
+                .wrapping_mul(32 as core::ffi::c_uint)
+                .wrapping_add(0 as core::ffi::c_uint)
                 as rlUInt16_t;
-            errPayload[1 as libc::c_int as usize] = (2 as libc::c_uint)
-                .wrapping_add(2 as libc::c_uint)
-                .wrapping_add(4 as libc::c_uint)
+            errPayload[1 as core::ffi::c_int as usize] = (2 as core::ffi::c_uint)
+                .wrapping_add(2 as core::ffi::c_uint)
+                .wrapping_add(4 as core::ffi::c_uint)
                 as rlUInt16_t;
             memcpy(
-                &mut *errPayload.as_mut_ptr().offset(2 as libc::c_int as isize) as *mut rlUInt16_t
-                    as *mut libc::c_void,
-                &mut retStatus as *mut rlReturnVal_t as *mut rlUInt8_t as *const libc::c_void,
+                &mut *errPayload
+                    .as_mut_ptr()
+                    .offset(2 as core::ffi::c_int as isize) as *mut rlUInt16_t
+                    as *mut core::ffi::c_void,
+                &mut retStatus as *mut rlReturnVal_t as *mut rlUInt8_t as *const core::ffi::c_void,
                 ::core::mem::size_of::<rlReturnVal_t>() as _,
             );
             /* Send error Async Event message to application containing error value */
@@ -2322,42 +2361,44 @@ pub unsafe extern "C" fn rlDriverMsgCmdReply(
             /*LDRA_INSPECTED 458 S */
             rlDriverAsyncEventHandler(
                 devIndex,
-                1 as libc::c_uint as rlUInt16_t,
-                &mut *errPayload.as_mut_ptr().offset(0 as libc::c_int as isize) as *mut rlUInt16_t
+                1 as core::ffi::c_uint as rlUInt16_t,
+                &mut *errPayload
+                    .as_mut_ptr()
+                    .offset(0 as core::ffi::c_int as isize) as *mut rlUInt16_t
                     as *mut rlUInt8_t,
-                (2 as libc::c_uint)
-                    .wrapping_add(2 as libc::c_uint)
-                    .wrapping_add(4 as libc::c_uint) as rlUInt16_t,
+                (2 as core::ffi::c_uint)
+                    .wrapping_add(2 as core::ffi::c_uint)
+                    .wrapping_add(4 as core::ffi::c_uint) as rlUInt16_t,
             );
-            if retStatus == -(6 as libc::c_int) {
+            if retStatus == -(6 as core::ffi::c_int) {
                 /* In case CRC failed for the actual async event
                 then in the CMD context wait for response msg */
-                retStatus = 0 as libc::c_int
+                retStatus = 0 as core::ffi::c_int
             }
         }
         /* Error in received data, return error */
         retVal = retStatus
-    } else if 0x1 as libc::c_uint == (*rlDrvData).funcParams.rxMsgClass as libc::c_uint {
+    } else if 0x1 as core::ffi::c_uint == (*rlDrvData).funcParams.rxMsgClass as core::ffi::c_uint {
         /* Check received message class */
         /* Command response received, clear the Wait flag to exit loop */
-        tempVar = 0 as libc::c_uint as rlUInt8_t;
+        tempVar = 0 as core::ffi::c_uint as rlUInt8_t;
         ::core::ptr::write_volatile(
             &mut (*rlDrvData).isCmdRespWaited[devIndex as usize] as *mut rlUInt8_t,
             tempVar,
         );
         /* check if received msg-ID doesn't match with CMD msg-ID */
-        if rl_rxMsg.hdr.opcode.b10MsgId() as libc::c_int
-            != rl_txMsg.hdr.opcode.b10MsgId() as libc::c_int
+        if rl_rxMsg.hdr.opcode.b10MsgId() as core::ffi::c_int
+            != rl_txMsg.hdr.opcode.b10MsgId() as core::ffi::c_int
         {
             /* set error code if MsgId of response doesn't match with CMD msg ID */
-            retVal = -(13 as libc::c_int)
-        } else if rl_rxMsg.hdr.flags.b4SeqNum() as libc::c_int
-            != rl_txMsg.hdr.flags.b4SeqNum() as libc::c_int
+            retVal = -(13 as core::ffi::c_int)
+        } else if rl_rxMsg.hdr.flags.b4SeqNum() as core::ffi::c_int
+            != rl_txMsg.hdr.flags.b4SeqNum() as core::ffi::c_int
         {
-            retVal = -(18 as libc::c_int)
+            retVal = -(18 as core::ffi::c_int)
         } else {
             /* response sequence number matches with CMD sequence number */
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         }
         /* In case CmdResp has been read without  waiting on cmdSem that */
         /* Sem object. That to prevent old signal to be processed. */
@@ -2368,9 +2409,9 @@ pub unsafe extern "C" fn rlDriverMsgCmdReply(
             .sem
             .rlOsiSemWait
             .expect("non-null function pointer")(
-            &mut (*rlDrvData).cmdSem, 0 as libc::c_uint
+            &mut (*rlDrvData).cmdSem, 0 as core::ffi::c_uint
         );
-    } else if 0x3 as libc::c_uint == (*rlDrvData).funcParams.rxMsgClass as libc::c_uint {
+    } else if 0x3 as core::ffi::c_uint == (*rlDrvData).funcParams.rxMsgClass as core::ffi::c_uint {
         /* Async event received when command response is awaited,
         Handle the event and keep waiting for the response*/
         /* AR_CODE_REVIEW MR:R.10.3  <APPROVED> "All parameter types are matching to function
@@ -2386,24 +2427,24 @@ pub unsafe extern "C" fn rlDriverMsgCmdReply(
                 .evtMsg
                 .payload
                 .as_mut_ptr()
-                .offset(0 as libc::c_int as isize) as *mut rlUInt8_t,
-            ((*rlDrvData).funcParams.asyncEvt.evtMsg.hdr.len as libc::c_uint)
-                .wrapping_sub(12 as libc::c_uint) as rlUInt16_t,
+                .offset(0 as core::ffi::c_int as isize) as *mut rlUInt8_t,
+            ((*rlDrvData).funcParams.asyncEvt.evtMsg.hdr.len as core::ffi::c_uint)
+                .wrapping_sub(12 as core::ffi::c_uint) as rlUInt16_t,
         );
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
         /* If CRC check fails, the Async Event is Ignored */
-    } else if 0x2 as libc::c_uint == (*rlDrvData).funcParams.rxMsgClass as libc::c_uint {
+    } else if 0x2 as core::ffi::c_uint == (*rlDrvData).funcParams.rxMsgClass as core::ffi::c_uint {
         /* If NACK received for the CMD sent, set CMD Response Wait TAG to FALSE */
-        tempVar = 0 as libc::c_uint as rlUInt8_t;
+        tempVar = 0 as core::ffi::c_uint as rlUInt8_t;
         ::core::ptr::write_volatile(
             &mut (*rlDrvData).isCmdRespWaited[devIndex as usize] as *mut rlUInt8_t,
             tempVar,
         );
         /* set error code to CRC Failed */
-        retVal = -(16 as libc::c_int)
+        retVal = -(16 as core::ffi::c_int)
     } else {
         /* Invalid Class*/
-        retVal = -(11 as libc::c_int)
+        retVal = -(11 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -2425,12 +2466,12 @@ pub unsafe extern "C" fn rlDriverMsgReadCmdCtx(mut devIndex: rlUInt8_t) -> rlRet
     let mut rlDrvData: *mut rlDriverData_t = rlDriverGetHandle();
     /* check for NULL pointer */
     if rlDrvData.is_null() {
-        retVal = -(9 as libc::c_int)
+        retVal = -(9 as core::ffi::c_int)
     } else {
         /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Return value is being set under different
         conditions, where it's set with default value first" */
         /*LDRA_INSPECTED 8 D */
-        retVal = 0 as libc::c_int;
+        retVal = 0 as core::ffi::c_int;
         /*    after command response is received and isCmdRespWaited flag is set FALSE, it is
         necessary to read out all Async messages in Commands context, because slave device
         could have dispatched some Async messages before receiving the command */
@@ -2438,16 +2479,16 @@ pub unsafe extern "C" fn rlDriverMsgReadCmdCtx(mut devIndex: rlUInt8_t) -> rlRet
          * command response is received successfully or retry timer expires ,
          * if any Hw hang then WDT reset recovers from this error" */
         /*LDRA_INSPECTED 28 D */
-        while 1 as libc::c_uint as rlUInt8_t as libc::c_int
-            == (*rlDrvData).isCmdRespWaited[devIndex as usize] as libc::c_int
-            && 0 as libc::c_int == retVal
+        while 1 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int
+            == (*rlDrvData).isCmdRespWaited[devIndex as usize] as core::ffi::c_int
+            && 0 as core::ffi::c_int == retVal
         {
-            if (*rlDrvData).rxIrqCnt[devIndex as usize] as libc::c_int
-                != (*rlDrvData).rxDoneCnt[devIndex as usize] as libc::c_int
+            if (*rlDrvData).rxIrqCnt[devIndex as usize] as core::ffi::c_int
+                != (*rlDrvData).rxDoneCnt[devIndex as usize] as core::ffi::c_int
             {
                 /* init to illegal value and verify it's overwritten with the
                  * valid one */
-                (*rlDrvData).funcParams.rxMsgClass = 0x5 as libc::c_uint as rlUInt8_t;
+                (*rlDrvData).funcParams.rxMsgClass = 0x5 as core::ffi::c_uint as rlUInt8_t;
                 /* Receive data over communication channel */
                 retVal += rlDriverMsgCmdReply(rlDrvData, devIndex)
             } else {
@@ -2456,7 +2497,7 @@ pub unsafe extern "C" fn rlDriverMsgReadCmdCtx(mut devIndex: rlUInt8_t) -> rlRet
                  * if any Hw hang then WDT reset recovers from this error" */
                 /*LDRA_INSPECTED 28 D */
                 /* cmdSem will be signaled by IRQ */
-                if !(0 as libc::c_int
+                if !(0 as core::ffi::c_int
                     != (*rlDrvData)
                         .clientCtx
                         .osiCb
@@ -2472,18 +2513,18 @@ pub unsafe extern "C" fn rlDriverMsgReadCmdCtx(mut devIndex: rlUInt8_t) -> rlRet
                 /* setCmd Response Wait Tag to False when timer expires */
                 ::core::ptr::write_volatile(
                     &mut (*rlDrvData).isCmdRespWaited[devIndex as usize] as *mut rlUInt8_t,
-                    0 as libc::c_uint as rlUInt8_t,
+                    0 as core::ffi::c_uint as rlUInt8_t,
                 );
-                retVal += -(8 as libc::c_int);
+                retVal += -(8 as core::ffi::c_int);
                 break;
             }
         }
         /* if any Rx Msg is pending to process and ACK Timout error hasn't happend */
-        if (*rlDrvData).rxIrqCnt[devIndex as usize] as libc::c_int
-            != (*rlDrvData).rxDoneCnt[devIndex as usize] as libc::c_int
-            && retVal != -(9 as libc::c_int)
-            && (*rlDrvData).isCmdRespWaited[devIndex as usize] as libc::c_int
-                == 0 as libc::c_uint as rlUInt8_t as libc::c_int
+        if (*rlDrvData).rxIrqCnt[devIndex as usize] as core::ffi::c_int
+            != (*rlDrvData).rxDoneCnt[devIndex as usize] as core::ffi::c_int
+            && retVal != -(9 as core::ffi::c_int)
+            && (*rlDrvData).isCmdRespWaited[devIndex as usize] as core::ffi::c_int
+                == 0 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int
         {
             /* Spawn a thread/task to read pending Rx Msg */
             if (*rlDrvData)
@@ -2493,22 +2534,22 @@ pub unsafe extern "C" fn rlDriverMsgReadCmdCtx(mut devIndex: rlUInt8_t) -> rlRet
                 .rlOsiSpawn
                 .expect("non-null function pointer")(
                 ::core::mem::transmute::<
-                    Option<unsafe extern "C" fn(_: *const libc::c_void) -> rlReturnVal_t>,
+                    Option<unsafe extern "C" fn(_: *const core::ffi::c_void) -> rlReturnVal_t>,
                     RL_P_OSI_SPAWN_ENTRY,
                 >(Some(
                     rlDriverMsgReadSpawnCtx
-                        as unsafe extern "C" fn(_: *const libc::c_void) -> rlReturnVal_t,
+                        as unsafe extern "C" fn(_: *const core::ffi::c_void) -> rlReturnVal_t,
                 )),
                 &mut *(*rlDrvData)
                     .commDevIdx
                     .rlDevIndex
                     .as_mut_ptr()
                     .offset(devIndex as isize) as *mut rlUInt8_t
-                    as *const libc::c_void,
-                0 as libc::c_uint,
-            ) != 0 as libc::c_int
+                    as *const core::ffi::c_void,
+                0 as core::ffi::c_uint,
+            ) != 0 as core::ffi::c_int
             {
-                retVal = -(10 as libc::c_int)
+                retVal = -(10 as core::ffi::c_int)
             }
         }
     }
@@ -2538,53 +2579,53 @@ unsafe extern "C" fn rlDriverOriginDirCheck(
     mut dataDir: rlUInt8_t,
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
-    match deviceRunId as libc::c_int {
+    match deviceRunId as core::ffi::c_int {
         0 => {
             /* if mmWaveLink instance is running on Host */
-            if 0x2 as libc::c_uint == dataDir as libc::c_uint
-                || 0x6 as libc::c_uint == dataDir as libc::c_uint
-                || 0x4 as libc::c_uint == dataDir as libc::c_uint
+            if 0x2 as core::ffi::c_uint == dataDir as core::ffi::c_uint
+                || 0x6 as core::ffi::c_uint == dataDir as core::ffi::c_uint
+                || 0x4 as core::ffi::c_uint == dataDir as core::ffi::c_uint
             {
                 /* set OK to return value, i.e. requested DataDir is correct
                 as per running instance of mmWaveLink */
-                retVal = 0 as libc::c_int
+                retVal = 0 as core::ffi::c_int
             } else {
                 /* request DataDir is invalid as per running instance of mmWaveLink */
-                retVal = -(2 as libc::c_int)
+                retVal = -(2 as core::ffi::c_int)
             }
         }
         1 => {
             /* if mmWaveLink instance is running on MSS */
-            if 0x7 as libc::c_uint == dataDir as libc::c_uint
-                || 0xc as libc::c_uint == dataDir as libc::c_uint
-                || 0x5 as libc::c_uint == dataDir as libc::c_uint
+            if 0x7 as core::ffi::c_uint == dataDir as core::ffi::c_uint
+                || 0xc as core::ffi::c_uint == dataDir as core::ffi::c_uint
+                || 0x5 as core::ffi::c_uint == dataDir as core::ffi::c_uint
             {
                 /* set OK to return value, i.e. requested DataDir is correct
                 as per running instance of mmWaveLink */
-                retVal = 0 as libc::c_int
+                retVal = 0 as core::ffi::c_int
             } else {
                 /* request DataDir is invalid as per running instance of mmWaveLink */
-                retVal = -(2 as libc::c_int)
+                retVal = -(2 as core::ffi::c_int)
             }
         }
         2 => {
             /* if mmWaveLink instance is running on DSS */
             /* if Data direction is towards DSS */
-            if 0x9 as libc::c_uint == dataDir as libc::c_uint
-                || 0xb as libc::c_uint == dataDir as libc::c_uint
-                || 0x3 as libc::c_uint == dataDir as libc::c_uint
+            if 0x9 as core::ffi::c_uint == dataDir as core::ffi::c_uint
+                || 0xb as core::ffi::c_uint == dataDir as core::ffi::c_uint
+                || 0x3 as core::ffi::c_uint == dataDir as core::ffi::c_uint
             {
                 /* set OK to return value, i.e. requested DataDir is correct
                 as per running instance of mmWaveLink */
-                retVal = 0 as libc::c_int
+                retVal = 0 as core::ffi::c_int
             } else {
                 /* request DataDir is invalid as per running instance of mmWaveLink */
-                retVal = -(2 as libc::c_int)
+                retVal = -(2 as core::ffi::c_int)
             }
         }
         _ => {
             /* Invalid: set error code */
-            retVal = -(2 as libc::c_int)
+            retVal = -(2 as core::ffi::c_int)
         }
     }
     return retVal;
@@ -2604,8 +2645,10 @@ pub unsafe extern "C" fn rlDriverRdVerifyMsg(
     /* get Received Message length excluding SYNC */
     rxLengthRecv = (*(&mut readBuf.syncHeader.protHdr as *mut rlProtHeader_t)).len;
     /* check if received msg length is under valid Msg size */
-    if rxLengthRecv as libc::c_uint >= (256 as libc::c_uint).wrapping_sub(4 as libc::c_uint) {
-        retVal = -(1 as libc::c_int)
+    if rxLengthRecv as core::ffi::c_uint
+        >= (256 as core::ffi::c_uint).wrapping_sub(4 as core::ffi::c_uint)
+    {
+        retVal = -(1 as core::ffi::c_int)
     } else {
         let mut rhcpMsg: *mut rlRhcpMsg_t = 0 as *mut rlRhcpMsg_t;
         /* Get Rx Message Class from received buffer header */
@@ -2615,9 +2658,10 @@ pub unsafe extern "C" fn rlDriverRdVerifyMsg(
             .opcode
             .b2MsgType() as rlUInt8_t;
         /* get the Payload Value removing Header length from Rx Msg Length */
-        payloadLen = (rxLengthRecv as libc::c_int - 12 as libc::c_uint as rlUInt16_t as libc::c_int)
+        payloadLen = (rxLengthRecv as core::ffi::c_int
+            - 12 as core::ffi::c_uint as rlUInt16_t as core::ffi::c_int)
             as rlUInt16_t;
-        if 0x3 as libc::c_uint == rl_driverData.funcParams.rxMsgClass as libc::c_uint {
+        if 0x3 as core::ffi::c_uint == rl_driverData.funcParams.rxMsgClass as core::ffi::c_uint {
             /* Get RHCP message structure pointer */
             /* AR_CODE_REVIEW MR:D.4.1,D.4.14 <APPROVED> "rlDrvData is pointer to a global
             structure, can't be NULL" */
@@ -2632,28 +2676,30 @@ pub unsafe extern "C" fn rlDriverRdVerifyMsg(
         /* Copy SYNC from Communication Channel*/
         (*rhcpMsg).syncPattern = readBuf.syncHeader.syncPattern;
         /* Check whether CRC is present*/
-        if (*rhcpMsg).hdr.flags.b2Crc() as libc::c_uint != 0 as libc::c_uint {
+        if (*rhcpMsg).hdr.flags.b2Crc() as core::ffi::c_uint != 0 as core::ffi::c_uint {
             /* if CRC is not present in Msg the reset crc variables */
-            isCrcPresent = 0 as libc::c_uint as rlUInt8_t;
-            msgCrcLen = 0 as libc::c_uint as rlUInt16_t;
-            msgCrcType = 0 as libc::c_uint as rlUInt16_t
+            isCrcPresent = 0 as core::ffi::c_uint as rlUInt8_t;
+            msgCrcLen = 0 as core::ffi::c_uint as rlUInt16_t;
+            msgCrcType = 0 as core::ffi::c_uint as rlUInt16_t
         } else {
-            isCrcPresent = 1 as libc::c_uint as rlUInt8_t;
+            isCrcPresent = 1 as core::ffi::c_uint as rlUInt8_t;
             /* It may be size 2/4/8 based on 16/32/64 bit */
             msgCrcType = (*rhcpMsg).hdr.flags.b2CrcLen();
             /* set CRC length in bytes based on CRC Type */
-            msgCrcLen = ((2 as libc::c_uint) << (msgCrcType as libc::c_uint & 0x3 as libc::c_uint))
+            msgCrcLen = ((2 as core::ffi::c_uint)
+                << (msgCrcType as core::ffi::c_uint & 0x3 as core::ffi::c_uint))
                 as rlUInt16_t
         }
         /* Calculate payload length from header legnth*/
-        payloadLen = if isCrcPresent as libc::c_int == 1 as libc::c_uint as rlUInt8_t as libc::c_int
+        payloadLen = if isCrcPresent as core::ffi::c_int
+            == 1 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int
         {
-            (payloadLen as libc::c_int) - msgCrcLen as libc::c_int
+            (payloadLen as core::ffi::c_int) - msgCrcLen as core::ffi::c_int
         } else {
-            payloadLen as libc::c_int
+            payloadLen as core::ffi::c_int
         } as rlUInt16_t;
         /* This is an Response/AsyncEvent message. Read the rest of it. */
-        if payloadLen as libc::c_uint > 0 as libc::c_uint {
+        if payloadLen as core::ffi::c_uint > 0 as core::ffi::c_uint {
             if rl_driverData
                 .clientCtx
                 .comIfCb
@@ -2663,21 +2709,22 @@ pub unsafe extern "C" fn rlDriverRdVerifyMsg(
                 &mut *(*rhcpMsg)
                     .payload
                     .as_mut_ptr()
-                    .offset(0 as libc::c_uint as isize),
+                    .offset(0 as core::ffi::c_uint as isize),
                 payloadLen,
             ) != payloadLen as rlInt32_t
             {
                 /* If Read from Communication channel failed then set Error code */
-                readRetVal = -(4 as libc::c_int)
+                readRetVal = -(4 as core::ffi::c_int)
             } else {
-                readRetVal = 0 as libc::c_int
+                readRetVal = 0 as core::ffi::c_int
             }
         } else {
-            readRetVal = 0 as libc::c_int
+            readRetVal = 0 as core::ffi::c_int
         }
         /* If CRC is present - Read and verify*/
-        if isCrcPresent as libc::c_int == 1 as libc::c_uint as rlUInt8_t as libc::c_int
-            && readRetVal == 0 as libc::c_int
+        if isCrcPresent as core::ffi::c_int
+            == 1 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int
+            && readRetVal == 0 as core::ffi::c_int
         {
             /* Read the CRC Bytes */
             if rl_driverData
@@ -2691,25 +2738,25 @@ pub unsafe extern "C" fn rlDriverRdVerifyMsg(
             ) != msgCrcLen as rlInt32_t
             {
                 /* Set the error code if read data fails */
-                retVal = -(4 as libc::c_int)
+                retVal = -(4 as core::ffi::c_int)
             } else {
                 memcpy(
                     &mut *(*rhcpMsg).payload.as_mut_ptr().offset(payloadLen as isize)
-                        as *mut rlUInt8_t as *mut libc::c_void,
+                        as *mut rlUInt8_t as *mut core::ffi::c_void,
                     &mut *rl_driverData
                         .funcParams
                         .msgCRC
                         .as_mut_ptr()
-                        .offset(0 as libc::c_uint as isize) as *mut rlUInt8_t
-                        as *const libc::c_void,
+                        .offset(0 as core::ffi::c_uint as isize)
+                        as *mut rlUInt8_t as *const core::ffi::c_void,
                     msgCrcLen as _,
                 );
                 /* Check if CRC is enabled from the application and it's type
                 matched with received MSG CRC type */
-                if rl_driverData.clientCtx.crcType as libc::c_int
-                    != 3 as libc::c_uint as rlUInt8_t as libc::c_int
-                    && rl_driverData.clientCtx.crcType as libc::c_int
-                        == msgCrcType as rlUInt8_t as libc::c_int
+                if rl_driverData.clientCtx.crcType as core::ffi::c_int
+                    != 3 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int
+                    && rl_driverData.clientCtx.crcType as core::ffi::c_int
+                        == msgCrcType as rlUInt8_t as core::ffi::c_int
                 {
                     /* Validate CRC first as Opcode might be corrupt as well */
                     /* AR_CODE_REVIEW MR:R.10.3  <APPROVED> "All parameter types are matching to
@@ -2717,16 +2764,17 @@ pub unsafe extern "C" fn rlDriverRdVerifyMsg(
                     /*LDRA_INSPECTED 458 S */
                     retVal = rlDriverVerifyCRC(
                         &mut (*rhcpMsg).hdr as *mut rlProtHeader_t as *mut rlUInt8_t,
-                        (rxLengthRecv as libc::c_int - msgCrcLen as libc::c_int) as rlUInt16_t,
+                        (rxLengthRecv as core::ffi::c_int - msgCrcLen as core::ffi::c_int)
+                            as rlUInt16_t,
                         msgCrcType as rlUInt8_t,
                         rl_driverData.funcParams.msgCRC.as_mut_ptr(),
                     )
                 } else {
-                    retVal = 0 as libc::c_int
+                    retVal = 0 as core::ffi::c_int
                 }
             }
         } else {
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         }
     }
     return retVal;
@@ -2752,8 +2800,8 @@ pub unsafe extern "C" fn rlDriverMsgRead(
     let mut retVal: rlReturnVal_t = 0;
     let mut hdrRetVal: rlReturnVal_t = 0;
     let mut readBuf: rlReadBuf_t = rlReadBuf {
-        tempBuf: [
-            0 as libc::c_int as rlUInt8_t,
+        tempBuf: core::mem::ManuallyDrop::new([
+            0 as core::ffi::c_int as rlUInt8_t,
             0,
             0,
             0,
@@ -2769,38 +2817,38 @@ pub unsafe extern "C" fn rlDriverMsgRead(
             0,
             0,
             0,
-        ],
+        ]),
     };
     let mut payloadLen: rlUInt16_t = 0;
     /* check for NULL pointer */
     if rlDrvData.is_null() {
         /* set error code */
-        retVal = -(9 as libc::c_int)
+        retVal = -(9 as core::ffi::c_int)
     } else {
         let mut hdrType: rlReturnVal_t = 0;
         /* Read message Header from given device index */
         hdrType = rlDriverRxHdrRead(
-            readBuf.tempBuf.as_mut_ptr(),
+            readBuf.tempBuf.as_ptr() as *mut _,
             (*rlDrvData).commDevIdx.comIfHdl[devIndex as usize],
         );
         /* if it's not CNYS pattern then calculate checksum before consuming or
          * forwarding to other core */
-        if 0x1 as libc::c_int == hdrType {
+        if 0x1 as core::ffi::c_int == hdrType {
             /* Verify Checksum, return value 0/-7 (RL_RET_CODE_CHKSUM_FAILED) */
             hdrRetVal = rlDriverValidateHdr(readBuf.syncHeader.protHdr);
             /* Received msg can be command/response/async_event
              * and it is destined to the same device where this mmWaveLink ir running
              */
-            if 0 as libc::c_int == hdrRetVal
-                && 0 as libc::c_int
+            if 0 as core::ffi::c_int == hdrRetVal
+                && 0 as core::ffi::c_int
                     == rlDriverOriginDirCheck(
                         (*rlDrvData).clientCtx.platform,
                         readBuf.syncHeader.protHdr.opcode.b4Direction() as rlUInt8_t,
                     )
             {
                 retVal = rlDriverRdVerifyMsg(readBuf, devIndex)
-            } else if 0 as libc::c_int == hdrRetVal {
-                (*rlDrvData).funcParams.rxMsgClass = 0x4 as libc::c_uint as rlUInt8_t;
+            } else if 0 as core::ffi::c_int == hdrRetVal {
+                (*rlDrvData).funcParams.rxMsgClass = 0x4 as core::ffi::c_uint as rlUInt8_t;
                 /* if rcvd data is not meant for the device where mmWaveLink is running,
                  * Then pass data to intended destination; Assumption: byPass of
                  * Data will happening in MSS only
@@ -2808,8 +2856,8 @@ pub unsafe extern "C" fn rlDriverMsgRead(
                 rl_rxMsg.syncPattern = readBuf.syncHeader.syncPattern;
                 rl_rxMsg.hdr = readBuf.syncHeader.protHdr;
                 /* this length includes the CRC field also */
-                payloadLen = (readBuf.syncHeader.protHdr.len as libc::c_int
-                    - 12 as libc::c_uint as rlUInt16_t as libc::c_int)
+                payloadLen = (readBuf.syncHeader.protHdr.len as core::ffi::c_int
+                    - 12 as core::ffi::c_uint as rlUInt16_t as core::ffi::c_int)
                     as rlUInt16_t;
                 /* read full data before writing to destination COMM handle */
                 if rl_driverData
@@ -2821,41 +2869,42 @@ pub unsafe extern "C" fn rlDriverMsgRead(
                     &mut *rl_rxMsg
                         .payload
                         .as_mut_ptr()
-                        .offset(0 as libc::c_int as isize),
+                        .offset(0 as core::ffi::c_int as isize),
                     payloadLen,
                 ) != payloadLen as rlInt32_t
                 {
                     /* Set error code if read is failed */
-                    retVal = -(4 as libc::c_int)
+                    retVal = -(4 as core::ffi::c_int)
                 } else {
                     /* Set as passed if data read returns zero */
-                    retVal = 0 as libc::c_int
+                    retVal = 0 as core::ffi::c_int
                 }
-            } else if -(7 as libc::c_int) == hdrRetVal
-                && rl_driverData.clientCtx.platform as libc::c_uint == 0 as libc::c_uint
+            } else if -(7 as core::ffi::c_int) == hdrRetVal
+                && rl_driverData.clientCtx.platform as core::ffi::c_uint == 0 as core::ffi::c_uint
             {
                 let mut dummyToFlushSpi: [rlUInt16_t; 8] = [
-                    0xffff as libc::c_int as rlUInt16_t,
-                    0xffff as libc::c_int as rlUInt16_t,
-                    0xffff as libc::c_int as rlUInt16_t,
-                    0xffff as libc::c_int as rlUInt16_t,
-                    0xffff as libc::c_int as rlUInt16_t,
-                    0xffff as libc::c_int as rlUInt16_t,
-                    0xffff as libc::c_int as rlUInt16_t,
-                    0xffff as libc::c_int as rlUInt16_t,
+                    0xffff as core::ffi::c_int as rlUInt16_t,
+                    0xffff as core::ffi::c_int as rlUInt16_t,
+                    0xffff as core::ffi::c_int as rlUInt16_t,
+                    0xffff as core::ffi::c_int as rlUInt16_t,
+                    0xffff as core::ffi::c_int as rlUInt16_t,
+                    0xffff as core::ffi::c_int as rlUInt16_t,
+                    0xffff as core::ffi::c_int as rlUInt16_t,
+                    0xffff as core::ffi::c_int as rlUInt16_t,
                 ];
                 let mut readCnt: rlUInt16_t = 0;
                 /* If checksum mismatched of the received message and link is running on
                 Host then it needs to flush the AWR device's MibSPI RAM so that MSS
                 can re-sync its buffer pointer */
                 /* Get the CRC Length what is configured */
-                let mut msgCrcLen: rlUInt16_t = ((2 as libc::c_uint)
-                    << (rl_driverData.clientCtx.crcType as libc::c_uint & 0x3 as libc::c_uint))
+                let mut msgCrcLen: rlUInt16_t = ((2 as core::ffi::c_uint)
+                    << (rl_driverData.clientCtx.crcType as core::ffi::c_uint
+                        & 0x3 as core::ffi::c_uint))
                     as rlUInt16_t;
                 /* Read 240 bytes from SPI buff to allign MSS SPI_RX DMA with HOST TX buff */
-                readCnt = 1 as libc::c_uint as rlUInt16_t;
-                while (readCnt as libc::c_uint)
-                    < (4 as libc::c_uint).wrapping_add(12 as libc::c_uint)
+                readCnt = 1 as core::ffi::c_uint as rlUInt16_t;
+                while (readCnt as core::ffi::c_uint)
+                    < (4 as core::ffi::c_uint).wrapping_add(12 as core::ffi::c_uint)
                 {
                     rl_driverData
                         .clientCtx
@@ -2865,14 +2914,15 @@ pub unsafe extern "C" fn rlDriverMsgRead(
                         (*rlDrvData).commDevIdx.comIfHdl[devIndex as usize],
                         &mut *dummyToFlushSpi
                             .as_mut_ptr()
-                            .offset(0 as libc::c_uint as isize)
+                            .offset(0 as core::ffi::c_uint as isize)
                             as *mut rlUInt16_t as *mut rlUInt8_t,
-                        (4 as libc::c_uint).wrapping_add(12 as libc::c_uint) as rlUInt16_t,
+                        (4 as core::ffi::c_uint).wrapping_add(12 as core::ffi::c_uint)
+                            as rlUInt16_t,
                     );
                     readCnt = readCnt.wrapping_add(1)
                 }
                 /* Check whether CRC is present read it from MibSPI buff */
-                if rl_txMsg.hdr.flags.b2Crc() as libc::c_uint == 0 as libc::c_uint {
+                if rl_txMsg.hdr.flags.b2Crc() as core::ffi::c_uint == 0 as core::ffi::c_uint {
                     /* Read remaining data to clear SPI buffer */
                     rl_driverData
                         .clientCtx
@@ -2882,14 +2932,14 @@ pub unsafe extern "C" fn rlDriverMsgRead(
                         (*rlDrvData).commDevIdx.comIfHdl[devIndex as usize],
                         &mut *dummyToFlushSpi
                             .as_mut_ptr()
-                            .offset(0 as libc::c_uint as isize)
+                            .offset(0 as core::ffi::c_uint as isize)
                             as *mut rlUInt16_t as *mut rlUInt8_t,
                         msgCrcLen,
                     );
                 }
                 /* In case Checksum of header is corrupted MMWL will create internal Async event
                 message to Notify the application about checksum failure */
-                rl_driverData.funcParams.rxMsgClass = 0x3 as libc::c_uint as rlUInt8_t;
+                rl_driverData.funcParams.rxMsgClass = 0x3 as core::ffi::c_uint as rlUInt8_t;
                 /* Set header Validate function return value to retVal */
                 retVal = hdrRetVal
             } else {
@@ -2901,7 +2951,7 @@ pub unsafe extern "C" fn rlDriverMsgRead(
                     .opcode
                     .b2MsgType() as rlUInt8_t
             }
-        } else if 0x2 as libc::c_int == hdrType {
+        } else if 0x2 as core::ffi::c_int == hdrType {
             /* In case mmWaveLink instance is running on MSS, it may receive CNYS from Host Over SPI */
             /* Check callback is assigned by the application */
             if rl_driverData.clientCtx.cmdParserCb.rlPostCnysStep.is_some() {
@@ -2913,13 +2963,13 @@ pub unsafe extern "C" fn rlDriverMsgRead(
                     .expect("non-null function pointer")(devIndex)
             } else {
                 /* Set error code if callback is NULL */
-                retVal = -(15 as libc::c_int)
+                retVal = -(15 as core::ffi::c_int)
             }
         } else {
             retVal = hdrType;
             /* If timeout for HostIRQ down then notify this to Host via AsyncEvent */
-            if hdrType == -(17 as libc::c_int) {
-                rl_driverData.funcParams.rxMsgClass = 0x3 as libc::c_uint as rlUInt8_t
+            if hdrType == -(17 as core::ffi::c_int) {
+                rl_driverData.funcParams.rxMsgClass = 0x3 as core::ffi::c_uint as rlUInt8_t
             } else {
                 /* In case CRC/Checksum is corrupted then store RxMsg Class with Async event */
                 rl_driverData.funcParams.rxMsgClass = (*(&mut readBuf.syncHeader.protHdr
@@ -2934,7 +2984,7 @@ pub unsafe extern "C" fn rlDriverMsgRead(
             .devCtrlCb
             .rlDeviceUnMaskHostIrq
             .is_some()
-            && retVal != -(9 as libc::c_int)
+            && retVal != -(9 as core::ffi::c_int)
         {
             /* Un Mask Interrupt */
             (*rlDrvData)
@@ -2968,7 +3018,7 @@ pub unsafe extern "C" fn rlDriverMsgWrite(
     let mut retVal: rlReturnVal_t = 0;
     /* check for NULL pointer */
     if !comIfHdl.is_null() && !rlDrvData.is_null() {
-        let mut checkSum: rlUInt16_t = 0 as libc::c_uint as rlUInt16_t;
+        let mut checkSum: rlUInt16_t = 0 as core::ffi::c_uint as rlUInt16_t;
         let mut msgCrcLen: rlUInt16_t = 0;
         let mut payloadLen: rlUInt16_t = 0;
         let mut tempLen: rlUInt16_t = 0;
@@ -2977,58 +3027,58 @@ pub unsafe extern "C" fn rlDriverMsgWrite(
         /*LDRA_INSPECTED 8 D */
         rlDriverCalChkSum(
             &mut rl_txMsg.hdr,
-            (12 as libc::c_uint).wrapping_sub(2 as libc::c_uint) as rlUInt8_t,
+            (12 as core::ffi::c_uint).wrapping_sub(2 as core::ffi::c_uint) as rlUInt8_t,
             &mut checkSum,
         );
         rl_txMsg.hdr.chksum = checkSum;
         /* get Payload length removing Header length from Msg Length */
-        payloadLen = (rl_txMsg.hdr.len as libc::c_int
-            - 12 as libc::c_uint as rlUInt16_t as libc::c_int) as rlUInt16_t;
+        payloadLen = (rl_txMsg.hdr.len as core::ffi::c_int
+            - 12 as core::ffi::c_uint as rlUInt16_t as core::ffi::c_int)
+            as rlUInt16_t;
         /* check for Data Direction to choose Sync Pattern */
-        if 0x4 as libc::c_uint == rl_txMsg.hdr.opcode.b4Direction() as libc::c_uint
-            || 0x6 as libc::c_uint == rl_txMsg.hdr.opcode.b4Direction() as libc::c_uint
-            || 0xc as libc::c_uint == rl_txMsg.hdr.opcode.b4Direction() as libc::c_uint
+        if 0x4 as core::ffi::c_uint == rl_txMsg.hdr.opcode.b4Direction() as core::ffi::c_uint
+            || 0x6 as core::ffi::c_uint == rl_txMsg.hdr.opcode.b4Direction() as core::ffi::c_uint
+            || 0xc as core::ffi::c_uint == rl_txMsg.hdr.opcode.b4Direction() as core::ffi::c_uint
         {
             /* set device to Host Sync Pattern */
-            rl_txMsg.syncPattern.sync1 = 0xdcba as libc::c_uint as rlUInt16_t;
-            rl_txMsg.syncPattern.sync2 = 0xabcd as libc::c_uint as rlUInt16_t
+            rl_txMsg.syncPattern.sync1 = 0xdcba as core::ffi::c_uint as rlUInt16_t;
+            rl_txMsg.syncPattern.sync2 = 0xabcd as core::ffi::c_uint as rlUInt16_t
         } else {
             /* set Host to device Sync Pattern */
-            rl_txMsg.syncPattern.sync1 = 0x1234 as libc::c_uint as rlUInt16_t;
-            rl_txMsg.syncPattern.sync2 = 0x4321 as libc::c_uint as rlUInt16_t
+            rl_txMsg.syncPattern.sync1 = 0x1234 as core::ffi::c_uint as rlUInt16_t;
+            rl_txMsg.syncPattern.sync2 = 0x4321 as core::ffi::c_uint as rlUInt16_t
         }
         /* Check if CRC is enabled, Calculate and update payload length*/
-        if rl_txMsg.hdr.flags.b2Crc() as libc::c_uint == 0 as libc::c_uint {
+        if rl_txMsg.hdr.flags.b2Crc() as core::ffi::c_uint == 0 as core::ffi::c_uint {
             /* It may be size 2/4/8 based on 16/32/64 bit */
-            msgCrcLen = ((2 as libc::c_uint)
-                << ((*rlDrvData).clientCtx.crcType as libc::c_uint & 0x3 as libc::c_uint))
+            msgCrcLen = ((2 as core::ffi::c_uint)
+                << ((*rlDrvData).clientCtx.crcType as core::ffi::c_uint & 0x3 as core::ffi::c_uint))
                 as rlUInt16_t;
             /* compute CRC */
             rlDriverCalCRC(
                 &mut rl_txMsg.hdr as *mut rlProtHeader_t as *mut rlUInt8_t,
-                (rl_txMsg.hdr.len as libc::c_int - msgCrcLen as libc::c_int) as rlUInt16_t,
+                (rl_txMsg.hdr.len as core::ffi::c_int - msgCrcLen as core::ffi::c_int)
+                    as rlUInt16_t,
                 (*rlDrvData).clientCtx.crcType,
                 (*rlDrvData).funcParams.msgCRC.as_mut_ptr(),
             );
             /* copy computed CRC to Tx Msg buffer */
             memcpy(
-                &mut *rl_txMsg
-                    .payload
-                    .as_mut_ptr()
-                    .offset((payloadLen as libc::c_int - msgCrcLen as libc::c_int) as isize)
-                    as *mut rlUInt8_t as *mut libc::c_void,
+                &mut *rl_txMsg.payload.as_mut_ptr().offset(
+                    (payloadLen as core::ffi::c_int - msgCrcLen as core::ffi::c_int) as isize,
+                ) as *mut rlUInt8_t as *mut core::ffi::c_void,
                 &mut *(*rlDrvData)
                     .funcParams
                     .msgCRC
                     .as_mut_ptr()
-                    .offset(0 as libc::c_int as isize) as *mut rlUInt8_t
-                    as *const libc::c_void,
+                    .offset(0 as core::ffi::c_int as isize) as *mut rlUInt8_t
+                    as *const core::ffi::c_void,
                 msgCrcLen as _,
             );
         }
-        tempLen = ((4 as libc::c_uint).wrapping_add(12 as libc::c_uint) as rlUInt16_t
-            as libc::c_int
-            + payloadLen as libc::c_int) as rlUInt16_t;
+        tempLen = ((4 as core::ffi::c_uint).wrapping_add(12 as core::ffi::c_uint) as rlUInt16_t
+            as core::ffi::c_int
+            + payloadLen as core::ffi::c_int) as rlUInt16_t;
         /* write Tx Msg to destination either over Mailbox internal to
         mmWave device or to External Host Over SPI */
         if rl_driverData
@@ -3042,14 +3092,14 @@ pub unsafe extern "C" fn rlDriverMsgWrite(
         ) != tempLen as rlInt32_t
         {
             /* set error code */
-            retVal = -(4 as libc::c_int)
+            retVal = -(4 as core::ffi::c_int)
         } else {
             /* set Error code as OK */
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         }
     } else {
         /* set error code if pointers are NULL */
-        retVal = -(9 as libc::c_int)
+        retVal = -(9 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -3073,12 +3123,12 @@ unsafe extern "C" fn rlDriverReceiveSync(
     mut syncBuf: *mut rlUInt8_t,
     mut syncType: *mut rlInt32_t,
 ) -> rlUInt8_t {
-    let mut count: rlUInt8_t = 0 as libc::c_int as rlUInt8_t;
+    let mut count: rlUInt8_t = 0 as core::ffi::c_int as rlUInt8_t;
     let mut retVal: rlInt32_t = 0;
     let mut recSyncPattern: rlSyncPattern_t = {
         let mut init = rlSyncPattern {
-            sync1: 0 as libc::c_uint as rlUInt16_t,
-            sync2: 0 as libc::c_uint as rlUInt16_t,
+            sync1: 0 as core::ffi::c_uint as rlUInt16_t,
+            sync2: 0 as core::ffi::c_uint as rlUInt16_t,
         };
         init
     };
@@ -3092,45 +3142,48 @@ unsafe extern "C" fn rlDriverReceiveSync(
             .rlComIfRead
             .expect("non-null function pointer")(
             comIfHdl,
-            &mut *syncBuf.offset(0 as libc::c_uint as isize),
-            4 as libc::c_uint as rlUInt16_t,
-        ) != 4 as libc::c_uint as rlInt32_t
+            &mut *syncBuf.offset(0 as core::ffi::c_uint as isize),
+            4 as core::ffi::c_uint as rlUInt16_t,
+        ) != 4 as core::ffi::c_uint as rlInt32_t
         {
             /* set error code */
-            errVal = -(4 as libc::c_int)
+            errVal = -(4 as core::ffi::c_int)
         } else {
             /* if SYNC pattern has been read properly then copy it */
             memcpy(
-                &mut recSyncPattern as *mut rlSyncPattern_t as *mut libc::c_void,
-                &mut *syncBuf.offset(0 as libc::c_uint as isize) as *mut rlUInt8_t
-                    as *const libc::c_void,
-                4 as libc::c_uint as _,
+                &mut recSyncPattern as *mut rlSyncPattern_t as *mut core::ffi::c_void,
+                &mut *syncBuf.offset(0 as core::ffi::c_uint as isize) as *mut rlUInt8_t
+                    as *const core::ffi::c_void,
+                4 as core::ffi::c_uint as _,
             );
-            errVal = 0 as libc::c_int
+            errVal = 0 as core::ffi::c_int
         }
-        retVal = 0 as libc::c_int;
+        retVal = 0 as core::ffi::c_int;
         /* Wait for SYNC_PATTERN from the device (when mmWaveLink is running on Ext Host*/
-        while retVal == 0 as libc::c_int && errVal == 0 as libc::c_int {
+        while retVal == 0 as core::ffi::c_int && errVal == 0 as core::ffi::c_int {
             /* check if matched with SYNC pattern Host-to-device or device-to-Host */
-            if recSyncPattern.sync1 as libc::c_uint == 0x1234 as libc::c_uint
-                && recSyncPattern.sync2 as libc::c_uint == 0x4321 as libc::c_uint
-                || recSyncPattern.sync1 as libc::c_uint == 0xdcba as libc::c_uint
-                    && recSyncPattern.sync2 as libc::c_uint == 0xabcd as libc::c_uint
+            if recSyncPattern.sync1 as core::ffi::c_uint == 0x1234 as core::ffi::c_uint
+                && recSyncPattern.sync2 as core::ffi::c_uint == 0x4321 as core::ffi::c_uint
+                || recSyncPattern.sync1 as core::ffi::c_uint == 0xdcba as core::ffi::c_uint
+                    && recSyncPattern.sync2 as core::ffi::c_uint == 0xabcd as core::ffi::c_uint
             {
                 /* set to SYNC Matched flag if H2D or D2H SYNC pattern is matching
                 for big/little endian data */
-                retVal = 0x1 as libc::c_int
-            } else if recSyncPattern.sync1 as libc::c_uint == 0x5678 as libc::c_uint
-                && recSyncPattern.sync2 as libc::c_uint == 0x8765 as libc::c_uint
+                retVal = 0x1 as core::ffi::c_int
+            } else if recSyncPattern.sync1 as core::ffi::c_uint == 0x5678 as core::ffi::c_uint
+                && recSyncPattern.sync2 as core::ffi::c_uint == 0x8765 as core::ffi::c_uint
             {
                 /* if mmwavelink running on device and connect to Host over SPI then
                 it may recieve CNYS to send data */
                 /* set to CNYS Matched flag if H2D CNYS pattern is matching
                 for big/little endian data */
-                retVal = 0x2 as libc::c_int
-            } else if count as libc::c_int >= 252 as libc::c_uint as rlUInt16_t as libc::c_int {
-                let mut crcLen: rlUInt16_t = ((2 as libc::c_uint)
-                    << (rl_driverData.clientCtx.crcType as libc::c_uint & 0x3 as libc::c_uint))
+                retVal = 0x2 as core::ffi::c_int
+            } else if count as core::ffi::c_int
+                >= 252 as core::ffi::c_uint as rlUInt16_t as core::ffi::c_int
+            {
+                let mut crcLen: rlUInt16_t = ((2 as core::ffi::c_uint)
+                    << (rl_driverData.clientCtx.crcType as core::ffi::c_uint
+                        & 0x3 as core::ffi::c_uint))
                     as rlUInt16_t;
                 /* check if count is beyond SYNC Scan threshold */
                 /* If pattern not found then read few extra bytes (CRC Len) to make
@@ -3141,20 +3194,20 @@ unsafe extern "C" fn rlDriverReceiveSync(
                     .rlComIfRead
                     .expect("non-null function pointer")(
                     comIfHdl,
-                    &mut *syncBuf.offset(4 as libc::c_uint as isize),
+                    &mut *syncBuf.offset(4 as core::ffi::c_uint as isize),
                     crcLen,
                 ) != crcLen as rlInt32_t
                 {
                     /* Set error code to terminate this loop */
-                    errVal += -(4 as libc::c_int)
+                    errVal += -(4 as core::ffi::c_int)
                 } else {
                     /* Set error code to terminate this loop */
-                    errVal += -(1 as libc::c_int)
+                    errVal += -(1 as core::ffi::c_int)
                 }
             } else {
                 /*  Read next 4 bytes to Low 4 bytes of buffer */
-                if 0 as libc::c_int as libc::c_uint
-                    == (count as libc::c_uint).wrapping_rem(4 as libc::c_uint)
+                if 0 as core::ffi::c_int as core::ffi::c_uint
+                    == (count as core::ffi::c_uint).wrapping_rem(4 as core::ffi::c_uint)
                 {
                     /* Read 4 bytes SYNC Pattern) */
                     if rl_driverData
@@ -3163,12 +3216,12 @@ unsafe extern "C" fn rlDriverReceiveSync(
                         .rlComIfRead
                         .expect("non-null function pointer")(
                         comIfHdl,
-                        &mut *syncBuf.offset(4 as libc::c_uint as isize),
-                        4 as libc::c_uint as rlUInt16_t,
-                    ) != 4 as libc::c_uint as rlInt32_t
+                        &mut *syncBuf.offset(4 as core::ffi::c_uint as isize),
+                        4 as core::ffi::c_uint as rlUInt16_t,
+                    ) != 4 as core::ffi::c_uint as rlInt32_t
                     {
                         /* Set error code to terminate this loop */
-                        errVal += -(4 as libc::c_int);
+                        errVal += -(4 as core::ffi::c_int);
                         break;
                     }
                 }
@@ -3176,22 +3229,23 @@ unsafe extern "C" fn rlDriverReceiveSync(
                 rlDriverShiftDWord(syncBuf);
                 /* copy data to recv sync pattern to compare further */
                 memcpy(
-                    &mut recSyncPattern as *mut rlSyncPattern_t as *mut libc::c_void,
-                    &mut *syncBuf.offset(0 as libc::c_uint as isize) as *mut rlUInt8_t
-                        as *const libc::c_void,
-                    4 as libc::c_uint as _,
+                    &mut recSyncPattern as *mut rlSyncPattern_t as *mut core::ffi::c_void,
+                    &mut *syncBuf.offset(0 as core::ffi::c_uint as isize) as *mut rlUInt8_t
+                        as *const core::ffi::c_void,
+                    4 as core::ffi::c_uint as _,
                 );
                 /* increment read counter */
                 count = count.wrapping_add(1)
             }
         }
-        if errVal == 0 as libc::c_int {
+        if errVal == 0 as core::ffi::c_int {
             *syncType = retVal
         } else {
             *syncType = errVal
         }
     }
-    count = (count as libc::c_uint).wrapping_rem(4 as libc::c_uint) as rlUInt8_t as rlUInt8_t;
+    count =
+        (count as core::ffi::c_uint).wrapping_rem(4 as core::ffi::c_uint) as rlUInt8_t as rlUInt8_t;
     return count;
 }
 /* * @fn rlReturnVal_t rlDriverRxHdrRead(rlUInt8_t hdrBuf[RHCP_HEADER_LEN], rlComIfHdl_t comIfHdl)
@@ -3218,32 +3272,32 @@ pub unsafe extern "C" fn rlDriverRxHdrRead(
      * it uses DMA to Rd/Wr DMA might have limitation of src/dest address
      * alignement
      */
-    let mut syncBuf: [rlUInt8_t; 8] = [0 as libc::c_uint as rlUInt8_t, 0, 0, 0, 0, 0, 0, 0];
+    let mut syncBuf: [rlUInt8_t; 8] = [0 as core::ffi::c_uint as rlUInt8_t, 0, 0, 0, 0, 0, 0, 0];
     /* This buffer contains CNYS pattern (4Bytes) and 12Bytes of dummy sequence.
       Host writes this buffer in response to Host-IRQ raised by AWR device to indicate
       that device can now write response/async event data to its SPI buffer which will
       be read by Host.
     */
     let mut cnysBuf: [rlUInt16_t; 8] = [
-        0x5678 as libc::c_uint as rlUInt16_t,
-        0x8765 as libc::c_uint as rlUInt16_t,
-        0xffff as libc::c_uint as rlUInt16_t,
-        0xffff as libc::c_uint as rlUInt16_t,
-        0xffff as libc::c_uint as rlUInt16_t,
-        0xffff as libc::c_uint as rlUInt16_t,
-        0xffff as libc::c_uint as rlUInt16_t,
-        0xffff as libc::c_uint as rlUInt16_t,
+        0x5678 as core::ffi::c_uint as rlUInt16_t,
+        0x8765 as core::ffi::c_uint as rlUInt16_t,
+        0xffff as core::ffi::c_uint as rlUInt16_t,
+        0xffff as core::ffi::c_uint as rlUInt16_t,
+        0xffff as core::ffi::c_uint as rlUInt16_t,
+        0xffff as core::ffi::c_uint as rlUInt16_t,
+        0xffff as core::ffi::c_uint as rlUInt16_t,
+        0xffff as core::ffi::c_uint as rlUInt16_t,
     ];
-    let mut syncType: rlInt32_t = 0 as libc::c_int;
+    let mut syncType: rlInt32_t = 0 as core::ffi::c_int;
     let mut syncCnt: rlUInt8_t = 0;
     let mut errVal: rlInt32_t = 0;
     /* check for NULL pointer */
     if comIfHdl.is_null() {
-        errVal = -(9 as libc::c_int);
+        errVal = -(9 as core::ffi::c_int);
         syncType += errVal
     } else {
         /* If mmWaveLink is running on Ext Host */
-        if rl_driverData.clientCtx.platform as libc::c_uint == 0 as libc::c_uint {
+        if rl_driverData.clientCtx.platform as core::ffi::c_uint == 0 as core::ffi::c_uint {
             /* Write CNYS pattern to mmWave Radar  */
             if rl_driverData
                 .clientCtx
@@ -3251,15 +3305,15 @@ pub unsafe extern "C" fn rlDriverRxHdrRead(
                 .rlComIfWrite
                 .expect("non-null function pointer")(
                 comIfHdl,
-                &mut *cnysBuf.as_mut_ptr().offset(0 as libc::c_uint as isize) as *mut rlUInt16_t
-                    as *mut rlUInt8_t,
-                (4 as libc::c_uint).wrapping_add(12 as libc::c_uint) as rlUInt16_t,
-            ) != (4 as libc::c_uint).wrapping_add(12 as libc::c_uint) as rlInt32_t
+                &mut *cnysBuf.as_mut_ptr().offset(0 as core::ffi::c_uint as isize)
+                    as *mut rlUInt16_t as *mut rlUInt8_t,
+                (4 as core::ffi::c_uint).wrapping_add(12 as core::ffi::c_uint) as rlUInt16_t,
+            ) != (4 as core::ffi::c_uint).wrapping_add(12 as core::ffi::c_uint) as rlInt32_t
             {
                 /* Set error code if data write function fails to write SYNC pattern */
-                errVal = -(4 as libc::c_int)
+                errVal = -(4 as core::ffi::c_int)
             } else {
-                errVal = 0 as libc::c_int
+                errVal = 0 as core::ffi::c_int
             }
             /* Need to wait till host Irq is down */
             /* Check if Host Irq Status can be polled, else use fixed delay */
@@ -3273,9 +3327,10 @@ pub unsafe extern "C" fn rlDriverRxHdrRead(
                     .devCtrlCb
                     .rlDeviceWaitIrqStatus
                     .expect("non-null function pointer")(
-                    comIfHdl, 0 as libc::c_uint as rlUInt8_t
-                ) != 0 as libc::c_int
-                && errVal == 0 as libc::c_int
+                    comIfHdl,
+                    0 as core::ffi::c_uint as rlUInt8_t,
+                ) != 0 as core::ffi::c_int
+                && errVal == 0 as core::ffi::c_int
             {
                 /* If IRQ polling timed out then re-write the CNYS pattern to mmwave Radar */
                 if rl_driverData
@@ -3284,22 +3339,23 @@ pub unsafe extern "C" fn rlDriverRxHdrRead(
                     .rlComIfWrite
                     .expect("non-null function pointer")(
                     comIfHdl,
-                    &mut *cnysBuf.as_mut_ptr().offset(0 as libc::c_uint as isize) as *mut rlUInt16_t
-                        as *mut rlUInt8_t,
-                    (4 as libc::c_uint).wrapping_add(12 as libc::c_uint) as rlUInt16_t,
-                ) != (4 as libc::c_uint).wrapping_add(12 as libc::c_uint) as rlInt32_t
+                    &mut *cnysBuf.as_mut_ptr().offset(0 as core::ffi::c_uint as isize)
+                        as *mut rlUInt16_t as *mut rlUInt8_t,
+                    (4 as core::ffi::c_uint).wrapping_add(12 as core::ffi::c_uint) as rlUInt16_t,
+                ) != (4 as core::ffi::c_uint).wrapping_add(12 as core::ffi::c_uint) as rlInt32_t
                 {
                     /* Set error code if data write function fails to write SYNC pattern */
-                    errVal += -(4 as libc::c_int)
+                    errVal += -(4 as core::ffi::c_int)
                 } else if rl_driverData
                     .clientCtx
                     .devCtrlCb
                     .rlDeviceWaitIrqStatus
                     .expect("non-null function pointer")(
-                    comIfHdl, 0 as libc::c_uint as rlUInt8_t
-                ) != 0 as libc::c_int
+                    comIfHdl,
+                    0 as core::ffi::c_uint as rlUInt8_t,
+                ) != 0 as core::ffi::c_int
                 {
-                    errVal += -(17 as libc::c_int)
+                    errVal += -(17 as core::ffi::c_int)
                 }
             } else if rl_driverData.clientCtx.timerCb.rlDelay.is_some() {
                 /* Check if Delay callback is present and invoke */
@@ -3308,39 +3364,39 @@ pub unsafe extern "C" fn rlDriverRxHdrRead(
                     .clientCtx
                     .timerCb
                     .rlDelay
-                    .expect("non-null function pointer")(1 as libc::c_uint);
+                    .expect("non-null function pointer")(1 as core::ffi::c_uint);
             }
         } else {
-            errVal = 0 as libc::c_int
+            errVal = 0 as core::ffi::c_int
         }
-        if errVal == 0 as libc::c_int {
+        if errVal == 0 as core::ffi::c_int {
             /* AR_CODE_REVIEW MR:D.4.7  <APPROVED> "syncCnt is used when pattern is matched to
             copy and read data" */
             /*LDRA_INSPECTED 91 D */
             syncCnt = rlDriverReceiveSync(
                 comIfHdl,
-                &mut *syncBuf.as_mut_ptr().offset(0 as libc::c_uint as isize),
+                &mut *syncBuf.as_mut_ptr().offset(0 as core::ffi::c_uint as isize),
                 &mut syncType,
             );
-            if 0x2 as libc::c_int == syncType || 0x1 as libc::c_int == syncType {
+            if 0x2 as core::ffi::c_int == syncType || 0x1 as core::ffi::c_int == syncType {
                 let mut tempLen: rlUInt16_t = 0;
                 let mut payloadBuf: *mut rlUInt8_t = 0 as *mut rlUInt8_t;
                 /* copying shifted data to hdrBuf */
-                payloadBuf =
-                    &mut *syncBuf.as_mut_ptr().offset(0 as libc::c_uint as isize) as *mut rlUInt8_t;
+                payloadBuf = &mut *syncBuf.as_mut_ptr().offset(0 as core::ffi::c_uint as isize)
+                    as *mut rlUInt8_t;
                 if !payloadBuf.is_null() {
                     /* AR_CODE_REVIEW MR:R.21.17 <INSPECTED> "Local array can't be null.
                     LDRA tool issue." */
                     /*LDRA_INSPECTED 140 D */
                     memcpy(
-                        &mut *hdrBuf.offset(0 as libc::c_int as isize) as *mut rlUInt8_t
-                            as *mut libc::c_void,
-                        payloadBuf as *const libc::c_void,
-                        (4 as libc::c_uint).wrapping_add(syncCnt as libc::c_uint) as _,
+                        &mut *hdrBuf.offset(0 as core::ffi::c_int as isize) as *mut rlUInt8_t
+                            as *mut core::ffi::c_void,
+                        payloadBuf as *const core::ffi::c_void,
+                        (4 as core::ffi::c_uint).wrapping_add(syncCnt as core::ffi::c_uint) as _,
                     );
                 }
-                tempLen = (12 as libc::c_uint)
-                    .wrapping_sub(0xff as libc::c_uint & syncCnt as libc::c_uint)
+                tempLen = (12 as core::ffi::c_uint)
+                    .wrapping_sub(0xff as core::ffi::c_uint & syncCnt as core::ffi::c_uint)
                     as rlUInt16_t;
                 /*  Here we've read Sync Pattern. Read the remaining header */
                 if rl_driverData
@@ -3349,12 +3405,14 @@ pub unsafe extern "C" fn rlDriverRxHdrRead(
                     .rlComIfRead
                     .expect("non-null function pointer")(
                     comIfHdl,
-                    &mut *hdrBuf
-                        .offset((4 as libc::c_uint).wrapping_add(syncCnt as libc::c_uint) as isize),
+                    &mut *hdrBuf.offset(
+                        (4 as core::ffi::c_uint).wrapping_add(syncCnt as core::ffi::c_uint)
+                            as isize,
+                    ),
                     tempLen,
                 ) != tempLen as rlInt32_t
                 {
-                    syncType += -(4 as libc::c_int)
+                    syncType += -(4 as core::ffi::c_int)
                 }
             }
         } else {
@@ -3385,7 +3443,7 @@ pub unsafe extern "C" fn rlDriverOsiInit() -> rlReturnVal_t {
         .rlOsiMutexCreate
         .expect("non-null function pointer")(
         &mut rl_driverData.globalMutex,
-        b"GlobalLockObj\x00" as *const u8 as *const libc::c_char as *mut rlInt8_t,
+        b"GlobalLockObj\x00" as *const u8 as *const core::ffi::c_char as *mut rlInt8_t,
     );
     /* Create Command Semaphore */
     funcRetVal += rl_driverData
@@ -3395,14 +3453,14 @@ pub unsafe extern "C" fn rlDriverOsiInit() -> rlReturnVal_t {
         .rlOsiSemCreate
         .expect("non-null function pointer")(
         &mut rl_driverData.cmdSem,
-        b"CmdSem\x00" as *const u8 as *const libc::c_char as *mut rlInt8_t,
+        b"CmdSem\x00" as *const u8 as *const core::ffi::c_char as *mut rlInt8_t,
     );
     /* check for above function call return value */
-    if funcRetVal != 0 as libc::c_int {
+    if funcRetVal != 0 as core::ffi::c_int {
         /* set error code */
-        retVal = -(10 as libc::c_int)
+        retVal = -(10 as core::ffi::c_int)
     } else {
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     }
     return retVal;
 }
@@ -3414,28 +3472,28 @@ unsafe extern "C" fn rlDriverOsiCbCheck(mut clientCb: rlClientCbs_t) -> rlReturn
         || clientCb.osiCb.mutex.rlOsiMutexUnLock.is_none()
         || clientCb.osiCb.mutex.rlOsiMutexDelete.is_none()
     {
-        retVal = -(15 as libc::c_int)
+        retVal = -(15 as core::ffi::c_int)
     } else if clientCb.osiCb.sem.rlOsiSemCreate.is_none()
         || clientCb.osiCb.sem.rlOsiSemWait.is_none()
         || clientCb.osiCb.sem.rlOsiSemSignal.is_none()
         || clientCb.osiCb.sem.rlOsiSemDelete.is_none()
     {
-        retVal = -(15 as libc::c_int)
+        retVal = -(15 as core::ffi::c_int)
     } else if ::core::mem::transmute::<
         Option<unsafe extern "C" fn(_: rlUInt8_t, _: rlUInt32_t) -> rlComIfHdl_t>,
-        *mut libc::c_void,
+        *mut core::ffi::c_void,
     >(clientCb.comIfCb.rlComIfOpen)
     .is_null()
         || clientCb.comIfCb.rlComIfClose.is_none()
         || clientCb.comIfCb.rlComIfRead.is_none()
         || clientCb.comIfCb.rlComIfWrite.is_none()
     {
-        retVal = -(15 as libc::c_int)
+        retVal = -(15 as core::ffi::c_int)
     } else {
         /* Check if application has passed semaphore interface functions */
         /* Check if application has passed communication interface functions */
         /* if no error then set return value as OK */
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     }
     return retVal;
 }
@@ -3450,28 +3508,28 @@ unsafe extern "C" fn rlDriverOsiCbCheck(mut clientCb: rlClientCbs_t) -> rlReturn
 */
 unsafe extern "C" fn rlDriverClientCbCheck(mut clientCb: rlClientCbs_t) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
-    if 0 as libc::c_int != rlDriverOsiCbCheck(clientCb) {
-        retVal = -(15 as libc::c_int)
+    if 0 as core::ffi::c_int != rlDriverOsiCbCheck(clientCb) {
+        retVal = -(15 as core::ffi::c_int)
     } else if clientCb.eventCb.rlAsyncEvent.is_none()
         || clientCb.devCtrlCb.rlDeviceDisable.is_none()
         || clientCb.devCtrlCb.rlDeviceEnable.is_none()
         || clientCb.devCtrlCb.rlDeviceMaskHostIrq.is_none()
     {
-        retVal = -(15 as libc::c_int)
-    } else if clientCb.platform as libc::c_uint == 0 as libc::c_uint
+        retVal = -(15 as core::ffi::c_int)
+    } else if clientCb.platform as core::ffi::c_uint == 0 as core::ffi::c_uint
         && (clientCb.devCtrlCb.rlDeviceWaitIrqStatus.is_none()
             && clientCb.timerCb.rlDelay.is_none())
         || clientCb.osiCb.queue.rlOsiSpawn.is_none()
     {
-        retVal = -(15 as libc::c_int)
+        retVal = -(15 as core::ffi::c_int)
     } else if clientCb.devCtrlCb.rlDeviceUnMaskHostIrq.is_none()
         || clientCb.devCtrlCb.rlRegisterInterruptHandler.is_none()
-        || 3 as libc::c_uint != clientCb.crcType as libc::c_uint
+        || 3 as core::ffi::c_uint != clientCb.crcType as core::ffi::c_uint
             && clientCb.crcCb.rlComputeCRC.is_none()
     {
-        retVal = -(15 as libc::c_int)
+        retVal = -(15 as core::ffi::c_int)
     } else {
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     }
     return retVal;
 }
@@ -3518,29 +3576,30 @@ pub unsafe extern "C" fn rlDriverInit(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     let mut cbCheck: rlReturnVal_t = 0;
-    let mut index: rlUInt8_t = 0 as libc::c_uint as rlUInt8_t;
+    let mut index: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
     /* check for all interface APIs passed by the Application */
     cbCheck = rlDriverClientCbCheck(clientCb);
-    if 0 as libc::c_int != cbCheck {
+    if 0 as core::ffi::c_int != cbCheck {
         retVal = cbCheck
-    } else if deviceMap as libc::c_uint
-        <= ((1 as libc::c_uint) << 4 as libc::c_uint).wrapping_sub(0x1 as libc::c_uint)
+    } else if deviceMap as core::ffi::c_uint
+        <= ((1 as core::ffi::c_uint) << 4 as core::ffi::c_uint)
+            .wrapping_sub(0x1 as core::ffi::c_uint)
     {
         /* Initialize Driver Global Data */
         /* Initialize Driver Global Data */
-        while (index as libc::c_uint) < 4 as libc::c_uint {
+        while (index as core::ffi::c_uint) < 4 as core::ffi::c_uint {
             ::core::ptr::write_volatile(
                 &mut rl_driverData.isCmdRespWaited[index as usize] as *mut rlUInt8_t,
-                0 as libc::c_uint as rlUInt8_t,
+                0 as core::ffi::c_uint as rlUInt8_t,
             );
-            rl_driverData.isRespWriteWaited[index as usize] = 0 as libc::c_uint as rlUInt8_t;
+            rl_driverData.isRespWriteWaited[index as usize] = 0 as core::ffi::c_uint as rlUInt8_t;
             ::core::ptr::write_volatile(
                 &mut rl_driverData.rxDoneCnt[index as usize] as *mut rlUInt8_t,
-                0 as libc::c_uint as rlUInt8_t,
+                0 as core::ffi::c_uint as rlUInt8_t,
             );
             ::core::ptr::write_volatile(
                 &mut rl_driverData.rxIrqCnt[index as usize] as *mut rlUInt8_t,
-                0 as libc::c_uint as rlUInt8_t,
+                0 as core::ffi::c_uint as rlUInt8_t,
             );
             index = index.wrapping_add(1)
         }
@@ -3549,21 +3608,22 @@ pub unsafe extern "C" fn rlDriverInit(
         /* Store deviceMap */
         rl_driverData.deviceMap = deviceMap;
         /* Set command retry count */
-        rl_driverData.retryCount = 3 as libc::c_uint as rlUInt8_t;
+        rl_driverData.retryCount = 3 as core::ffi::c_uint as rlUInt8_t;
         /* intialize and stitch all OS interfaces */
         retVal = rlDriverOsiInit();
         rl_driverData.txMsgPtr = &mut rl_txMsg;
         rl_driverData.rxMsgPtr = &mut rl_rxMsg;
-        index = 0 as libc::c_uint as rlUInt8_t;
+        index = 0 as core::ffi::c_uint as rlUInt8_t;
         loop
         /* If deviceIndex is set in devceMap requested by application */
         {
-            if deviceMap as libc::c_uint & (1 as libc::c_uint) << index as libc::c_int
-                != 0 as libc::c_uint
-                && retVal == 0 as libc::c_int
+            if deviceMap as core::ffi::c_uint
+                & (1 as core::ffi::c_uint) << index as core::ffi::c_int
+                != 0 as core::ffi::c_uint
+                && retVal == 0 as core::ffi::c_int
             {
                 /* reset to zero sequence number for that deviceIndex */
-                rl_driverData.cmdSeqNum[index as usize] = 0 as libc::c_uint as rlUInt16_t;
+                rl_driverData.cmdSeqNum[index as usize] = 0 as core::ffi::c_uint as rlUInt16_t;
                 /* store the deviceIndex in a global structure */
                 rl_driverData.commDevIdx.rlDevIndex[index as usize] = index;
                 /* Open communication interface handle */
@@ -3572,11 +3632,12 @@ pub unsafe extern "C" fn rlDriverInit(
                     .comIfCb
                     .rlComIfOpen
                     .expect("non-null function pointer")(
-                    index, 0 as libc::c_uint
+                    index, 0 as core::ffi::c_uint
                 );
                 /* check for NULL pointer */
-                if 0 as *mut libc::c_void == rl_driverData.commDevIdx.comIfHdl[index as usize] {
-                    retVal += -(4 as libc::c_int)
+                if 0 as *mut core::ffi::c_void == rl_driverData.commDevIdx.comIfHdl[index as usize]
+                {
+                    retVal += -(4 as core::ffi::c_int)
                 } else if rl_driverData
                     .clientCtx
                     .devCtrlCb
@@ -3584,41 +3645,41 @@ pub unsafe extern "C" fn rlDriverInit(
                     .expect("non-null function pointer")(
                     index,
                     ::core::mem::transmute::<
-                        Option<unsafe extern "C" fn(_: rlUInt8_t, _: *mut libc::c_void) -> ()>,
+                        Option<unsafe extern "C" fn(_: rlUInt8_t, _: *mut core::ffi::c_void) -> ()>,
                         RL_P_EVENT_HANDLER,
                     >(Some(
                         rlDriverHostIrqHandler
-                            as unsafe extern "C" fn(_: rlUInt8_t, _: *mut libc::c_void) -> (),
+                            as unsafe extern "C" fn(_: rlUInt8_t, _: *mut core::ffi::c_void) -> (),
                     )),
-                    0 as *mut libc::c_void,
-                ) != 0 as libc::c_int
+                    0 as *mut core::ffi::c_void,
+                ) != 0 as core::ffi::c_int
                 {
-                    retVal += -(4 as libc::c_int)
+                    retVal += -(4 as core::ffi::c_int)
                 }
                 /* Register Host Interrupt Handler */
                 /* Get next Device Map based on index */
-                deviceMap = (deviceMap as libc::c_uint
-                    & !((1 as libc::c_uint) << index as libc::c_int))
+                deviceMap = (deviceMap as core::ffi::c_uint
+                    & !((1 as core::ffi::c_uint) << index as core::ffi::c_int))
                     as rlUInt8_t;
                 /* check for any error */
-                if retVal != 0 as libc::c_int {
+                if retVal != 0 as core::ffi::c_int {
                     break;
                 }
             }
             /* increment Device Index */
             index = index.wrapping_add(1);
-            if !(deviceMap as libc::c_uint != 0 as libc::c_uint
-                && (index as libc::c_uint) < 4 as libc::c_uint)
+            if !(deviceMap as core::ffi::c_uint != 0 as core::ffi::c_uint
+                && (index as core::ffi::c_uint) < 4 as core::ffi::c_uint)
             {
                 break;
             }
         }
     } else {
-        retVal = -(2 as libc::c_int)
+        retVal = -(2 as core::ffi::c_int)
     }
     /* If no error during deviceInit then set the flag to 1 */
-    if retVal == 0 as libc::c_int {
-        rl_driverData.isDriverInitialized = 1 as libc::c_uint as rlUInt8_t
+    if retVal == 0 as core::ffi::c_int {
+        rl_driverData.isDriverInitialized = 1 as core::ffi::c_uint as rlUInt8_t
     }
     return retVal;
 }
@@ -3637,22 +3698,24 @@ pub unsafe extern "C" fn rlDriverInit(
 #[no_mangle]
 pub unsafe extern "C" fn rlDriverAddDevice(mut deviceMap: rlUInt8_t) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
-    let mut index: rlUInt8_t = 0 as libc::c_uint as rlUInt8_t;
-    if rl_driverData.isDriverInitialized as libc::c_int
-        != 0 as libc::c_uint as rlUInt8_t as libc::c_int
-        && deviceMap as libc::c_uint
-            <= ((1 as libc::c_uint) << 4 as libc::c_uint).wrapping_sub(0x1 as libc::c_uint)
+    let mut index: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
+    if rl_driverData.isDriverInitialized as core::ffi::c_int
+        != 0 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int
+        && deviceMap as core::ffi::c_uint
+            <= ((1 as core::ffi::c_uint) << 4 as core::ffi::c_uint)
+                .wrapping_sub(0x1 as core::ffi::c_uint)
     {
         /* Add to the global device map */
-        rl_driverData.deviceMap =
-            (rl_driverData.deviceMap as libc::c_int | deviceMap as libc::c_int) as rlUInt8_t;
+        rl_driverData.deviceMap = (rl_driverData.deviceMap as core::ffi::c_int
+            | deviceMap as core::ffi::c_int) as rlUInt8_t;
         loop {
             /* If deviceIndex is set in devceMap requested by application */
-            if deviceMap as libc::c_uint & (1 as libc::c_uint) << index as libc::c_int
-                != 0 as libc::c_uint
+            if deviceMap as core::ffi::c_uint
+                & (1 as core::ffi::c_uint) << index as core::ffi::c_int
+                != 0 as core::ffi::c_uint
             {
                 /* reset to zero sequence number for that deviceIndex */
-                rl_driverData.cmdSeqNum[index as usize] = 0 as libc::c_uint as rlUInt16_t;
+                rl_driverData.cmdSeqNum[index as usize] = 0 as core::ffi::c_uint as rlUInt16_t;
                 /* store the deviceIndex in a global structure */
                 rl_driverData.commDevIdx.rlDevIndex[index as usize] = index;
                 /* Open communication interface handle */
@@ -3661,9 +3724,10 @@ pub unsafe extern "C" fn rlDriverAddDevice(mut deviceMap: rlUInt8_t) -> rlReturn
                     .comIfCb
                     .rlComIfOpen
                     .expect("non-null function pointer")(
-                    index, 0 as libc::c_uint
+                    index, 0 as core::ffi::c_uint
                 );
-                if 0 as *mut libc::c_void != rl_driverData.commDevIdx.comIfHdl[index as usize] {
+                if 0 as *mut core::ffi::c_void != rl_driverData.commDevIdx.comIfHdl[index as usize]
+                {
                     /* register Interrupt handler */
                     if rl_driverData
                         .clientCtx
@@ -3672,53 +3736,59 @@ pub unsafe extern "C" fn rlDriverAddDevice(mut deviceMap: rlUInt8_t) -> rlReturn
                         .expect("non-null function pointer")(
                         index,
                         ::core::mem::transmute::<
-                            Option<unsafe extern "C" fn(_: rlUInt8_t, _: *mut libc::c_void) -> ()>,
+                            Option<
+                                unsafe extern "C" fn(_: rlUInt8_t, _: *mut core::ffi::c_void) -> (),
+                            >,
                             RL_P_EVENT_HANDLER,
                         >(Some(
                             rlDriverHostIrqHandler
-                                as unsafe extern "C" fn(_: rlUInt8_t, _: *mut libc::c_void) -> (),
+                                as unsafe extern "C" fn(
+                                    _: rlUInt8_t,
+                                    _: *mut core::ffi::c_void,
+                                ) -> (),
                         )),
-                        0 as *mut libc::c_void,
-                    ) != 0 as libc::c_int
+                        0 as *mut core::ffi::c_void,
+                    ) != 0 as core::ffi::c_int
                         || rl_driverData
                             .clientCtx
                             .devCtrlCb
                             .rlDeviceEnable
                             .expect("non-null function pointer")(index)
-                            < 0 as libc::c_int
+                            < 0 as core::ffi::c_int
                     {
                         /* set the error code */
-                        retVal = -(4 as libc::c_int)
+                        retVal = -(4 as core::ffi::c_int)
                     } else {
-                        retVal = 0 as libc::c_int
+                        retVal = 0 as core::ffi::c_int
                     }
                 } else {
-                    retVal = -(4 as libc::c_int)
+                    retVal = -(4 as core::ffi::c_int)
                 }
-                deviceMap = (deviceMap as libc::c_uint
-                    & !((1 as libc::c_uint) << index as libc::c_int))
+                deviceMap = (deviceMap as core::ffi::c_uint
+                    & !((1 as core::ffi::c_uint) << index as core::ffi::c_int))
                     as rlUInt8_t
             } else {
-                retVal = 0 as libc::c_int
+                retVal = 0 as core::ffi::c_int
             }
             /* break the loop if any error occured during above callbacks */
-            if 0 as libc::c_int != retVal {
+            if 0 as core::ffi::c_int != retVal {
                 break;
             }
             /* increment device index */
             index = index.wrapping_add(1);
-            if !(deviceMap as libc::c_uint != 0 as libc::c_uint
-                && (index as libc::c_uint) < 4 as libc::c_uint)
+            if !(deviceMap as core::ffi::c_uint != 0 as core::ffi::c_uint
+                && (index as core::ffi::c_uint) < 4 as core::ffi::c_uint)
             {
                 break;
             }
         }
-    } else if deviceMap as libc::c_uint
-        > ((1 as libc::c_uint) << 4 as libc::c_uint).wrapping_sub(0x1 as libc::c_uint)
+    } else if deviceMap as core::ffi::c_uint
+        > ((1 as core::ffi::c_uint) << 4 as core::ffi::c_uint)
+            .wrapping_sub(0x1 as core::ffi::c_uint)
     {
-        retVal = -(2 as libc::c_int)
+        retVal = -(2 as core::ffi::c_int)
     } else {
-        retVal = -(11 as libc::c_int)
+        retVal = -(11 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -3737,16 +3807,16 @@ pub unsafe extern "C" fn rlDriverAddDevice(mut deviceMap: rlUInt8_t) -> rlReturn
 #[no_mangle]
 pub unsafe extern "C" fn rlDriverRemoveDevices(mut deviceMap: rlUInt8_t) -> rlReturnVal_t {
     let mut index: rlUInt8_t = 0;
-    let mut retVal: rlReturnVal_t = 0 as libc::c_int;
+    let mut retVal: rlReturnVal_t = 0 as core::ffi::c_int;
     /* Clear the device map from driver data */
-    rl_driverData.deviceMap =
-        (rl_driverData.deviceMap as libc::c_int & !(deviceMap as libc::c_int)) as rlUInt8_t;
-    index = 0 as libc::c_uint as rlUInt8_t;
-    while deviceMap as libc::c_uint != 0 as libc::c_uint
-        && (index as libc::c_uint) < 4 as libc::c_uint
+    rl_driverData.deviceMap = (rl_driverData.deviceMap as core::ffi::c_int
+        & !(deviceMap as core::ffi::c_int)) as rlUInt8_t;
+    index = 0 as core::ffi::c_uint as rlUInt8_t;
+    while deviceMap as core::ffi::c_uint != 0 as core::ffi::c_uint
+        && (index as core::ffi::c_uint) < 4 as core::ffi::c_uint
     {
-        if deviceMap as libc::c_uint & (1 as libc::c_uint) << index as libc::c_int
-            != 0 as libc::c_uint
+        if deviceMap as core::ffi::c_uint & (1 as core::ffi::c_uint) << index as core::ffi::c_int
+            != 0 as core::ffi::c_uint
         {
             /* Close mmwave radar device communication Channel */
             if !rl_driverData.commDevIdx.comIfHdl[index as usize].is_null() {
@@ -3757,7 +3827,7 @@ pub unsafe extern "C" fn rlDriverRemoveDevices(mut deviceMap: rlUInt8_t) -> rlRe
                     .expect("non-null function pointer")(
                     rl_driverData.commDevIdx.comIfHdl[index as usize],
                 );
-                rl_driverData.commDevIdx.comIfHdl[index as usize] = 0 as *mut libc::c_void
+                rl_driverData.commDevIdx.comIfHdl[index as usize] = 0 as *mut core::ffi::c_void
             }
             /* Un Register Interrupt Handler */
             rl_driverData
@@ -3765,9 +3835,10 @@ pub unsafe extern "C" fn rlDriverRemoveDevices(mut deviceMap: rlUInt8_t) -> rlRe
                 .devCtrlCb
                 .rlRegisterInterruptHandler
                 .expect("non-null function pointer")(
-                index, None, 0 as *mut libc::c_void
+                index, None, 0 as *mut core::ffi::c_void
             );
-            deviceMap = (deviceMap as libc::c_uint & !((1 as libc::c_uint) << index as libc::c_int))
+            deviceMap = (deviceMap as core::ffi::c_uint
+                & !((1 as core::ffi::c_uint) << index as core::ffi::c_int))
                 as rlUInt8_t
         }
         index = index.wrapping_add(1)
@@ -3789,13 +3860,13 @@ pub unsafe extern "C" fn rlDriverRemoveDevices(mut deviceMap: rlUInt8_t) -> rlRe
 pub unsafe extern "C" fn rlDriverDeInit() -> rlReturnVal_t {
     let mut index: rlUInt8_t = 0;
     let mut deviceMap: rlUInt8_t = rl_driverData.deviceMap;
-    let mut retVal: rlReturnVal_t = 0 as libc::c_int;
-    index = 0 as libc::c_uint as rlUInt8_t;
-    while deviceMap as libc::c_uint != 0 as libc::c_uint
-        && (index as libc::c_uint) < 4 as libc::c_uint
+    let mut retVal: rlReturnVal_t = 0 as core::ffi::c_int;
+    index = 0 as core::ffi::c_uint as rlUInt8_t;
+    while deviceMap as core::ffi::c_uint != 0 as core::ffi::c_uint
+        && (index as core::ffi::c_uint) < 4 as core::ffi::c_uint
     {
-        if deviceMap as libc::c_uint & (1 as libc::c_uint) << index as libc::c_int
-            != 0 as libc::c_uint
+        if deviceMap as core::ffi::c_uint & (1 as core::ffi::c_uint) << index as core::ffi::c_int
+            != 0 as core::ffi::c_uint
         {
             /* Close mmwave radar device communication Channel */
             if !rl_driverData.commDevIdx.comIfHdl[index as usize].is_null() {
@@ -3806,7 +3877,7 @@ pub unsafe extern "C" fn rlDriverDeInit() -> rlReturnVal_t {
                     .expect("non-null function pointer")(
                     rl_driverData.commDevIdx.comIfHdl[index as usize],
                 );
-                rl_driverData.commDevIdx.comIfHdl[index as usize] = 0 as *mut libc::c_void
+                rl_driverData.commDevIdx.comIfHdl[index as usize] = 0 as *mut core::ffi::c_void
             }
             /* Un Register Interrupt Handler */
             rl_driverData
@@ -3814,9 +3885,10 @@ pub unsafe extern "C" fn rlDriverDeInit() -> rlReturnVal_t {
                 .devCtrlCb
                 .rlRegisterInterruptHandler
                 .expect("non-null function pointer")(
-                index, None, 0 as *mut libc::c_void
+                index, None, 0 as *mut core::ffi::c_void
             );
-            deviceMap = (deviceMap as libc::c_uint & !((1 as libc::c_uint) << index as libc::c_int))
+            deviceMap = (deviceMap as core::ffi::c_uint
+                & !((1 as core::ffi::c_uint) << index as core::ffi::c_int))
                 as rlUInt8_t
         }
         index = index.wrapping_add(1)
@@ -3829,7 +3901,7 @@ pub unsafe extern "C" fn rlDriverDeInit() -> rlReturnVal_t {
             .mutex
             .rlOsiMutexDelete
             .expect("non-null function pointer")(&mut rl_driverData.globalMutex);
-        rl_driverData.globalMutex = 0 as *mut libc::c_void
+        rl_driverData.globalMutex = 0 as *mut core::ffi::c_void
     }
     /* Destroy Command Semaphore */
     if !rl_driverData.cmdSem.is_null() {
@@ -3839,10 +3911,10 @@ pub unsafe extern "C" fn rlDriverDeInit() -> rlReturnVal_t {
             .sem
             .rlOsiSemDelete
             .expect("non-null function pointer")(&mut rl_driverData.cmdSem);
-        rl_driverData.cmdSem = 0 as *mut libc::c_void
+        rl_driverData.cmdSem = 0 as *mut core::ffi::c_void
     }
-    rl_driverData.deviceMap = 0 as libc::c_uint as rlUInt8_t;
-    rl_driverData.isDriverInitialized = 0 as libc::c_uint as rlUInt8_t;
+    rl_driverData.deviceMap = 0 as core::ffi::c_uint as rlUInt8_t;
+    rl_driverData.isDriverInitialized = 0 as core::ffi::c_uint as rlUInt8_t;
     return retVal;
 }
 /* * @fn rlDriverData_t* rlDriverGetHandle(void)
@@ -3908,13 +3980,14 @@ pub unsafe extern "C" fn rlDriverIsDeviceMapValid(mut deviceMap: rlUInt8_t) -> r
     let mut retVal: rlReturnVal_t = 0;
     /* get the no. of connected device */
     storedDevMap = rl_driverData.deviceMap;
-    if (storedDevMap as libc::c_int & deviceMap as libc::c_int) as libc::c_uint != 0 as libc::c_uint
+    if (storedDevMap as core::ffi::c_int & deviceMap as core::ffi::c_int) as core::ffi::c_uint
+        != 0 as core::ffi::c_uint
     {
         /* set return value to success */
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     } else {
         /* set return value to failure */
-        retVal = -(1 as libc::c_int)
+        retVal = -(1 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -3949,19 +4022,19 @@ pub unsafe extern "C" fn rlDriverWaitForResponse(
     let mut retVal: rlReturnVal_t = 0;
     let mut retVal1: rlReturnVal_t = 0;
     let mut indx: rlUInt16_t = 0;
-    let mut payloadLen: rlUInt8_t = 0 as libc::c_uint as rlUInt8_t;
+    let mut payloadLen: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
     loop {
         /* Wait for Host Interrupt and Read the Response */
         retVal1 = rlDriverMsgReadCmdCtx(devIndex);
-        if 0 as libc::c_int == retVal1 {
+        if 0 as core::ffi::c_int == retVal1 {
             /* Get number of chunks in the response */
             rspChunks = rl_rxMsg.hdr.remChunks;
             /* Check if Number of Sub Block doesn't exceed expected number */
-            if (*outMsg).opcode.nsbc as libc::c_int >= rl_rxMsg.hdr.nsbc as libc::c_int {
+            if (*outMsg).opcode.nsbc as core::ffi::c_int >= rl_rxMsg.hdr.nsbc as core::ffi::c_int {
                 (*outMsg).opcode.nsbc = rl_rxMsg.hdr.nsbc;
                 /* Loop for number of chunks and copy payload */
-                indx = 0 as libc::c_uint as rlUInt16_t;
-                while (indx as libc::c_int) < (*outMsg).opcode.nsbc as libc::c_int {
+                indx = 0 as core::ffi::c_uint as rlUInt16_t;
+                while (indx as core::ffi::c_int) < (*outMsg).opcode.nsbc as core::ffi::c_int {
                     /* Copy Payload to output variable*/
                     /* AR_CODE_REVIEW MR:R.18.4 <APPROVED> "pointer arithmetic required" */
                     /*LDRA_INSPECTED 87 S */
@@ -3969,33 +4042,33 @@ pub unsafe extern "C" fn rlDriverWaitForResponse(
                         rl_rxMsg
                             .payload
                             .as_mut_ptr()
-                            .offset(payloadLen as libc::c_int as isize),
+                            .offset(payloadLen as core::ffi::c_int as isize),
                         &mut (*(*outMsg).subblocks.offset(indx as isize)).sbid,
                         &mut (*(*outMsg).subblocks.offset(indx as isize)).len,
                         (*(*outMsg).subblocks.offset(indx as isize)).pSblkData,
                     );
-                    payloadLen = (payloadLen as libc::c_int
+                    payloadLen = (payloadLen as core::ffi::c_int
                         + (*(*outMsg).subblocks.offset(indx as isize)).len as rlUInt8_t
-                            as libc::c_int) as rlUInt8_t;
+                            as core::ffi::c_int) as rlUInt8_t;
                     indx = indx.wrapping_add(1)
                 }
             }
             retVal = retVal1
-        } else if -(13 as libc::c_int) == retVal1 {
+        } else if -(13 as core::ffi::c_int) == retVal1 {
             /* Number of Sub Block is unexpected. Error Case */
             /* AR_CODE_REVIEW MR:R.2.2  <APPROVED> "Values are used by called function.
             LDRA Tool Issue" */
             /*LDRA_INSPECTED 105 D */
             let mut errMsgSbData: rlErrorResp_t = {
                 let mut init = rlErrorResp {
-                    errorType: 0 as libc::c_uint as rlSysNRespType_t,
-                    sbcID: 0 as libc::c_uint as rlUInt16_t,
+                    errorType: 0 as core::ffi::c_uint as rlSysNRespType_t,
+                    sbcID: 0 as core::ffi::c_uint as rlUInt16_t,
                 };
                 init
             };
             /* Initialize with zero which will set with valid value in next function call */
-            errorSB.sbid = 0 as libc::c_uint as rlUInt16_t;
-            errorSB.len = 0 as libc::c_uint as rlUInt16_t;
+            errorSB.sbid = 0 as core::ffi::c_uint as rlUInt16_t;
+            errorSB.len = 0 as core::ffi::c_uint as rlUInt16_t;
             errorSB.pSblkData = &mut errMsgSbData as *mut rlErrorResp_t as *mut rlUInt8_t;
             /* Copy Payload to local variable*/
             /* AR_CODE_REVIEW MR:R.18.4 <APPROVED> "pointer arithmetic required" */
@@ -4004,20 +4077,20 @@ pub unsafe extern "C" fn rlDriverWaitForResponse(
                 rl_rxMsg
                     .payload
                     .as_mut_ptr()
-                    .offset(payloadLen as libc::c_int as isize),
+                    .offset(payloadLen as core::ffi::c_int as isize),
                 &mut errorSB.sbid,
                 &mut errorSB.len,
                 errorSB.pSblkData,
             );
             /* Return Error to indicate command failure */
             retVal = errMsgSbData.errorType as rlReturnVal_t;
-            rspChunks = 0 as libc::c_uint as rlUInt16_t
+            rspChunks = 0 as core::ffi::c_uint as rlUInt16_t
         } else {
             /* Timeout in receiving response*/
-            rspChunks = 0 as libc::c_uint as rlUInt16_t;
+            rspChunks = 0 as core::ffi::c_uint as rlUInt16_t;
             retVal = retVal1
         }
-        if !(rspChunks as libc::c_uint > 0 as libc::c_uint) {
+        if !(rspChunks as core::ffi::c_uint > 0 as core::ffi::c_uint) {
             break;
         }
     }
@@ -4028,13 +4101,14 @@ unsafe extern "C" fn rlDriverCmdWriter(
     mut outMsg: *mut rlDriverMsg_t,
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
-    let mut retryCount: rlUInt8_t = 0 as libc::c_uint as rlUInt8_t;
+    let mut retryCount: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
     let mut rlDrvData: *mut rlDriverData_t = rlDriverGetHandle();
-    let mut isPayloadValid: rlUInt8_t = 0 as libc::c_uint as rlUInt8_t;
-    let mut isNackRetry: rlUInt8_t = 0 as libc::c_uint as rlUInt8_t;
+    let mut isPayloadValid: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
+    let mut isNackRetry: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
     loop {
-        if retryCount as libc::c_uint != 0 as libc::c_uint
-            && isNackRetry as libc::c_int == 0 as libc::c_uint as rlUInt8_t as libc::c_int
+        if retryCount as core::ffi::c_uint != 0 as core::ffi::c_uint
+            && isNackRetry as core::ffi::c_int
+                == 0 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int
         {
             /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Global variable is used by
             other function" */
@@ -4044,17 +4118,17 @@ unsafe extern "C" fn rlDriverCmdWriter(
             (*(*rlDrvData).funcParams.cmd)
                 .hdr
                 .flags
-                .set_b2RetryFlag(0x3 as libc::c_uint as rlUInt16_t)
+                .set_b2RetryFlag(0x3 as core::ffi::c_uint as rlUInt16_t)
         }
         retryCount = retryCount.wrapping_add(1);
-        if (*rlDrvData).clientCtx.ackTimeout != 0 as libc::c_uint {
+        if (*rlDrvData).clientCtx.ackTimeout != 0 as core::ffi::c_uint {
             /* Set flag to true and check for it in Host IRQ  handler routine*/
             /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Global variable is used by
             other function" */
             /*LDRA_INSPECTED 105 D */
             ::core::ptr::write_volatile(
                 &mut (*rlDrvData).isCmdRespWaited[devIndex as usize] as *mut rlUInt8_t,
-                1 as libc::c_uint as rlUInt8_t,
+                1 as core::ffi::c_uint as rlUInt8_t,
             )
         }
         /* send the command to mmWave Radar device */
@@ -4062,66 +4136,69 @@ unsafe extern "C" fn rlDriverCmdWriter(
             rlDrvData,
             (*rlDrvData).commDevIdx.comIfHdl[devIndex as usize],
         );
-        if 0 as libc::c_int == retVal {
+        if 0 as core::ffi::c_int == retVal {
             /* Check if It needs to wait for ACK*/
-            if (*rlDrvData).clientCtx.ackTimeout != 0 as libc::c_uint {
+            if (*rlDrvData).clientCtx.ackTimeout != 0 as core::ffi::c_uint {
                 /* wait for respond */
                 retVal += rlDriverWaitForResponse(devIndex, outMsg)
             }
             /* Response received Successfully */
-            if 0 as libc::c_int == retVal
-                || -(6 as libc::c_int) != retVal && -(8 as libc::c_int) != retVal
+            if 0 as core::ffi::c_int == retVal
+                || -(6 as core::ffi::c_int) != retVal && -(8 as core::ffi::c_int) != retVal
             {
                 /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Global variable is used by
                 other function" */
                 /*LDRA_INSPECTED 105 D */
                 ::core::ptr::write_volatile(
                     &mut (*rlDrvData).isCmdRespWaited[devIndex as usize] as *mut rlUInt8_t,
-                    0 as libc::c_uint as rlUInt8_t,
+                    0 as core::ffi::c_uint as rlUInt8_t,
                 );
                 /* Increment the Sequence Number */
                 (*rlDrvData).cmdSeqNum[devIndex as usize] =
                     (*rlDrvData).cmdSeqNum[devIndex as usize].wrapping_add(1);
                 /* If device sends NACK then mmWaveLink needs to resend same
                 command with incremented seqNum but no RETRY-Flag */
-                if -(16 as libc::c_int) == retVal {
+                if -(16 as core::ffi::c_int) == retVal {
                     /* Set the flag */
-                    isNackRetry = 1 as libc::c_uint as rlUInt8_t;
+                    isNackRetry = 1 as core::ffi::c_uint as rlUInt8_t;
                     /* Modulo on cmdSeqNum (4Bits field) and fill Command Sequence Number */
                     /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Global variable is used
                     by other function" */
                     /*LDRA_INSPECTED 105 D */
                     /*LDRA_INSPECTED 8 D */
                     (*(*rlDrvData).funcParams.cmd).hdr.flags.set_b4SeqNum(
-                        ((*rlDrvData).cmdSeqNum[devIndex as usize] as libc::c_uint)
-                            .wrapping_rem(16 as libc::c_uint) as rlUInt16_t,
+                        ((*rlDrvData).cmdSeqNum[devIndex as usize] as core::ffi::c_uint)
+                            .wrapping_rem(16 as core::ffi::c_uint)
+                            as rlUInt16_t,
                     )
                 } else {
                     /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Set to TRUE for valid payload" */
                     /*LDRA_INSPECTED 8 D */
-                    isPayloadValid = 1 as libc::c_uint as rlUInt8_t;
+                    isPayloadValid = 1 as core::ffi::c_uint as rlUInt8_t;
                     /* Reset the flag */
-                    isNackRetry = 0 as libc::c_uint as rlUInt8_t
+                    isNackRetry = 0 as core::ffi::c_uint as rlUInt8_t
                 }
             } else {
                 /* if return value is not NACK_ERROR then reset this flag */
-                isNackRetry = 0 as libc::c_uint as rlUInt8_t
+                isNackRetry = 0 as core::ffi::c_uint as rlUInt8_t
             }
-            if !((retryCount as libc::c_uint)
-                < (rl_driverData.retryCount as libc::c_uint).wrapping_add(1 as libc::c_uint)
-                && isPayloadValid as libc::c_int == 0 as libc::c_uint as rlUInt8_t as libc::c_int)
+            if !((retryCount as core::ffi::c_uint)
+                < (rl_driverData.retryCount as core::ffi::c_uint)
+                    .wrapping_add(1 as core::ffi::c_uint)
+                && isPayloadValid as core::ffi::c_int
+                    == 0 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int)
             {
                 break;
             }
         } else {
             /* Error in command message write */
-            if (*rlDrvData).clientCtx.ackTimeout != 0 as libc::c_uint {
+            if (*rlDrvData).clientCtx.ackTimeout != 0 as core::ffi::c_uint {
                 /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Global variable is used by
                 other function" */
                 /*LDRA_INSPECTED 105 D */
                 ::core::ptr::write_volatile(
                     &mut (*rlDrvData).isCmdRespWaited[devIndex as usize] as *mut rlUInt8_t,
-                    0 as libc::c_uint as rlUInt8_t,
+                    0 as core::ffi::c_uint as rlUInt8_t,
                 )
             }
             break;
@@ -4149,20 +4226,22 @@ pub unsafe extern "C" fn rlDriverCmdSendRetry(
     mut outMsg: *mut rlDriverMsg_t,
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
-    let mut devIndex: rlUInt8_t = 0 as libc::c_uint as rlUInt8_t;
+    let mut devIndex: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
     let mut rlDrvData: *mut rlDriverData_t = rlDriverGetHandle();
     if rlDrvData.is_null() || (*rlDrvData).funcParams.cmd.is_null() {
-        retVal = -(9 as libc::c_int)
+        retVal = -(9 as core::ffi::c_int)
     } else {
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     }
     /* Send Command to Device connected and wait for response one by one */
     /* AR_CODE_REVIEW MR:D.2.1 <APPROVED> "This loop terminates when it sends commands to all
      * connected devices or when any of devices returns -ve response" */
     /*LDRA_INSPECTED 28 D */
-    while deviceMap as libc::c_uint != 0 as libc::c_uint && 0 as libc::c_int == retVal {
-        if deviceMap as libc::c_uint & (1 as libc::c_uint) << devIndex as libc::c_int
-            != 0 as libc::c_uint
+    while deviceMap as core::ffi::c_uint != 0 as core::ffi::c_uint
+        && 0 as core::ffi::c_int == retVal
+    {
+        if deviceMap as core::ffi::c_uint & (1 as core::ffi::c_uint) << devIndex as core::ffi::c_int
+            != 0 as core::ffi::c_uint
         {
             /* End of If */
             /* Fill Command Sequence Number */
@@ -4170,20 +4249,20 @@ pub unsafe extern "C" fn rlDriverCmdSendRetry(
             /*LDRA_INSPECTED 105 D */
             /*LDRA_INSPECTED 8 D */
             (*(*rlDrvData).funcParams.cmd).hdr.flags.set_b4SeqNum(
-                ((*rlDrvData).cmdSeqNum[devIndex as usize] as libc::c_uint)
-                    .wrapping_rem(16 as libc::c_uint) as rlUInt16_t,
+                ((*rlDrvData).cmdSeqNum[devIndex as usize] as core::ffi::c_uint)
+                    .wrapping_rem(16 as core::ffi::c_uint) as rlUInt16_t,
             );
             /* Write command to slave device */
             retVal += rlDriverCmdWriter(devIndex, outMsg);
-            deviceMap = (deviceMap as libc::c_uint
-                & !((1 as libc::c_uint) << devIndex as libc::c_int))
+            deviceMap = (deviceMap as core::ffi::c_uint
+                & !((1 as core::ffi::c_uint) << devIndex as core::ffi::c_int))
                 as rlUInt8_t
         }
         /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Global variable is used by other function" */
         /*LDRA_INSPECTED 105 D */
         ::core::ptr::write_volatile(
             &mut (*rlDrvData).isCmdRespWaited[devIndex as usize] as *mut rlUInt8_t,
-            0 as libc::c_uint as rlUInt8_t,
+            0 as core::ffi::c_uint as rlUInt8_t,
         );
         devIndex = devIndex.wrapping_add(1)
     }
@@ -4209,20 +4288,21 @@ unsafe extern "C" fn rlDriverAppendDummyByte() {
         .flags
         .set_b2CrcLen(rl_driverData.clientCtx.crcType as rlUInt16_t);
     /* It may be size 2/4/8 based on 16/32/64 bit */
-    msgCrcLen = ((2 as libc::c_uint)
-        << (rl_driverData.clientCtx.crcType as libc::c_uint & 0x3 as libc::c_uint))
+    msgCrcLen = ((2 as core::ffi::c_uint)
+        << (rl_driverData.clientCtx.crcType as core::ffi::c_uint & 0x3 as core::ffi::c_uint))
         as rlUInt16_t;
-    protAlignSize = if (rl_driverData.clientCtx.crcType as libc::c_uint) < 2 as libc::c_uint {
-        0x4 as libc::c_uint
-    } else {
-        0x8 as libc::c_uint
-    } as rlUInt8_t;
+    protAlignSize =
+        if (rl_driverData.clientCtx.crcType as core::ffi::c_uint) < 2 as core::ffi::c_uint {
+            0x4 as core::ffi::c_uint
+        } else {
+            0x8 as core::ffi::c_uint
+        } as rlUInt8_t;
     /* cmd pointer is assigned to rl_rxMsg, which can't be NULL as it's global structure. */
     if !rl_driverData.funcParams.cmd.is_null() {
         /* Add Padding Byte to payload - This is required before CRC calculation*/
-        if ((*rl_driverData.funcParams.cmd).hdr.len as libc::c_int % protAlignSize as libc::c_int)
-            as libc::c_uint
-            != 0 as libc::c_uint
+        if ((*rl_driverData.funcParams.cmd).hdr.len as core::ffi::c_int
+            % protAlignSize as core::ffi::c_int) as core::ffi::c_uint
+            != 0 as core::ffi::c_uint
         {
             /* AR_CODE_REVIEW MR:R.18.1,R.18.4 <APPROVED> "pointer arithmetic required" */
             /*LDRA_INSPECTED 567 S */
@@ -4232,25 +4312,25 @@ unsafe extern "C" fn rlDriverAppendDummyByte() {
             /*LDRA_INSPECTED 87 S */
             rlAppendDummy(
                 (rl_driverData.funcParams.cmd as *mut rlUInt8_t)
-                    .offset((*rl_driverData.funcParams.cmd).hdr.len as libc::c_int as isize)
-                    .offset(4 as libc::c_uint as isize),
-                (protAlignSize as libc::c_int
-                    - ((*rl_driverData.funcParams.cmd).hdr.len as libc::c_int
-                        % protAlignSize as libc::c_int) as rlUInt8_t
-                        as libc::c_int) as rlUInt8_t,
+                    .offset((*rl_driverData.funcParams.cmd).hdr.len as core::ffi::c_int as isize)
+                    .offset(4 as core::ffi::c_uint as isize),
+                (protAlignSize as core::ffi::c_int
+                    - ((*rl_driverData.funcParams.cmd).hdr.len as core::ffi::c_int
+                        % protAlignSize as core::ffi::c_int) as rlUInt8_t
+                        as core::ffi::c_int) as rlUInt8_t,
             );
             (*rl_driverData.funcParams.cmd).hdr.len = ((*rl_driverData.funcParams.cmd).hdr.len
-                as libc::c_int
-                + (protAlignSize as libc::c_int
-                    - ((*rl_driverData.funcParams.cmd).hdr.len as libc::c_int
-                        % protAlignSize as libc::c_int) as rlUInt16_t
-                        as libc::c_int) as rlUInt16_t as libc::c_int)
+                as core::ffi::c_int
+                + (protAlignSize as core::ffi::c_int
+                    - ((*rl_driverData.funcParams.cmd).hdr.len as core::ffi::c_int
+                        % protAlignSize as core::ffi::c_int) as rlUInt16_t
+                        as core::ffi::c_int) as rlUInt16_t as core::ffi::c_int)
                 as rlUInt16_t
         }
         /* add on crc length to header length field */
         (*rl_driverData.funcParams.cmd).hdr.len =
-            ((*rl_driverData.funcParams.cmd).hdr.len as libc::c_int + msgCrcLen as libc::c_int)
-                as rlUInt16_t
+            ((*rl_driverData.funcParams.cmd).hdr.len as core::ffi::c_int
+                + msgCrcLen as core::ffi::c_int) as rlUInt16_t
     };
 }
 /* * @fn rlReturnVal_t rlDriverCmdInvoke(rlUInt8_t deviceMap,
@@ -4279,12 +4359,12 @@ pub unsafe extern "C" fn rlDriverCmdInvoke(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     let mut indx: rlUInt16_t = 0;
-    let mut payloadLen: rlUInt16_t = 0 as libc::c_uint as rlUInt16_t;
-    if rl_driverData.isDriverInitialized as libc::c_int
-        != 0 as libc::c_uint as rlUInt8_t as libc::c_int
+    let mut payloadLen: rlUInt16_t = 0 as core::ffi::c_uint as rlUInt16_t;
+    if rl_driverData.isDriverInitialized as core::ffi::c_int
+        != 0 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int
     {
         /* If Mutex lock is failed then return with error code */
-        if 0 as libc::c_int
+        if 0 as core::ffi::c_int
             != rl_driverData
                 .clientCtx
                 .osiCb
@@ -4292,14 +4372,14 @@ pub unsafe extern "C" fn rlDriverCmdInvoke(
                 .rlOsiMutexLock
                 .expect("non-null function pointer")(
                 &mut rl_driverData.globalMutex,
-                0xffff as libc::c_uint,
+                0xffff as core::ffi::c_uint,
             )
         {
             /* If MutexLock returns non-zero then treat this as error and
             set error code to retVal */
-            retVal = -(10 as libc::c_int)
+            retVal = -(10 as core::ffi::c_int)
         } else {
-            let mut retVal1: rlReturnVal_t = 0 as libc::c_int;
+            let mut retVal1: rlReturnVal_t = 0 as core::ffi::c_int;
             /* Fill Command Header */
             /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Some of variables are re-assigned based
             on different conditions."*/
@@ -4313,8 +4393,8 @@ pub unsafe extern "C" fn rlDriverCmdInvoke(
                 .opcode
                 .set_b2MsgType(inMsg.opcode.msgType as rlUInt16_t);
             rl_txMsg.hdr.opcode.set_b10MsgId(
-                (rl_txMsg.hdr.opcode.b10MsgId() as libc::c_uint & 0 as libc::c_uint
-                    | inMsg.opcode.msgId as libc::c_uint & 0x3ff as libc::c_uint)
+                (rl_txMsg.hdr.opcode.b10MsgId() as core::ffi::c_uint & 0 as core::ffi::c_uint
+                    | inMsg.opcode.msgId as core::ffi::c_uint & 0x3ff as core::ffi::c_uint)
                     as rlUInt16_t,
             );
             rl_txMsg.hdr.remChunks = inMsg.remChunks;
@@ -4322,30 +4402,30 @@ pub unsafe extern "C" fn rlDriverCmdInvoke(
             rl_txMsg
                 .hdr
                 .flags
-                .set_b2AckFlag(0 as libc::c_uint as rlUInt16_t);
+                .set_b2AckFlag(0 as core::ffi::c_uint as rlUInt16_t);
             rl_txMsg
                 .hdr
                 .flags
-                .set_b2Crc(0 as libc::c_uint as rlUInt16_t);
+                .set_b2Crc(0 as core::ffi::c_uint as rlUInt16_t);
             rl_txMsg
                 .hdr
                 .flags
-                .set_b2CrcLen(0 as libc::c_uint as rlUInt16_t);
+                .set_b2CrcLen(0 as core::ffi::c_uint as rlUInt16_t);
             rl_txMsg
                 .hdr
                 .flags
-                .set_b2RetryFlag(0 as libc::c_uint as rlUInt16_t);
+                .set_b2RetryFlag(0 as core::ffi::c_uint as rlUInt16_t);
             rl_txMsg
                 .hdr
                 .flags
-                .set_b4SeqNum(0 as libc::c_uint as rlUInt16_t);
+                .set_b4SeqNum(0 as core::ffi::c_uint as rlUInt16_t);
             rl_txMsg
                 .hdr
                 .flags
-                .set_b4Version(0 as libc::c_uint as rlUInt16_t);
+                .set_b4Version(0 as core::ffi::c_uint as rlUInt16_t);
             /* Fill Payload */
-            indx = 0 as libc::c_uint as rlUInt16_t;
-            while (indx as libc::c_int) < inMsg.opcode.nsbc as libc::c_int {
+            indx = 0 as core::ffi::c_uint as rlUInt16_t;
+            while (indx as core::ffi::c_int) < inMsg.opcode.nsbc as core::ffi::c_int {
                 /* append all subblock len, id and data to one global structure */
                 retVal1 += rlAppendSubBlock(
                     &mut *rl_txMsg.payload.as_mut_ptr().offset(payloadLen as isize),
@@ -4354,41 +4434,43 @@ pub unsafe extern "C" fn rlDriverCmdInvoke(
                     (*inMsg.subblocks.offset(indx as isize)).pSblkData,
                 );
                 /* increment payload length as appending each sub-block data in a message */
-                payloadLen = (payloadLen as libc::c_int
-                    + ((*inMsg.subblocks.offset(indx as isize)).len as libc::c_int
-                        + (2 as libc::c_uint).wrapping_add(2 as libc::c_uint) as rlUInt16_t
-                            as libc::c_int)) as rlUInt16_t;
-                if 0 as libc::c_int != retVal1 {
+                payloadLen = (payloadLen as core::ffi::c_int
+                    + ((*inMsg.subblocks.offset(indx as isize)).len as core::ffi::c_int
+                        + (2 as core::ffi::c_uint).wrapping_add(2 as core::ffi::c_uint)
+                            as rlUInt16_t as core::ffi::c_int))
+                    as rlUInt16_t;
+                if 0 as core::ffi::c_int != retVal1 {
                     break;
                 }
                 indx = indx.wrapping_add(1)
             }
             /* if above for loop is not terminated due to any error */
-            if indx as libc::c_int == inMsg.opcode.nsbc as libc::c_int {
-                rl_txMsg.hdr.len =
-                    (12 as libc::c_uint).wrapping_add(payloadLen as libc::c_uint) as rlUInt16_t;
+            if indx as core::ffi::c_int == inMsg.opcode.nsbc as core::ffi::c_int {
+                rl_txMsg.hdr.len = (12 as core::ffi::c_uint)
+                    .wrapping_add(payloadLen as core::ffi::c_uint)
+                    as rlUInt16_t;
                 /* Update command and response buffers */
                 rl_driverData.funcParams.cmd = &mut rl_txMsg;
                 rl_driverData.funcParams.rsp = &mut rl_rxMsg;
                 /* Check if ACK is Requested*/
-                if rl_driverData.clientCtx.ackTimeout == 0 as libc::c_uint {
+                if rl_driverData.clientCtx.ackTimeout == 0 as core::ffi::c_uint {
                     /* No ACK Requested */
                     rl_txMsg
                         .hdr
                         .flags
-                        .set_b2AckFlag(0x3 as libc::c_uint as rlUInt16_t)
+                        .set_b2AckFlag(0x3 as core::ffi::c_uint as rlUInt16_t)
                 }
                 /* Check if CRC is required to be sent*/
-                if rl_driverData.clientCtx.crcType as libc::c_uint == 3 as libc::c_uint {
+                if rl_driverData.clientCtx.crcType as core::ffi::c_uint == 3 as core::ffi::c_uint {
                     /* CRC Not Included */
                     rl_txMsg
                         .hdr
                         .flags
-                        .set_b2Crc(0x3 as libc::c_uint as rlUInt16_t)
+                        .set_b2Crc(0x3 as core::ffi::c_uint as rlUInt16_t)
                 }
                 /* Append Dummy Bytes if CRC is present */
-                if (*rl_driverData.funcParams.cmd).hdr.flags.b2Crc() as libc::c_uint
-                    == 0 as libc::c_uint
+                if (*rl_driverData.funcParams.cmd).hdr.flags.b2Crc() as core::ffi::c_uint
+                    == 0 as core::ffi::c_uint
                 {
                     rlDriverAppendDummyByte();
                 }
@@ -4407,7 +4489,7 @@ pub unsafe extern "C" fn rlDriverCmdInvoke(
             }
         }
     } else {
-        retVal = -(11 as libc::c_int)
+        retVal = -(11 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -4424,13 +4506,13 @@ pub unsafe extern "C" fn rlDriverCmdInvoke(
 pub unsafe extern "C" fn rlDriverConfigureCrc(mut crcType: rlCrcType_t) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* Check if driver is initialized */
-    if rl_driverData.isDriverInitialized as libc::c_uint == 1 as libc::c_uint {
+    if rl_driverData.isDriverInitialized as core::ffi::c_uint == 1 as core::ffi::c_uint {
         /* Set CRC Type to global structure */
         rl_driverData.clientCtx.crcType = crcType;
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     } else {
         /* if driver is not initialized then return and error value */
-        retVal = -(11 as libc::c_int)
+        retVal = -(11 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -4449,13 +4531,13 @@ pub unsafe extern "C" fn rlDriverConfigureCrc(mut crcType: rlCrcType_t) -> rlRet
 pub unsafe extern "C" fn rlDriverConfigureAckTimeout(mut ackTimeout: rlUInt32_t) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* Check if driver is initialized */
-    if rl_driverData.isDriverInitialized as libc::c_uint == 1 as libc::c_uint {
+    if rl_driverData.isDriverInitialized as core::ffi::c_uint == 1 as core::ffi::c_uint {
         /* set ACK timeout to global structure */
         rl_driverData.clientCtx.ackTimeout = ackTimeout;
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     } else {
         /* if driver is not initialized then return and error value */
-        retVal = -(11 as libc::c_int)
+        retVal = -(11 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -4522,10 +4604,11 @@ pub unsafe extern "C" fn rlDriverConfigureAckTimeout(mut ackTimeout: rlUInt32_t)
 #[no_mangle]
 pub unsafe extern "C" fn rlGetLogFptr(mut dbgLevel: rlUInt8_t) -> rlPrintFptr {
     let mut retFuncPtr: rlPrintFptr = None;
-    if dbgLevel as libc::c_uint > 0 as libc::c_uint {
+    if dbgLevel as core::ffi::c_uint > 0 as core::ffi::c_uint {
         /* If debug level is valid the set debug function pointer */
-        retFuncPtr = rl_driverData.logObj.rlPrintAr
-            [(dbgLevel as libc::c_int - 1 as libc::c_uint as rlUInt8_t as libc::c_int) as usize]
+        retFuncPtr = rl_driverData.logObj.rlPrintAr[(dbgLevel as core::ffi::c_int
+            - 1 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int)
+            as usize]
     } else {
         /* If debug level is valid the set debug function pointer to NULL */
         retFuncPtr = None
@@ -4556,19 +4639,22 @@ pub unsafe extern "C" fn rlLogInit() -> rlReturnVal_t {
     fPtr = (*rlDrvData).clientCtx.dbgCb.rlPrint;
     /* check for Function pointer for NON-NULL */
     if fPtr.is_some() {
-        match level as libc::c_int {
+        match level as core::ffi::c_int {
             5 | 4 | 3 | 2 | 1 => {
                 idx = level;
-                while idx as libc::c_int > 0 as libc::c_uint as rlUInt8_t as libc::c_int {
-                    (*rlDrvData).logObj.rlPrintAr
-                        [(idx as libc::c_uint).wrapping_sub(1 as libc::c_uint) as usize] = fPtr;
+                while idx as core::ffi::c_int
+                    > 0 as core::ffi::c_uint as rlUInt8_t as core::ffi::c_int
+                {
+                    (*rlDrvData).logObj.rlPrintAr[(idx as core::ffi::c_uint)
+                        .wrapping_sub(1 as core::ffi::c_uint)
+                        as usize] = fPtr;
                     idx = idx.wrapping_sub(1)
                 }
             }
             0 => {
                 fPtr.expect("non-null function pointer")(
                     b"INFO: MMWAVELINK Logging is disabled\n\x00" as *const u8
-                        as *const libc::c_char,
+                        as *const core::ffi::c_char,
                 );
                 /* reset all function pointers to NULL */
                 memset(
@@ -4576,33 +4662,33 @@ pub unsafe extern "C" fn rlLogInit() -> rlReturnVal_t {
                         .logObj
                         .rlPrintAr
                         .as_mut_ptr()
-                        .offset(0 as libc::c_int as isize) as *mut rlPrintFptr
-                        as *mut libc::c_void,
-                    0 as libc::c_uint as libc::c_int,
+                        .offset(0 as core::ffi::c_int as isize)
+                        as *mut rlPrintFptr as *mut core::ffi::c_void,
+                    0 as core::ffi::c_uint as core::ffi::c_int,
                     ::core::mem::size_of::<rlLogCtx_t>() as _,
                 );
             }
             _ => {
                 fPtr.expect("non-null function pointer")(
                     b"INFO: Invalid MMWAVELINK Logging, hence disbled\n\x00" as *const u8
-                        as *const libc::c_char,
+                        as *const core::ffi::c_char,
                 );
                 /* if dbgLevel is set beyond expected value then assign NONE */
-                (*rlDrvData).clientCtx.dbgCb.dbgLevel = 0 as libc::c_uint as rlUInt8_t;
+                (*rlDrvData).clientCtx.dbgCb.dbgLevel = 0 as core::ffi::c_uint as rlUInt8_t;
                 /* reset all function pointers to NULL */
                 memset(
                     &mut *(*rlDrvData)
                         .logObj
                         .rlPrintAr
                         .as_mut_ptr()
-                        .offset(0 as libc::c_int as isize) as *mut rlPrintFptr
-                        as *mut libc::c_void,
-                    0 as libc::c_uint as libc::c_int,
+                        .offset(0 as core::ffi::c_int as isize)
+                        as *mut rlPrintFptr as *mut core::ffi::c_void,
+                    0 as core::ffi::c_uint as core::ffi::c_int,
                     ::core::mem::size_of::<rlLogCtx_t>() as _,
                 );
             }
         }
-        retVal = 0 as libc::c_int
+        retVal = 0 as core::ffi::c_int
     } else {
         /* reset all function pointers to NULL */
         memset(
@@ -4610,12 +4696,12 @@ pub unsafe extern "C" fn rlLogInit() -> rlReturnVal_t {
                 .logObj
                 .rlPrintAr
                 .as_mut_ptr()
-                .offset(0 as libc::c_int as isize) as *mut rlPrintFptr
-                as *mut libc::c_void,
-            0 as libc::c_uint as libc::c_int,
+                .offset(0 as core::ffi::c_int as isize) as *mut rlPrintFptr
+                as *mut core::ffi::c_void,
+            0 as core::ffi::c_uint as core::ffi::c_int,
             ::core::mem::size_of::<rlLogCtx_t>() as _,
         );
-        retVal = -(15 as libc::c_int)
+        retVal = -(15 as core::ffi::c_int)
     }
     return retVal;
 }
@@ -4641,10 +4727,10 @@ pub unsafe extern "C" fn rlDriverConstructInMsg(
     if !inMsg.is_null() {
         let mut cmdDir: rlUInt8_t = 0;
         /* Set Command Header Opcode */
-        (*inMsg).opcode.nsbc = 1 as libc::c_uint as rlUInt16_t;
-        (*inMsg).opcode.msgType = 0 as libc::c_uint as rlUInt8_t;
+        (*inMsg).opcode.nsbc = 1 as core::ffi::c_uint as rlUInt16_t;
+        (*inMsg).opcode.msgType = 0 as core::ffi::c_uint as rlUInt8_t;
         (*inMsg).opcode.msgId = msgId;
-        (*inMsg).remChunks = 0 as libc::c_uint as rlUInt16_t;
+        (*inMsg).remChunks = 0 as core::ffi::c_uint as rlUInt16_t;
         /* get command direction based on requested MsgId */
         cmdDir = rlDeviceIdentifyCmdDir(msgId, rlDriverGetPlatformId());
         (*inMsg).opcode.dir = cmdDir;
@@ -4701,9 +4787,9 @@ pub unsafe extern "C" fn rlDriverFillPayload(
     /* check for NULL pointer */
     if !payloadPtr.is_null() {
         /* get Unique Sub-Block ID and asign it to Command Sub Block */
-        (*payloadPtr).sbid = (msgId as libc::c_uint)
-            .wrapping_mul(32 as libc::c_uint)
-            .wrapping_add(sbcID as libc::c_uint) as rlUInt16_t;
+        (*payloadPtr).sbid = (msgId as core::ffi::c_uint)
+            .wrapping_mul(32 as core::ffi::c_uint)
+            .wrapping_add(sbcID as core::ffi::c_uint) as rlUInt16_t;
         /* set Command Sub-block length to sizeof command strcuture type */
         (*payloadPtr).len = inLen;
         /* set sub-block data pointer to payload structure */
@@ -4739,7 +4825,7 @@ pub unsafe extern "C" fn rlDriverExecuteGetApi(
         let mut init = rlDriverMsg {
             opcode: {
                 let mut init = rlDriverOpcode {
-                    dir: 0 as libc::c_int as rlUInt8_t,
+                    dir: 0 as core::ffi::c_int as rlUInt8_t,
                     msgType: 0,
                     msgId: 0,
                     nsbc: 0,
@@ -4758,7 +4844,7 @@ pub unsafe extern "C" fn rlDriverExecuteGetApi(
         let mut init = rlDriverMsg {
             opcode: {
                 let mut init = rlDriverOpcode {
-                    dir: 0 as libc::c_int as rlUInt8_t,
+                    dir: 0 as core::ffi::c_int as rlUInt8_t,
                     msgType: 0,
                     msgId: 0,
                     nsbc: 0,
@@ -4773,7 +4859,7 @@ pub unsafe extern "C" fn rlDriverExecuteGetApi(
     /* Initialize in-payload sub-block structure to zero */
     let mut inPayloadSb: rlPayloadSb_t = {
         let mut init = rlPayloadSb {
-            sbid: 0 as libc::c_int as rlUInt16_t,
+            sbid: 0 as core::ffi::c_int as rlUInt16_t,
             len: 0,
             pSblkData: 0 as *mut rlUInt8_t,
         };
@@ -4782,7 +4868,7 @@ pub unsafe extern "C" fn rlDriverExecuteGetApi(
     /* Initialize out-payload sub-block structure to zero */
     let mut outPayloadSb: rlPayloadSb_t = {
         let mut init = rlPayloadSb {
-            sbid: 0 as libc::c_int as rlUInt16_t,
+            sbid: 0 as core::ffi::c_int as rlUInt16_t,
             len: 0,
             pSblkData: 0 as *mut rlUInt8_t,
         };
@@ -4800,11 +4886,11 @@ pub unsafe extern "C" fn rlDriverExecuteGetApi(
         sbcID,
         &mut inPayloadSb,
         0 as *mut rlUInt8_t,
-        0 as libc::c_uint as rlUInt16_t,
+        0 as core::ffi::c_uint as rlUInt16_t,
     );
     /* Construct response packet */
     rlDriverConstructOutMsg(
-        1 as libc::c_uint as rlUInt16_t,
+        1 as core::ffi::c_uint as rlUInt16_t,
         &mut outMsg,
         &mut outPayloadSb,
     );
@@ -4812,8 +4898,8 @@ pub unsafe extern "C" fn rlDriverExecuteGetApi(
     /* AR_CODE_REVIEW MR:R.2.2 <APPROVED> "Values are used by called function. LDRA Tool Issue" */
     /*LDRA_INSPECTED 105 D */
     rlDriverFillPayload(
-        0 as libc::c_uint as rlUInt16_t,
-        0 as libc::c_uint as rlUInt16_t,
+        0 as core::ffi::c_uint as rlUInt16_t,
+        0 as core::ffi::c_uint as rlUInt16_t,
         &mut outPayloadSb,
         msgData,
         inLen,
@@ -4852,7 +4938,7 @@ pub unsafe extern "C" fn rlDriverExecuteSetApi(
         let mut init = rlDriverMsg {
             opcode: {
                 let mut init = rlDriverOpcode {
-                    dir: 0 as libc::c_int as rlUInt8_t,
+                    dir: 0 as core::ffi::c_int as rlUInt8_t,
                     msgType: 0,
                     msgId: 0,
                     nsbc: 0,
@@ -4869,7 +4955,7 @@ pub unsafe extern "C" fn rlDriverExecuteSetApi(
         let mut init = rlDriverMsg {
             opcode: {
                 let mut init = rlDriverOpcode {
-                    dir: 0 as libc::c_int as rlUInt8_t,
+                    dir: 0 as core::ffi::c_int as rlUInt8_t,
                     msgType: 0,
                     msgId: 0,
                     nsbc: 0,
@@ -4884,7 +4970,7 @@ pub unsafe extern "C" fn rlDriverExecuteSetApi(
     /* Initialize in-payload sub-block structure to zero */
     let mut inPayloadSb: rlPayloadSb_t = {
         let mut init = rlPayloadSb {
-            sbid: 0 as libc::c_int as rlUInt16_t,
+            sbid: 0 as core::ffi::c_int as rlUInt16_t,
             len: 0,
             pSblkData: 0 as *mut rlUInt8_t,
         };
@@ -4920,20 +5006,20 @@ pub unsafe extern "C" fn rlDriverExecuteSetApi(
 pub unsafe extern "C" fn rlDriverSetRetryCount(mut retryCnt: rlUInt8_t) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* Check if driver is initialized */
-    if rl_driverData.isDriverInitialized as libc::c_uint == 1 as libc::c_uint {
-        if retryCnt as libc::c_uint <= 3 as libc::c_uint {
+    if rl_driverData.isDriverInitialized as core::ffi::c_uint == 1 as core::ffi::c_uint {
+        if retryCnt as core::ffi::c_uint <= 3 as core::ffi::c_uint {
             /* set command retry count to global structure */
             rl_driverData.retryCount = retryCnt;
-            retVal = 0 as libc::c_int
+            retVal = 0 as core::ffi::c_int
         } else {
             /* Retry count can be set to max pre-defined value,
              * else return an error
              */
-            retVal = -(2 as libc::c_int)
+            retVal = -(2 as core::ffi::c_int)
         }
     } else {
         /* if driver is not initialized then return and error value */
-        retVal = -(11 as libc::c_int)
+        retVal = -(11 as core::ffi::c_int)
     }
     return retVal;
 }
