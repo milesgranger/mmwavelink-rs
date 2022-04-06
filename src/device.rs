@@ -7,14 +7,14 @@
     unused_assignments,
     unused_mut
 )]
-#![register_tool(c2rust)]
-#![feature(register_tool)]
 use c2rust_bitfields::BitfieldStruct;
 
 use crate::driver::{
-    rlDriverCmdInvoke, rlDriverConstructInMsg, rlDriverDeInit, rlDriverExecuteGetApi,
+    rlClientCbs, rlDriverAddDevice, rlDriverCmdInvoke, rlDriverConfigureAckTimeout,
+    rlDriverConfigureCrc, rlDriverConstructInMsg, rlDriverDeInit, rlDriverExecuteGetApi,
     rlDriverExecuteSetApi, rlDriverFillPayload, rlDriverGetHandle, rlDriverGetPlatformId,
-    rlDriverInit, rlDriverIsDeviceMapValid, rlDriverRemoveDevices, rlDriverAddDevice, rlDriverMsg, rlPayloadSb, rlDriverOpcode, rlClientCbs,
+    rlDriverInit, rlDriverIsDeviceMapValid, rlDriverMsg, rlDriverOpcode, rlDriverRemoveDevices,
+    rlDriverSetRetryCount, rlPayloadSb,
 };
 
 pub type rlUInt8_t = libc::c_uchar;
@@ -1441,7 +1441,6 @@ pub struct rlAsyncEvt {
     pub evtMsg: rlRhcpMsg_t,
 }
 
-
 /* *
  * @brief  Message Direction
  */
@@ -2633,17 +2632,17 @@ pub unsafe extern "C" fn rlDeviceSetHsiConfig(
 ) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     /* Initialize Command and Response Sub Blocks */
-    let mut inMsg: rlDriverMsg_t = rlDriverMsg_t {
-        opcode: rlDriverOpcode_t {
+    let mut inMsg = rlDriverMsg {
+        opcode: rlDriverOpcode {
             dir: 0,
             msgType: 0,
             msgId: 0,
             nsbc: 0,
         },
-        subblocks: 0 as *mut rlPayloadSb_t,
+        subblocks: 0 as *mut _,
         remChunks: 0,
     };
-    let mut outMsg: rlDriverMsg_t = {
+    let mut outMsg = {
         let mut init = rlDriverMsg {
             opcode: {
                 let mut init = rlDriverOpcode {
@@ -2654,14 +2653,14 @@ pub unsafe extern "C" fn rlDeviceSetHsiConfig(
                 };
                 init
             },
-            subblocks: 0 as *mut rlPayloadSb_t,
+            subblocks: 0 as *mut _,
             remChunks: 0,
         };
         init
     };
     let mut sbcCnt: rlUInt16_t = 0 as libc::c_uint as rlUInt16_t;
     /* Initialize Command and Response Sub Blocks */
-    let mut inPayloadSb: [rlPayloadSb_t; 3] = [
+    let mut inPayloadSb: [rlPayloadSb; 3] = [
         {
             let mut init = rlPayloadSb {
                 sbid: 0 as libc::c_int as rlUInt16_t,
@@ -2670,12 +2669,12 @@ pub unsafe extern "C" fn rlDeviceSetHsiConfig(
             };
             init
         },
-        rlPayloadSb_t {
+        rlPayloadSb {
             sbid: 0,
             len: 0,
             pSblkData: 0 as *mut rlUInt8_t,
         },
-        rlPayloadSb_t {
+        rlPayloadSb {
             sbid: 0,
             len: 0,
             pSblkData: 0 as *mut rlUInt8_t,
