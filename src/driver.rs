@@ -9,6 +9,7 @@
 )]
 
 use c2rust_bitfields::BitfieldStruct;
+use rtt_target::{rprintln as println};
 
 pub unsafe extern "C" fn memcpy(
     dest: *mut core::ffi::c_void,
@@ -3509,6 +3510,7 @@ unsafe extern "C" fn rlDriverOsiCbCheck(mut clientCb: rlClientCbs_t) -> rlReturn
 unsafe extern "C" fn rlDriverClientCbCheck(mut clientCb: rlClientCbs_t) -> rlReturnVal_t {
     let mut retVal: rlReturnVal_t = 0;
     if 0 as core::ffi::c_int != rlDriverOsiCbCheck(clientCb) {
+        println!("rlDriverOsiCbCheck failed");
         retVal = -(15 as core::ffi::c_int)
     } else if clientCb.eventCb.rlAsyncEvent.is_none()
         || clientCb.devCtrlCb.rlDeviceDisable.is_none()
@@ -3579,6 +3581,7 @@ pub unsafe extern "C" fn rlDriverInit(
     let mut index: rlUInt8_t = 0 as core::ffi::c_uint as rlUInt8_t;
     /* check for all interface APIs passed by the Application */
     cbCheck = rlDriverClientCbCheck(clientCb);
+    println!("rlDriverClientCbCheck: {}", &cbCheck);
     if 0 as core::ffi::c_int != cbCheck {
         retVal = cbCheck
     } else if deviceMap as core::ffi::c_uint
@@ -3611,6 +3614,7 @@ pub unsafe extern "C" fn rlDriverInit(
         rl_driverData.retryCount = 3 as core::ffi::c_uint as rlUInt8_t;
         /* intialize and stitch all OS interfaces */
         retVal = rlDriverOsiInit();
+        println!("Passed rlDriverOsiInit");
         rl_driverData.txMsgPtr = &mut rl_txMsg;
         rl_driverData.rxMsgPtr = &mut rl_rxMsg;
         index = 0 as core::ffi::c_uint as rlUInt8_t;
